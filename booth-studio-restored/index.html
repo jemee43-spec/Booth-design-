@@ -1,0 +1,2549 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5">
+<title>BOOTH STUDIO</title>
+<meta name="application-name" content="BOOTH STUDIO">
+<meta name="apple-mobile-web-app-title" content="BOOTH STUDIO">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0C0C0A">
+<meta name="format-detection" content="telephone=no">
+<style>
+  :root{
+    --primary:#6CBE45; --primary-dark:#4E9A2E; --primary-light:#9BD877;
+    --accent:#E89C3C; --accent-dark:#C77F22;
+    --bg:#0C0C0A; --surface:#161612; --surface-light:#1F1F18;
+    --text:#F2F2EA; --muted:#9BA08E; --on-primary:#0C0C0A;
+    --border:#2A2C22; --danger:#E05B4C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,Arial,sans-serif;min-height:100vh}
+  #app{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+  .logo{ text-align:center;margin:26px 0 6px}
+  .logo .mark{color:var(--primary);font-size:46px;font-weight:900;letter-spacing:4px;line-height:1}
+  .logo .sub{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:4px;margin-top:4px}
+  .tagline{text-align:center;color:var(--muted);font-size:14px;margin-bottom:30px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+  .card.hl{border-color:var(--primary);border-width:1.5px}
+  .menu-item{display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .12s}
+  .menu-item:hover{transform:translateY(-1px)}
+  .icon-box{width:48px;height:48px;border-radius:12px;background:var(--surface-light);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--primary);flex-shrink:0}
+  .icon-box.hl{background:var(--primary);color:var(--on-primary)}
+  .mi-title{font-size:17px;font-weight:800}
+  .mi-sub{color:var(--muted);font-size:13px;margin-top:3px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;width:100%;font-family:inherit}
+  .btn-primary{background:var(--primary);color:var(--on-primary)}
+  .btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+  .btn-ghost{background:transparent;color:var(--muted)}
+  .btn-danger{background:transparent;color:var(--danger);border:1.5px solid var(--danger)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:10px}
+  .row .btn{flex:1}
+  h2.section{font-size:20px;font-weight:800;margin-bottom:4px}
+  .section-sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  label{display:block;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:6px}
+  input[type=text],input[type=number],input[type=password],textarea{
+    width:100%;background:var(--surface-light);border:1px solid var(--border);border-radius:10px;
+    padding:11px 12px;color:var(--text);font-size:16px;font-family:inherit;margin-bottom:14px}
+  textarea{min-height:80px;resize:vertical}
+  input:focus,textarea:focus{outline:1.5px solid var(--primary)}
+  .steps{display:flex;gap:6px;margin:8px 0 20px}
+  .steps div{flex:1;height:4px;border-radius:2px;background:var(--border)}
+  .steps div.on{background:var(--primary)}
+  .step-label{color:var(--muted);font-size:13px;font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+  .chip{border:1px solid var(--border);background:var(--surface-light);border-radius:20px;
+    padding:8px 14px;font-size:14px;cursor:pointer;user-select:none}
+  .chip.on{background:var(--primary);color:var(--on-primary);font-weight:700;border-color:var(--primary)}
+  .shape{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .shape .s-icon{font-size:24px;width:34px;text-align:center;color:var(--muted)}
+  .shape .s-title{font-weight:700;font-size:16px}
+  .shape .s-desc{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .shape .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-inline-start:auto}
+  .card.sel{border-color:var(--primary);border-width:1.5px}
+  .card.sel .radio{border-color:var(--primary);background:var(--primary)}
+  .card.sel .s-title,.card.sel .s-icon{color:var(--primary)}
+  .area-note{color:var(--primary);font-weight:700;font-size:15px}
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:55vh;text-align:center;gap:18px}
+  .spinner{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .gen-status{font-size:16px;font-weight:600}
+  .gen-hint{color:var(--muted);font-size:12px}
+  .err{color:var(--danger);font-weight:700}
+  .err-msg{color:var(--muted);font-size:14px;line-height:1.6;max-width:420px}
+  .design-card{padding:0;overflow:hidden}
+  .design-card img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;background:var(--surface-light)}
+  .design-body{padding:16px}
+  .badge{display:inline-block;background:var(--surface-light);border:1px solid var(--border);
+    color:var(--accent);font-size:11px;font-weight:700;border-radius:8px;padding:3px 8px}
+  .style-name{font-size:17px;font-weight:800;margin:8px 0 6px}
+  .style-desc{color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:12px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .back-link{color:var(--muted);cursor:pointer;font-size:14px;background:none;border:none;font-family:inherit}
+  .back-link:hover{color:var(--primary)}
+  .lang-toggle{background:var(--surface-light);border:1px solid var(--border);color:var(--primary);
+    font-weight:700;font-size:13px;border-radius:18px;padding:6px 14px;cursor:pointer}
+  .plan-svg-card{background:#fff;border-radius:14px;padding:8px;margin-bottom:18px;border:1px solid var(--border)}
+  .plan-svg-card svg{width:100%;height:auto;display:block}
+  .drawing-h{font-size:16px;font-weight:800;margin:16px 0 8px}
+  .sched-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .sched-row:last-child{border-bottom:none}
+  .num-badge{width:26px;height:26px;border-radius:50%;background:var(--primary);color:var(--on-primary);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+  .sched-label{flex:1;font-size:14px}
+  .sched-cat{color:var(--accent);font-size:11.5px;font-weight:700}
+  .proj-cover{width:100%;height:150px;object-fit:cover;display:block;background:var(--surface-light)}
+  .empty{color:var(--muted);text-align:center;padding:60px 20px}
+  .empty .e-icon{font-size:44px;color:var(--border)}
+  .hint{color:var(--muted);font-size:12px;line-height:1.6}
+  .saved-msg{color:var(--primary);text-align:center;font-weight:700;margin-top:10px}
+  .footer-note{text-align:center;color:var(--muted);opacity:.65;font-size:12px;margin-top:40px}
+  .logo-box{border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;
+    background:var(--surface-light);margin-bottom:14px;transition:border-color .15s}
+  .logo-box:hover{border-color:var(--primary)}
+  .logo-box img{max-height:90px;max-width:80%;object-fit:contain;display:block;margin:0 auto 8px}
+  .logo-box .lb-hint{color:var(--muted);font-size:13px}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .swatch{width:46px;height:46px;border-radius:10px;border:2px solid var(--border);padding:0;background:none;cursor:pointer}
+  input[type=color]{-webkit-appearance:none;appearance:none}
+  input[type=color]::-webkit-color-swatch-wrapper{padding:3px}
+  input[type=color]::-webkit-color-swatch{border:none;border-radius:6px}
+  .opt-label{color:var(--muted);font-size:13px;font-weight:600;margin:10px 0 6px}
+  .tips-card{border-color:var(--accent)}
+  .tip-row{display:flex;gap:10px;padding:7px 0;color:var(--text);font-size:13.5px;line-height:1.6}
+  .tip-row .ti{color:var(--accent)}
+  .fab-sum{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .fab-pill{background:var(--surface-light);border:1px solid var(--border);border-radius:10px;
+    padding:7px 12px;font-size:12.5px;color:var(--text)}
+  .fab-pill b{color:var(--primary)}
+  .thumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .thumb{width:76px;height:50px;object-fit:cover;border-radius:8px;border:2px solid var(--border);cursor:pointer;background:var(--surface-light)}
+  .thumb.on{border-color:var(--primary)}
+  #printArea{display:none}
+  @media print{
+    body>#app{display:none}
+    #printArea{display:block;background:#fff;color:#141414;font-family:Arial,Tahoma,sans-serif}
+    #printArea .tb{display:flex;justify-content:space-between;align-items:center;border:2px solid #141414;padding:12px 16px;margin-bottom:16px}
+    #printArea .tb .pm{color:#5A9E2F;font-size:34px;font-weight:900;letter-spacing:3px}
+    #printArea .tb .ps{color:#C77F22;font-size:10px;font-weight:700;letter-spacing:3px}
+    #printArea .tb .meta{font-size:11px;line-height:1.8}
+    #printArea .tb .meta b{color:#5A9E2F}
+    #printArea h2{font-size:14px;border-inline-start:4px solid #5A9E2F;padding-inline-start:8px;margin:18px 0 8px}
+    #printArea img.render{width:100%;border:1px solid #ccc}
+    #printArea .dw{border:1px solid #ddd;margin-bottom:4px}
+    #printArea .dw svg{width:100%;height:auto}
+    #printArea table{width:100%;border-collapse:collapse;font-size:11.5px}
+    #printArea th,#printArea td{border:1px solid #bbb;padding:6px 9px}
+    #printArea th{background:#5A9E2F;color:#fff}
+    #printArea td.n{text-align:center;font-weight:bold;color:#5A9E2F;width:40px}
+    #printArea .pb{page-break-before:always}
+    #printArea .pfoot{margin-top:20px;font-size:9px;color:#888;text-align:center;border-top:1px solid #ddd;padding-top:6px}
+    #printArea .sheet{border:1px solid #999;margin-bottom:10px;page-break-inside:avoid}
+    #printArea .sheet svg{width:100%;height:auto;display:block}
+    #printArea .palette{display:flex;gap:6px;margin:6px 0}
+    #printArea .palette div{width:26px;height:26px;border:1px solid #999;border-radius:4px}
+    #printArea .note{font-size:11px;color:#444;background:#F2F7EC;border:1px solid #cde0b8;padding:8px 10px;border-radius:6px;margin:8px 0}
+  }
+  @media(max-width:520px){ .logo .mark{font-size:38px} #app{padding:14px 12px 50px} }
+
+  /* ============ MOBILE-FIRST / PWA LAYER ============ */
+  html{-webkit-text-size-adjust:100%}
+  body{-webkit-tap-highlight-color:transparent;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none}
+  #app{max-width:760px;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  .topbar{position:sticky;top:0;z-index:30;background:var(--bg);
+    padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px;margin-bottom:8px}
+  .lang-toggle{min-height:40px}
+  #bottomNav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+    background:rgba(22,22,18,.97);border-top:1px solid var(--border);backdrop-filter:blur(10px);
+    padding-bottom:env(safe-area-inset-bottom,0px)}
+  .bn-item{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 7px;font-size:11px;font-weight:700}
+  .bn-item .bn-ic{font-size:21px;line-height:1}
+  .bn-item.on{color:var(--primary)}
+  .bn-item:active{transform:scale(.95)}
+  #pwaInstall{position:fixed;left:10px;right:10px;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:50;
+    display:flex;align-items:center;gap:10px;background:var(--surface-light);border:1px solid var(--primary);
+    border-radius:14px;padding:10px 12px;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+  #pwaInstall[hidden]{display:none}
+  .pwa-cta{flex:1;background:var(--primary);color:var(--on-primary);border:none;border-radius:10px;
+    padding:12px;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer}
+  .pwa-msg{flex:1;color:var(--text);font-size:13px;line-height:1.5}
+  .pwa-x{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:6px;flex-shrink:0}
+  @media(max-width:680px){
+    #app{padding-left:14px;padding-right:14px}
+    .btn{padding:15px 22px;font-size:16.5px}
+    .chip{padding:11px 16px;font-size:15px}
+    .icon-box{width:52px;height:52px;font-size:24px}
+    .mi-title{font-size:18px}
+    .shape .s-icon{font-size:26px}
+    .card{padding:16px;border-radius:18px}
+    .thumb{width:84px;height:56px}
+    .swatch{width:52px;height:52px}
+    input[type=text],input[type=number],input[type=password],textarea{padding:13px 13px}
+    .design-card img{aspect-ratio:4/3}
+    h2.section{font-size:21px}
+  }
+  @media(max-width:380px){ .bn-item .bn-l{font-size:10px} .logo .mark{font-size:34px} }
+  .menu-item:active{transform:scale(.99)} .btn:active{transform:scale(.985)}
+  @media print{ #bottomNav,#pwaInstall{display:none!important} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav id="bottomNav" aria-label="nav"></nav>
+<div id="pwaInstall" hidden></div>
+<div id="printArea"></div>
+<script>
+'use strict';
+/* ════════ BOOTH STUDIO v2 — Claude analysis + Gemini renders + Fabrication ════════ */
+
+/* ───────── i18n ───────── */
+const I18N = {
+ar:{
+ tagline:'تصاميم متقنة… تُواكب الصناعة، تحتفي بالابتكار، وتحترم البيئة',
+ newDesign:'تصميم جديد', newDesignSub:'أدخل الأبعاد والمواصفات واحصل على 3 تصاميم واقعية',
+ myProjects:'مشاريعي', myProjectsSub:'تصفّح التصاميم والمخططات المحفوظة',
+ settings:'الإعدادات', settingsSub:'مفاتيح API واللغة',
+ footer:'صناعة البوثات والاستندات الاحترافية',
+ back:'رجوع', next:'التالي', cancel:'إلغاء', save:'حفظ', del:'حذف', retry:'إعادة المحاولة', optional:'اختياري', m:'متر',
+ step:'الخطوة {c} من {t}',
+ dims:'أبعاد البوث', dimsSub:'أدخل المساحة المتاحة بالمتر',
+ width:'العرض (الواجهة)', depth:'العمق', height:'الارتفاع', areaL:'المساحة',
+ shape:'شكل البوث', shapeSub:'اختر نوع البوث حسب موقعه في المعرض',
+ customNote:'وصف الشكل المخصص', customPh:'مثال: واجهة منحنية على شكل قوس مع برج دائري في الزاوية...',
+ decor:'الديكورات', decorSub:'اختر العناصر الإنشائية والتشطيبات',
+ services:'الخدمات', servicesSub:'اختر الخدمات المتوفرة داخل البوث',
+ identity:'هوية العميل', identitySub:'ارفع لوقو العميل وسنستخرج ألوانه تلقائياً لتنسيق التصاميم الثلاثة',
+ uploadLogo:'اضغط لرفع اللوقو (PNG / JPG)', changeLogo:'اضغط لتغيير اللوقو',
+ extracted:'ألوان الهوية المستخرجة — اضغط أي لون لتعديله', addColor:'+ لون',
+ company:'اسم الشركة / العلامة', industry:'مجال النشاط', industryPh:'مثال: تقنية، عقارات، أغذية...',
+ brandColor:'وصف إضافي للألوان', brandColorPh:'اختياري: مثال — الأخضر هو الأساسي والأبيض ثانوي',
+ details:'تفاصيل التنفيذ', detailsSub:'تحدد المواد وطريقة البناء ومستوى التشطيب',
+ reusable:'قابلية إعادة الاستخدام', once:'لمرة واحدة', reusableOpt:'قابل للفك وإعادة التركيب',
+ budget:'فئة الميزانية', eco:'اقتصادية', mid:'متوسطة', premium:'فاخرة',
+ eventType:'طبيعة المعرض والجمهور', eventPh:'مثال: معرض تقني — جمهور شركات وقطاع حكومي',
+ hanging:'التعليق السقفي (Rigging)', allowed:'مسموح', notAllowed:'غير مسموح',
+ notes:'ملاحظات للمصمم', notesPh:'أي متطلبات خاصة...',
+ generate:'تحليل وإنشاء 3 تصاميم',
+ invalidDims:'الرجاء إدخال أبعاد صحيحة أكبر من صفر', customRequired:'الرجاء وصف الشكل المخصص',
+ analyzing:'كلود يحلل المدخلات ويبني المفاهيم...', concepts:'بناء 3 مفاهيم تصميمية احترافية...',
+ rendering:'إنشاء التصميم الواقعي {n} من 3...', genHint:'الوقت التقريبي: 1–2 دقيقة، لا تغلق الصفحة',
+ failed:'تعذر إنشاء التصاميم',
+ noKey:'أدخل مفتاح كلود ومفتاح Google من الإعدادات أولاً.',
+ goSettings:'فتح الإعدادات',
+ results:'التصاميم المقترحة', resultsSub:'3 تصاميم بنفس ألوان هوية العميل — اختر الأنسب',
+ concept:'التصميم {n}', select:'اختيار هذا التصميم', selected:'التصميم المختار ✓',
+ viewPlan:'مخطط التنفيذ وملف التصنيع', noImage:'لم تتوفر صورة لهذا التصميم',
+ tips:'اقتراحات ذكية من المصمم',
+ plan:'مخطط التنفيذ', planSub:'مخطط فني بالأبعاد + ملف تصنيع جاهز للقص',
+ topView:'مسقط علوي', frontView:'واجهة أمامية', schedT:'جدول الديكورات والخدمات',
+ item:'البند', cat:'التصنيف', catD:'ديكور', catS:'خدمة',
+ exportPdf:'مخطط التنفيذ PDF', project:'المشروع', date:'التاريخ', dimsL:'الأبعاد', areaP:'المساحة',
+ boothType:'نوع البوث', style:'الطراز المختار', scale:'المقياس',
+ fab:'ملف التصنيع', fabSub:'قائمة قطع جاهزة للقص بالمقاسات الفعلية حسب المادة',
+ fabPdf:'ملف التصنيع PDF', fabDxf:'تنزيل DXF للـ CNC',
+ part:'القطعة', material:'المادة', dimsMm:'المقاس (مم)', qty:'العدد',
+ matMdf:'MDF 18مم', matPly:'بلايوود 18مم', matSteel:'ماسورة حديد 25×50مم', matAlu:'بروفايل ألمنيوم 40×40مم',
+ matSummary:'ملخص حصر المواد', sheetsOf:'لوح 244×122', linMeters:'متر طولي', barsOf:'عود 6م',
+ cutSheets:'مخططات توزيع القص — لوح 2440×1220 مم',
+ linearList:'جدول قص الأطوال (الهيكل)',
+ assemblyReuse:'نظام التجميع: براغي M8 وصواميل قفصية — قابل للفك وإعادة التركيب، بدون لحام أو غراء إنشائي',
+ assemblyOnce:'نظام التجميع: تثبيت بالمسامير والغراء — تركيب لمرة واحدة',
+ wasteNote:'الكميات تشمل 15% هالك قص واحتياط',
+ brandPalette:'ألوان الهوية',
+ reusableLbl:'إعادة الاستخدام', budgetLbl:'الميزانية',
+ empty:'لا توجد مشاريع بعد', emptySub:'ابدأ بإنشاء تصميمك الأول من الشاشة الرئيسية',
+ confirmDel:'هل أنت متأكد من حذف هذا المشروع نهائياً؟', designs:'{n} تصاميم',
+ apiKey:'مفاتيح الذكاء الاصطناعي',
+ claudeKey:'مفتاح كلود (Anthropic) — للتحليل',
+ googleKey:'مفتاح Google AI — للصور',
+ apiKeyHint:'تُحفظ المفاتيح في متصفحك على هذا الجهاز فقط. مفتاح كلود من console.anthropic.com (قسم API Keys)، ومفتاح Google مجاناً خلال دقيقة من aistudio.google.com/apikey بدون بطاقة.',
+ language:'اللغة', saved:'تم الحفظ ✓',
+ about:'عن البرنامج', aboutText:'BOOTH STUDIO — استوديو تصميم البوثات والاستندات بالذكاء الاصطناعي. التحليل بواسطة كلود، والصور الواقعية بواسطة Google Gemini (Nano Banana Pro)، مع مخرجات تصنيع جاهزة للورشة.',
+ front:'الواجهة / الممر', stairs:'درج', led:'شاشة LED', openSide:'مفتوح',
+ testKeyBtn:'اختبار المفاتيح', testing:'جاري الاختبار...',
+ claudeOk:'✓ مفتاح كلود يعمل',
+ googleOk:'✓ مفتاح Google يعمل ونموذج الصور متاح',
+ googleNoImg:'⚠ مفتاح Google يعمل لكن نموذج الصور gemini-3-pro-image غير ظاهر لحسابك (جرّب تفعيل الفوترة/Billing)',
+ noClaudeKey:'✗ لم تدخل مفتاح كلود',
+ noGoogleKey:'✗ لم تدخل مفتاح Google',
+ errClaudeKey:'مفتاح كلود غير صحيح (401) — انسخه كاملاً من console.anthropic.com',
+ errClaudeQuota:'رصيد كلود غير كافٍ أو تجاوزت الحد (429) — تحقق من console.anthropic.com',
+ errGoogleKey:'مفتاح Google غير صحيح أو غير مفعّل — أنشئه من aistudio.google.com/apikey',
+ errGoogleQuota:'تجاوزت الحد المجاني في Google مؤقتاً (429) — انتظر دقيقة ثم أعد المحاولة',
+ errNetwork:'تعذر الاتصال بالخادم — تحقق من الإنترنت أو أن الشبكة لا تحجب الخدمة',
+ waiting:'وصلنا حد جوجل المؤقت — إعادة المحاولة تلقائياً خلال {s} ثانية...',
+ fillMissing:'إكمال الصور الناقصة ({n})',
+ genAngles:'عرض البوث من كل الاتجاهات (+3 زوايا)',
+ generatingAngle:'توليد الزاوية {n} من 3 لنفس التصميم...',
+ hero:'اللقطة الرئيسية',
+ panelsList:'جدول قص الألواح (خشب)',
+ customDecorTitle:'ديكورات مخصصة (تُطبَّق على كل التصاميم الثلاثة)',
+ decorInside:'وصف الديكور الداخلي', decorInsidePh:'صف أي عناصر داخلية غير موجودة بالأعلى — ستُنفَّذ في كل التصاميم...',
+ decorOutside:'وصف الديكور الخارجي', decorOutsidePh:'صف أي عناصر خارجية/واجهات غير موجودة بالأعلى...',
+ catCustom:'مخصص',
+ view3d:'عرض ثلاثي الأبعاد', view3dSub:'اسحب للتدوير • قرّص أو استخدم العجلة للتكبير', closeBtn:'إغلاق', autoRot:'دوران تلقائي', resetView:'إعادة الضبط',
+ editProject:'تعديل المشروع', refineTitle:'تحسين هذا التصميم', refinePh:'اكتب التعديلات المطلوبة على هذا التصميم (مثال: كاونتر أكبر، إضاءة أدفأ، شاشة جانبية)...', refineBtn:'تطبيق وإعادة التوليد', refining:'إعادة توليد التصميم بعد التحسين...',
+ versionsTitle:'سجل النسخ', restore:'استرجاع', versionLbl:'نسخة', currentLbl:'(الحالية)',
+ clientBriefBtn:'بريف العميل (PDF)', writingBrief:'كلود يكتب بريف العميل الاحترافي...',
+ briefIntro:'نظرة عامة', briefConcept:'مفهوم التصميم', briefSpecs:'المواصفات الفنية', briefExperience:'رحلة الزائر', briefWhy:'لماذا هذا التصميم',
+ warnTitle:'تنبيهات فنية وفحص جودة', warnNone:'لا توجد تنبيهات — المدخلات ضمن الحدود المنطقية ✓',
+ costTitle:'تقدير التكلفة (تقريبي)', costNote:'أسعار افتراضية تقديرية — عدّلها حسب السوق', costTotal:'الإجمالي التقريبي', sar:'ر.س', costItem:'البند', costQty:'الكمية', costUnit:'سعر الوحدة', costSub:'الإجمالي',
+ specsTitle:'مواصفات التنفيذ والوصلات', hwTitle:'العدد والوصلات (Hardware)', spName:'البند', spVal:'المواصفة',
+ openaiKey:'مفتاح OpenAI (ChatGPT) — للصور', proxyUrl:'رابط الوسيط (Proxy URL)',
+ openaiHint:'مفتاح OpenAI لا يعمل من المتصفح مباشرة؛ يلزم وسيط. انشر ملف الـ Worker المرفق ثم ضع رابطه هنا. مفتاح OpenAI من platform.openai.com.',
+ imgProviderLbl:'مزوّد توليد الصور', provGoogle:'Google (مباشر)', provOpenai:'OpenAI (وسيط)', provBoth:'كلاهما (مقارنة)',
+ styleBoostLbl:'مُعزِّز الأسلوب الفاخر/العصري', onLbl:'مُفعّل', offLbl:'معطّل',
+ pickBest:'اختر الأفضل', byGoogle:'Google', byOpenai:'OpenAI',
+ openaiOk:'✓ مفتاح OpenAI ورابط الوسيط مُدخلان', noProxy:'أدخل رابط الوسيط (Proxy URL) في الإعدادات لاستخدام OpenAI', noOpenaiKey:'أدخل مفتاح OpenAI في الإعدادات',
+ errOpenaiKey:'مفتاح OpenAI غير صحيح أو الوسيط رفض الطلب (401)', errOpenaiQuota:'تجاوزت حد OpenAI مؤقتاً (429) — انتظر ثم أعد المحاولة', errOpenaiNoimg:'لم يرجع OpenAI صورة عبر الوسيط',
+ tagline:'العبارة التعريفية (التاغلاين)', taglinePh:'مثال: نبتكر مساحات تترك أثراً',
+ tech2dTitle:'المخطط الفني ثنائي الأبعاد', tech2dBtn:'مخطط فني 2D (PDF)', sideView:'مسقط جانبي', dimsNote:'كل المقاسات بالمتر ما لم يُذكر غير ذلك — مخطط للتنفيذ والتصنيع',
+ genTurn:'توليد الدوران (4 زوايا)', turnHint:'اسحب يميناً/يساراً لتدوير البوث', genTurnN:'توليد الزاوية {n} من {t}...',
+ view3dModel:'مجسم ثلاثي الأبعاد', view3dTurn:'عرض دوران 360°', loading3d:'جاري تحميل المحرك ثلاثي الأبعاد...', err3d:'تعذّر تحميل محرّك العرض ثلاثي الأبعاد — تحقّق من الاتصال',
+ exportProject:'تصدير المشروع', importProject:'استيراد مشروع', exported:'تم تصدير المشروع ✓', importErr:'ملف مشروع غير صالح', importOk:'تم استيراد المشروع ✓', exportAll:'تصدير كل المشاريع',
+ analyzingLogo:'كلود يحلّل اللوقو وتوجه العلامة...', logoInsight:'تحليل العلامة (Claude)', refineImgNote:'يحافظ على نفس البوث ويطبّق تعديلاتك فقط',
+ shopBtn:'مخططات ورشة كاملة (CNC)', shopDxfBtn:'ملف CNC احترافي (DXF)', derivingSpec:'كلود يقرأ التصميم المختار ويبني المواصفة الهندسية...',
+ secElems:'جدول العناصر', secPanels:'قص الألواح (مع اتجاه التعريق)', secLinear:'قص الهياكل المعدنية', secBom:'حصر المواد (من التعشيق الفعلي)', secCuts:'توزيع القص على الألواح', secHw:'العدد والوصلات',
+ grainNote:'السهم البرتقالي = اتجاه التعريق؛ لا تُدوّر القطعة المعرّقة 90°', archNote:'القوس مُقسّم لأضلاع تقريبية — يحتاج قص منحنى دقيق على الـ CNC', structNote:'تنبيه سلامة: بوث الطابقين يلزمه اعتماد حساب إنشائي من مهندس مختص قبل التنفيذ', specSource:'مصدر المواصفة',
+ secJoinery:'الوصلات والتجليد (عاشق ومعشوق)', joineryNote:'الوصل: خشب طبيعي عاشق ومعشوق (ذكر/أنثى) — التجليد: غراء + دبوس + براغي. أخاديد القص على طبقة DADO في ملف الـ CNC',
+ fabSettings:'إعدادات التصنيع', sheetSizeLbl:'مقاس اللوح', sheetStd:'1220×2440', sheetJumbo:'1830×3660', doubleSkinLbl:'تجليد مزدوج (لوحين)'
+},
+en:{
+ tagline:'Crafted designs — industry-ready, innovation-driven, eco-conscious',
+ newDesign:'New Design', newDesignSub:'Enter dimensions & specs, get 3 photorealistic designs',
+ myProjects:'My Projects', myProjectsSub:'Browse saved designs and plans',
+ settings:'Settings', settingsSub:'API keys & language',
+ footer:'Professional booth & stand fabrication',
+ back:'Back', next:'Next', cancel:'Cancel', save:'Save', del:'Delete', retry:'Retry', optional:'Optional', m:'m',
+ step:'Step {c} of {t}',
+ dims:'Booth Dimensions', dimsSub:'Enter the available space in meters',
+ width:'Width (front)', depth:'Depth', height:'Height', areaL:'Area',
+ shape:'Booth Shape', shapeSub:'Choose the booth type by its exhibition location',
+ customNote:'Custom shape description', customPh:'e.g. curved arched facade with a circular tower on the corner...',
+ decor:'Decorations', decorSub:'Select structural elements and finishes',
+ services:'Services', servicesSub:'Select services available inside the booth',
+ identity:'Client Identity', identitySub:'Upload the client logo — we extract its colors to keep all 3 designs on-brand',
+ uploadLogo:'Click to upload logo (PNG / JPG)', changeLogo:'Click to change logo',
+ extracted:'Extracted brand colors — click any to adjust', addColor:'+ color',
+ company:'Company / Brand name', industry:'Industry', industryPh:'e.g. Tech, Real estate, F&B...',
+ brandColor:'Extra color notes', brandColorPh:'optional: e.g. green is primary, white secondary',
+ details:'Build Details', detailsSub:'Drives materials, build method and finish level',
+ reusable:'Reusability', once:'One-time', reusableOpt:'Demountable & reusable',
+ budget:'Budget tier', eco:'Economy', mid:'Standard', premium:'Premium',
+ eventType:'Event type & audience', eventPh:'e.g. tech expo — corporate & government audience',
+ hanging:'Ceiling rigging', allowed:'Allowed', notAllowed:'Not allowed',
+ notes:'Notes for the designer', notesPh:'Any special requirements...',
+ generate:'Analyze & Generate 3 Designs',
+ invalidDims:'Please enter valid dimensions greater than zero', customRequired:'Please describe the custom shape',
+ analyzing:'Claude is analyzing your brief...', concepts:'Building 3 professional design concepts...',
+ rendering:'Rendering photorealistic design {n} of 3...', genHint:'Approx. 1–2 minutes — keep this page open',
+ failed:'Failed to generate designs',
+ noKey:'Add your Claude key and Google key in Settings first.',
+ goSettings:'Open Settings',
+ results:'Proposed Designs', resultsSub:'3 designs sharing the client brand palette — pick the best fit',
+ concept:'Design {n}', select:'Select this design', selected:'Selected ✓',
+ viewPlan:'Execution Plan & Fabrication File', noImage:'No image available for this concept',
+ tips:'Smart designer tips',
+ plan:'Execution Plan', planSub:'Dimensioned technical drawing + cut-ready fabrication file',
+ topView:'Top View', frontView:'Front Elevation', schedT:'Decorations & Services Schedule',
+ item:'Item', cat:'Category', catD:'Decoration', catS:'Service',
+ exportPdf:'Execution Plan PDF', project:'Project', date:'Date', dimsL:'Dimensions', areaP:'Area',
+ boothType:'Booth type', style:'Selected style', scale:'Scale',
+ fab:'Fabrication File', fabSub:'Cut-ready parts list at real sizes, grouped by material',
+ fabPdf:'Fabrication PDF', fabDxf:'Download DXF for CNC',
+ part:'Part', material:'Material', dimsMm:'Size (mm)', qty:'Qty',
+ matMdf:'MDF 18mm', matPly:'Plywood 18mm', matSteel:'Steel tube 25×50mm', matAlu:'Aluminum profile 40×40mm',
+ matSummary:'Bill of Materials Summary', sheetsOf:'sheets 2440×1220', linMeters:'linear meters', barsOf:'bars 6m',
+ cutSheets:'Cut layout — sheet 2440×1220 mm',
+ linearList:'Linear cutting list (structure)',
+ assemblyReuse:'Assembly: M8 bolts & cage nuts — demountable and reusable, no welding or structural glue',
+ assemblyOnce:'Assembly: screws and glue — single-use build',
+ wasteNote:'Quantities include 15% cutting waste & contingency',
+ brandPalette:'Brand palette',
+ reusableLbl:'Reusability', budgetLbl:'Budget',
+ empty:'No projects yet', emptySub:'Start your first design from the home screen',
+ confirmDel:'Permanently delete this project?', designs:'{n} designs',
+ apiKey:'AI Keys',
+ claudeKey:'Claude (Anthropic) key — analysis',
+ googleKey:'Google AI key — images',
+ apiKeyHint:'Keys are stored in this browser only. Claude key from console.anthropic.com (API Keys), Google key free in a minute at aistudio.google.com/apikey — no card needed.',
+ language:'Language', saved:'Saved ✓',
+ about:'About', aboutText:'BOOTH STUDIO — AI studio for exhibition booths & stands. Analysis by Claude, photorealistic renders by Google Gemini (Nano Banana Pro), with workshop-ready fabrication output.',
+ front:'FRONT / AISLE', stairs:'STAIRS', led:'LED SCREEN', openSide:'OPEN',
+ testKeyBtn:'Test keys', testing:'Testing...',
+ claudeOk:'✓ Claude key works',
+ googleOk:'✓ Google key works and the image model is available',
+ googleNoImg:'⚠ Google key works but gemini-3-pro-image is not visible to your account (try enabling billing)',
+ noClaudeKey:'✗ Claude key missing',
+ noGoogleKey:'✗ Google key missing',
+ errClaudeKey:'Invalid Claude key (401) — copy it fully from console.anthropic.com',
+ errClaudeQuota:'Claude credit insufficient or rate limited (429) — check console.anthropic.com',
+ errGoogleKey:'Invalid or inactive Google key — create one at aistudio.google.com/apikey',
+ errGoogleQuota:'Google free-tier limit hit temporarily (429) — wait a minute and retry',
+ errNetwork:'Cannot reach the server — check your internet/firewall',
+ waiting:'Google limit hit — auto-retrying in {s}s...',
+ fillMissing:'Generate missing images ({n})',
+ genAngles:'View booth from all sides (+3 angles)',
+ generatingAngle:'Rendering angle {n} of 3 of the same design...',
+ hero:'Hero shot',
+ panelsList:'Panel cutting list (wood)',
+ customDecorTitle:'Custom decorations (applied to all 3 designs)',
+ decorInside:'Interior decor description', decorInsidePh:'Describe any interior elements not listed above — built into every design...',
+ decorOutside:'Exterior decor description', decorOutsidePh:'Describe any exterior/facade elements not listed above...',
+ catCustom:'Custom',
+ view3d:'3D View', view3dSub:'Drag to rotate • pinch or scroll to zoom', closeBtn:'Close', autoRot:'Auto-rotate', resetView:'Reset view',
+ editProject:'Edit project', refineTitle:'Refine this design', refinePh:'Describe the changes for this design (e.g. bigger counter, warmer lighting, add a side screen)...', refineBtn:'Apply & regenerate', refining:'Regenerating the refined design...',
+ versionsTitle:'Version history', restore:'Restore', versionLbl:'Version', currentLbl:'(current)',
+ clientBriefBtn:'Client brief (PDF)', writingBrief:'Claude is writing the professional client brief...',
+ briefIntro:'Overview', briefConcept:'Design concept', briefSpecs:'Technical specifications', briefExperience:'Visitor journey', briefWhy:'Why this design',
+ warnTitle:'Technical warnings & QA', warnNone:'No warnings — all inputs within sensible limits ✓',
+ costTitle:'Cost estimate (approximate)', costNote:'Indicative default prices — adjust to your market', costTotal:'Approx. total', sar:'SAR', costItem:'Item', costQty:'Qty', costUnit:'Unit', costSub:'Subtotal',
+ specsTitle:'Build & joinery specifications', hwTitle:'Hardware & fixings', spName:'Item', spVal:'Spec',
+ openaiKey:'OpenAI (ChatGPT) key — images', proxyUrl:'Proxy URL',
+ openaiHint:'OpenAI cannot be called from the browser directly; a proxy is required. Deploy the included Worker file and paste its URL here. OpenAI key from platform.openai.com.',
+ imgProviderLbl:'Image provider', provGoogle:'Google (direct)', provOpenai:'OpenAI (proxy)', provBoth:'Both (compare)',
+ styleBoostLbl:'Luxury / modern style booster', onLbl:'On', offLbl:'Off',
+ pickBest:'Pick best', byGoogle:'Google', byOpenai:'OpenAI',
+ openaiOk:'✓ OpenAI key and proxy URL provided', noProxy:'Enter the Proxy URL in Settings to use OpenAI', noOpenaiKey:'Enter your OpenAI key in Settings',
+ errOpenaiKey:'Invalid OpenAI key or proxy rejected (401)', errOpenaiQuota:'OpenAI rate limit hit (429) — wait and retry', errOpenaiNoimg:'OpenAI returned no image via the proxy',
+ tagline:'Tagline', taglinePh:'e.g. We craft spaces that leave a mark',
+ tech2dTitle:'2D Technical Drawing', tech2dBtn:'2D Technical (PDF)', sideView:'Side Elevation', dimsNote:'All dimensions in meters unless noted — fabrication-ready drawing',
+ genTurn:'Generate rotation (4 angles)', turnHint:'Drag left/right to rotate the booth', genTurnN:'Rendering angle {n} of {t}...',
+ view3dModel:'3D Model', view3dTurn:'360° spin view', loading3d:'Loading the 3D engine...', err3d:'Could not load the 3D engine — check your connection',
+ exportProject:'Export project', importProject:'Import project', exported:'Project exported ✓', importErr:'Invalid project file', importOk:'Project imported ✓', exportAll:'Export all projects',
+ analyzingLogo:'Claude is analyzing the logo & brand direction...', logoInsight:'Brand analysis (Claude)', refineImgNote:'Keeps the same booth and applies only your changes',
+ shopBtn:'Full shop drawings (CNC)', shopDxfBtn:'Professional CNC file (DXF)', derivingSpec:'Claude is reading the selected design & building the engineering spec...',
+ secElems:'Element schedule', secPanels:'Panel cut list (with grain)', secLinear:'Structure cut list', secBom:'Bill of materials (from real nesting)', secCuts:'Cut layout on sheets', secHw:'Hardware & joinery',
+ grainNote:'Orange arrow = grain direction; do NOT rotate a grained part 90°', archNote:'Arch is split into approximate ribs — needs precise curve cutting on the CNC', structNote:'Safety note: a double-decker requires certified structural calculations by an engineer before build', specSource:'Spec source',
+ secJoinery:'Joinery & lamination (tongue & groove)', joineryNote:'Joinery: natural-wood tongue & groove (male/female). Lamination: glue + staples + screws. Groove cuts are on the DADO layer of the CNC file',
+ fabSettings:'Fabrication settings', sheetSizeLbl:'Sheet size', sheetStd:'1220×2440', sheetJumbo:'1830×3660', doubleSkinLbl:'Double-skin lamination'
+}};
+
+/* ───────── catalog ───────── */
+const SHAPES=[
+ {id:'inline',ar:'صف (مفتوح من جهة)',en:'Inline (1 open side)',dar:'جدران من 3 جهات وواجهة واحدة على الممر',den:'Walls on 3 sides, one aisle-facing front',icon:'▭'},
+ {id:'corner',ar:'زاوية (مفتوح من جهتين)',en:'Corner (2 open sides)',dar:'جداران خلفيان وواجهتان على ممرين',den:'Two back walls, two aisle-facing fronts',icon:'◳'},
+ {id:'peninsula',ar:'شبه جزيرة (3 جهات)',en:'Peninsula (3 open sides)',dar:'جدار خلفي واحد وثلاث واجهات مفتوحة',den:'One back wall, three open fronts',icon:'⬓'},
+ {id:'island',ar:'جزيرة (مفتوح من 4 جهات)',en:'Island (4 open sides)',dar:'بوث مستقل مفتوح من جميع الجهات',den:'Free-standing booth open on all sides',icon:'◻'},
+ {id:'doubleDecker',ar:'طابقين',en:'Double-Decker',dar:'بوث بطابقين مع درج ومنطقة علوية',den:'Two-storey booth with stairs and upper deck',icon:'⊟'},
+ {id:'stand',ar:'استند / منصة عرض',en:'Display Stand / Kiosk',dar:'استند عرض مستقل أو كاونتر أو منصة تفاعلية',den:'Free-standing display stand, counter or kiosk',icon:'◇'},
+ {id:'custom',ar:'شكل حر مخصص',en:'Custom Free-form',dar:'صف الشكل بنفسك (منحنيات، دائري، قوس...)',den:'Describe it yourself (curves, circular, arches...)',icon:'✎'}
+];
+const DECOR=[
+ {id:'receptionCounter',ar:'كاونتر استقبال',en:'Reception counter',icon:'🛎',w:2,d:0.6},
+ {id:'backWallLed',ar:'شاشة LED جدارية كبيرة',en:'Large LED back wall',icon:'🖥',w:4,d:0.3},
+ {id:'hangingBanner',ar:'بانر معلق / تعليق سقفي',en:'Hanging banner / rigging',icon:'🪧',w:0,d:0},
+ {id:'meetingRoom',ar:'غرفة اجتماعات مغلقة',en:'Enclosed meeting room',icon:'🚪',w:3,d:2.5},
+ {id:'storageRoom',ar:'مستودع / غرفة تخزين',en:'Storage room',icon:'📦',w:1.5,d:1.5},
+ {id:'productShelves',ar:'أرفف عرض منتجات',en:'Product display shelves',icon:'🗄',w:2,d:0.5},
+ {id:'displayPodium',ar:'منصات عرض (بوديوم)',en:'Display podiums',icon:'🏛',w:0.6,d:0.6},
+ {id:'loungeSeating',ar:'جلسة ضيافة / صوفا',en:'Lounge seating area',icon:'🛋',w:2.5,d:2},
+ {id:'woodFloor',ar:'أرضية خشب (بديل رخام/سجاد)',en:'Wood flooring (or marble/carpet)',icon:'🟫',w:0,d:0},
+ {id:'raisedFloor',ar:'أرضية مرتفعة (بلاتفورم)',en:'Raised platform floor',icon:'⬜',w:0,d:0},
+ {id:'hiddenLighting',ar:'إضاءة مخفية / لاين لايت',en:'Hidden / cove lighting',icon:'💡',w:0,d:0},
+ {id:'spotLighting',ar:'سبوت لايت موجه',en:'Directional spotlights',icon:'🔦',w:0,d:0},
+ {id:'greenWall',ar:'جدار أخضر / نباتات',en:'Green wall / planting',icon:'🌿',w:2,d:0.3},
+ {id:'logoTower',ar:'برج لوقو مرتفع',en:'Elevated logo tower',icon:'🗼',w:1,d:1},
+ {id:'archEntrance',ar:'مدخل قوس / بوابة مميزة',en:'Arch / feature entrance',icon:'⛩',w:2,d:0.4},
+ {id:'curvedWalls',ar:'جدران منحنية',en:'Curved walls',icon:'〰',w:0,d:0}
+];
+const SERV=[
+ {id:'coffeeBar',ar:'ركن قهوة / باريستا',en:'Coffee bar / barista',icon:'☕',w:2,d:1},
+ {id:'interactiveScreen',ar:'شاشات تفاعلية (تتش)',en:'Interactive touch screens',icon:'📱',w:0.8,d:0.4},
+ {id:'vrCorner',ar:'ركن VR / تجربة افتراضية',en:'VR / immersive corner',icon:'🥽',w:2,d:2},
+ {id:'chargingStation',ar:'محطة شحن جوالات',en:'Phone charging station',icon:'🔌',w:0.6,d:0.6},
+ {id:'giveawayCounter',ar:'كاونتر هدايا وتوزيعات',en:'Giveaways counter',icon:'🎁',w:1.5,d:0.6},
+ {id:'photoBooth',ar:'ركن تصوير / فوتو بوث',en:'Photo booth corner',icon:'📸',w:2,d:1.5},
+ {id:'presentationStage',ar:'منصة عروض تقديمية',en:'Presentation stage',icon:'🎤',w:3,d:2},
+ {id:'kidsCorner',ar:'ركن أطفال',en:'Kids corner',icon:'🧸',w:2,d:2},
+ {id:'prayerArea',ar:'مصلى صغير',en:'Small prayer area',icon:'🕌',w:2,d:1.5},
+ {id:'liveDemo',ar:'عرض حي للمنتج',en:'Live product demo',icon:'🧪',w:2,d:1.5},
+ {id:'wifiZone',ar:'واي فاي مجاني',en:'Free Wi-Fi zone',icon:'📶',w:0,d:0},
+ {id:'hostess',ar:'فريق استقبال / ضيافة',en:'Hostess / reception team',icon:'🤵',w:0,d:0}
+];
+const itemById=id=>DECOR.find(x=>x.id===id)||SERV.find(x=>x.id===id);
+const shapeById=id=>SHAPES.find(x=>x.id===id)||SHAPES[0];
+
+/* fabrication materials */
+const MATERIALS={
+ mdf18:{key:'matMdf',layer:'MDF',sheet:true},
+ ply18:{key:'matPly',layer:'PLY',sheet:true},
+ steel:{key:'matSteel',layer:'STEEL',sheet:false},
+ alu:{key:'matAlu',layer:'ALU',sheet:false}
+};
+
+/* ───────── state & storage ───────── */
+const store={
+ get(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){console.warn('storage full',e)}}
+};
+const S={
+ view:'home', lang:store.get('hive_lang','ar'),
+ claudeKey:store.get('hive_claude',''), googleKey:store.get('hive_google',''),
+ openaiKey:store.get('hive_openai',''), proxyUrl:store.get('hive_proxy',''),
+ imgProvider:store.get('hive_imgprov','google'), styleBoost:store.get('hive_styleboost',true), openaiModel:store.get('hive_openai_model','gpt-image-2'),
+ sheetSize:store.get('hive_sheet','std'), doubleSkin:store.get('hive_dbl',false),
+ projects:store.get('hive_projects',[]),
+ step:0, input:null, currentId:null, genStatus:'', genError:'', genMode:'new', viewsTarget:null, savedMsg:false
+};
+(function(){const old=store.get('hive_key','');if(old&&!S.claudeKey&&old.startsWith('sk-ant'))S.claudeKey=old})();
+function defaultInput(){return{type:'inline',customShapeNote:'',width:6,depth:4,height:3,
+ decorations:[],services:[],companyName:'',industry:'',brandColor:'',tagline:'',notes:'',
+ logo:'',logoColors:[],reusable:'once',budget:'mid',eventType:'',hangingAllowed:true,
+ decorInside:'',decorOutside:''}}
+function t(k,p){let s=(I18N[S.lang][k]??I18N.en[k]??k);if(p)for(const[a,b]of Object.entries(p))s=s.replace('{'+a+'}',b);return s}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function persist(){
+ store.set('hive_lang',S.lang);store.set('hive_claude',S.claudeKey);store.set('hive_google',S.googleKey);
+ store.set('hive_openai',S.openaiKey);store.set('hive_proxy',S.proxyUrl);store.set('hive_imgprov',S.imgProvider);store.set('hive_styleboost',S.styleBoost);store.set('hive_openai_model',S.openaiModel);
+ store.set('hive_sheet',S.sheetSize);store.set('hive_dbl',S.doubleSkin);
+ const trySet=v=>{localStorage.setItem('hive_projects',JSON.stringify(v));return true};
+ try{trySet(S.projects)}
+ catch(e1){
+  try{trySet(S.projects.map((p,i)=>i===0?p:({...p,concepts:p.concepts.map(c=>({...c,views:[],gen:undefined}))})))}
+  catch(e2){
+   try{trySet(S.projects.map((p,i)=>i===0?p:({...p,concepts:p.concepts.map(c=>({...c,views:[],gen:undefined,image:null}))})))}
+   catch(e3){console.warn('storage full — older projects images dropped',e3)}
+  }
+ }
+}
+function nav(v){S.view=v;render();window.scrollTo(0,0)}
+function setLang(l){S.lang=l;document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';persist();render()}
+
+/* ───────── AI: Claude (analysis) + Gemini (images) ───────── */
+const SYS_PROMPT=`You are a senior exhibition booth designer with 20 years of experience designing award-winning trade-show booths and display stands for international expos (GITEX, Big 5, Cityscape, LEAP).
+
+You receive a client brief and must produce EXACTLY 3 distinct, professional, buildable design concepts. Each concept must:
+- Respect the exact dimensions, booth configuration and open sides given in the brief.
+- Incorporate ALL required decoration elements and visitor services.
+- Be realistic and physically buildable with standard booth fabrication (MDF, plywood, steel tube, aluminum profile, SEG fabric, LED, laminate).
+- Differ clearly from the other two concepts in style and layout (e.g. modern minimal, luxurious premium, futuristic tech, organic natural, bold industrial).
+- CRITICAL: all 3 concepts MUST use the client brand palette given in the brief as the dominant colors. Differentiate concepts by style, layout, materials and lighting — NEVER by changing the brand colors. If hex colors are provided, name them explicitly in each imagePrompt.
+- Respect the build constraints in the brief (reusability, budget tier, rigging restrictions).
+- CRITICAL: if the brief lists CUSTOM INTERIOR or CUSTOM EXTERIOR decoration requirements (free text), you MUST incorporate them faithfully into ALL 3 concepts and describe them explicitly inside EACH imagePrompt. Treat them as mandatory, never optional.
+
+For each concept also write "imagePrompt": a single detailed English prompt for a photorealistic image-generation model. The imagePrompt must describe: wide 16:9 composition, camera angle (3/4 aerial or eye-level from the aisle), the booth at its exact dimensions inside a realistic exhibition hall with visitors blurred in background, professional trade-show lighting, all required elements visible, the exact brand hex colors applied to walls/counters/signage, photorealistic architectural-visualization quality, 8k render style. Never include text overlays except the brand name on the booth signage.
+
+Also produce exactly 3 short smart professional tips (one sentence each) about improving visitor flow, brand impact or buildability for THIS specific booth, in both Arabic and English.
+
+Respond ONLY with valid JSON (no markdown fences, no commentary) in this exact schema:
+{"concepts":[{"styleNameEn":"...","styleNameAr":"...","descriptionEn":"2-3 sentences","descriptionAr":"جملتان إلى ثلاث جمل","imagePrompt":"..."}],"tipsAr":["...","...","..."],"tipsEn":["...","...","..."]}
+CRITICAL OUTPUT RULE: return ONE MINIFIED JSON object only — no markdown, no commentary, and NO literal newline or tab characters inside any string value (replace them with a space); escape any inner double-quote as \\".`;
+
+const CLAUDE_MODELS=['claude-sonnet-4-6','claude-haiku-4-5','claude-opus-4-8','claude-sonnet-4-5','claude-3-5-haiku-latest'];
+const GEMINI_MODELS=['gemini-3-pro-image','gemini-3-pro-image-preview','gemini-3.1-flash-image','gemini-2.5-flash-image','gemini-2.5-flash-image-preview','gemini-2.0-flash-preview-image-generation'];
+
+function buildBrief(inp){
+ const sh=shapeById(inp.type);
+ const openMap={inline:1,corner:2,peninsula:3,island:4,doubleDecker:4,stand:4,custom:4};
+ const L=[];
+ L.push(`Booth dimensions: ${inp.width}m wide (front) × ${inp.depth}m deep × ${inp.height}m high (${(inp.width*inp.depth).toFixed(1)} sqm).`);
+ L.push(`Booth configuration: ${sh.en} — ${sh.den} (${openMap[inp.type]} open visitor-facing side(s)).`);
+ if(inp.type==='custom'&&inp.customShapeNote.trim())L.push('Custom shape description: '+inp.customShapeNote.trim());
+ if(inp.type==='doubleDecker')L.push('This is a double-decker booth: include a staircase and an upper deck/lounge.');
+ if(inp.type==='stand')L.push('This is a compact display stand / kiosk, not a full exhibition booth.');
+ const dl=inp.decorations.map(id=>{const i=itemById(id);return i?i.en:null}).filter(Boolean);
+ const sl=inp.services.map(id=>{const i=itemById(id);return i?i.en:null}).filter(Boolean);
+ if(dl.length)L.push('Required decoration elements: '+dl.join(', ')+'.');
+ if(sl.length)L.push('Required visitor services: '+sl.join(', ')+'.');
+ if(inp.companyName.trim())L.push('Brand name: '+inp.companyName.trim()+'.');
+ if(inp.industry.trim())L.push('Industry: '+inp.industry.trim()+'.');
+ if(inp.tagline&&inp.tagline.trim())L.push('Brand tagline/slogan to feature on the booth signage (render it as text in the brand colors): '+inp.tagline.trim()+'.');
+ if(inp.logoColors&&inp.logoColors.length)
+  L.push('CLIENT BRAND PALETTE extracted from the official logo (MANDATORY dominant colors for all 3 concepts): '+inp.logoColors.join(', ')+'.');
+ if(inp.logoAnalysis){const la=inp.logoAnalysis;
+  L.push('BRAND ANALYSIS (read by Claude from the client logo — honor it in ALL concepts): style keywords = '+((la.styleKeywordsEn||[]).join(', '))+'; brand personality = '+(la.personalityEn||'')+'; recommended booth direction = '+(la.boothDirectionEn||'')+'; brand-color usage = '+(la.paletteRoleEn||'')+'.');}
+ if(inp.brandColor.trim())L.push('Color usage notes: '+inp.brandColor.trim()+'.');
+ if(inp.logo)L.push('The official client logo image is attached to the render request and must appear on the booth signage.');
+ L.push(inp.reusable==='reusable'
+  ?'Build constraint: the booth MUST be demountable and reusable — modular bolt-together frame (aluminum profiles preferred), standard panel sizes, no welding or structural glue, flight-case friendly parts.'
+  :'Build constraint: single-use build for one event.');
+ const budgetMap={eco:'economy budget — cost-efficient materials, paint/vinyl finishes, smart simplicity',
+  mid:'standard budget — laminate finishes, quality lighting',
+  premium:'premium budget — high-end finishes, backlit surfaces, premium materials'};
+ L.push('Budget tier: '+budgetMap[inp.budget||'mid']+'.');
+ if(inp.eventType.trim())L.push('Event type & audience: '+inp.eventType.trim()+'.');
+ if(!inp.hangingAllowed)L.push('Constraint: ceiling rigging is NOT allowed in this venue — no hanging banners; bring signage onto towers and walls within the '+inp.height+'m height limit.');
+ if(inp.decorInside&&inp.decorInside.trim())L.push('MANDATORY CUSTOM INTERIOR DECOR (must appear in all 3 concepts and be described in every imagePrompt): '+inp.decorInside.trim()+'.');
+ if(inp.decorOutside&&inp.decorOutside.trim())L.push('MANDATORY CUSTOM EXTERIOR DECOR (must appear in all 3 concepts and be described in every imagePrompt): '+inp.decorOutside.trim()+'.');
+ if(inp.notes.trim())L.push('Client notes: '+inp.notes.trim()+'.');
+ return L.join('\n');
+}
+
+async function callClaude(system,user){
+ let lastErr=null;
+ for(const model of CLAUDE_MODELS){
+  let r;
+  const _ctrl=new AbortController();const _to=setTimeout(()=>_ctrl.abort(),60000);
+  try{
+   r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'content-type':'application/json','x-api-key':S.claudeKey.trim(),
+     'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model,max_tokens:8000,system,messages:[{role:'user',content:user}]}),signal:_ctrl.signal});
+  }catch(e){lastErr=new Error(t('errNetwork'));continue}
+  finally{clearTimeout(_to)}
+  if(r.status===404){lastErr=new Error('Claude model not found: '+model);continue}
+  if(r.status===401)throw new Error(t('errClaudeKey'));
+  if(r.status===429)throw new Error(t('errClaudeQuota'));
+  if(!r.ok){let d='';try{const e=await r.json();d=e?.error?.message||''}catch(_){}
+   throw new Error(d||('Claude HTTP '+r.status))}
+  const data=await r.json();
+  return (data?.content||[]).map(p=>p.text||'').join('');
+ }
+ throw lastErr||new Error('No Claude model available for this key');
+}
+
+function parseLooseJSON(text){
+ if(!text)return null;
+ let t=String(text).replace(/```json/gi,'').replace(/```/g,'').trim();
+ const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<=a)return null;
+ let s=t.slice(a,b+1);
+ const tries=[s,s.replace(/,\s*([}\]])/g,'$1'),s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,''),s.replace(/[\r\n\t]+/g,' ').replace(/,\s*([}\]])/g,'$1')];
+ for(const c of tries){try{return JSON.parse(c);}catch(_){}}
+ try{let depth=0,end=-1,inStr=false,esc=false;
+  for(let i=0;i<s.length;i++){const ch=s[i];
+   if(inStr){if(esc)esc=false;else if(ch==='\\')esc=true;else if(ch==='"')inStr=false;}
+   else{if(ch==='"')inStr=true;else if(ch==='{'||ch==='[')depth++;else if(ch==='}'||ch===']'){depth--;if(depth===0)end=i;}}}
+  if(end>0)return JSON.parse(s.slice(0,end+1).replace(/[\r\n\t]+/g,' ').replace(/,\s*([}\]])/g,'$1'));
+ }catch(_){}
+ return null;
+}
+async function analyze(inp){
+ let parsed=parseLooseJSON(await callClaude(SYS_PROMPT,buildBrief(inp)));
+ if(!parsed||!Array.isArray(parsed.concepts)||!parsed.concepts.length){
+  const strict=SYS_PROMPT+'\nIMPORTANT: respond with ONE MINIFIED valid JSON object on a single line. No markdown, no commentary, no literal newlines or tabs inside any string value.';
+  parsed=parseLooseJSON(await callClaude(strict,buildBrief(inp)));
+ }
+ if(!parsed)throw new Error('Claude returned invalid JSON. Please retry.');
+ const raw=Array.isArray(parsed?.concepts)?parsed.concepts:[];
+ if(!raw.length)throw new Error('Claude returned no design concepts. Please retry.');
+ const concepts=raw.slice(0,3).map((c,i)=>({id:'c'+(i+1),
+  styleNameEn:String(c.styleNameEn||('Concept '+(i+1))),styleNameAr:String(c.styleNameAr||('التصميم '+(i+1))),
+  descriptionEn:String(c.descriptionEn||''),descriptionAr:String(c.descriptionAr||''),
+  imagePrompt:String(c.imagePrompt||''),image:null}));
+ const tips={ar:Array.isArray(parsed.tipsAr)?parsed.tipsAr.slice(0,4).map(String):[],
+  en:Array.isArray(parsed.tipsEn)?parsed.tipsEn.slice(0,4).map(String):[]};
+ return {concepts,tips};
+}
+
+/* ───────── Claude VISION: analyze client logo & brand direction ───────── */
+async function callClaudeVision(system,userText,imageDataUrl,maxTokens){
+ const comma=imageDataUrl.indexOf(',');
+ const mime=(imageDataUrl.slice(0,comma).match(/data:([^;]+)/)||[])[1]||'image/png';
+ const data=imageDataUrl.slice(comma+1);
+ const content=[{type:'image',source:{type:'base64',media_type:mime,data}},{type:'text',text:userText}];
+ let lastErr=null;
+ for(const model of CLAUDE_MODELS){
+  let r;const _ctrl=new AbortController();const _to=setTimeout(()=>_ctrl.abort(),60000);
+  try{
+   r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'content-type':'application/json','x-api-key':S.claudeKey.trim(),
+     'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model,max_tokens:maxTokens||800,system,messages:[{role:'user',content}]}),signal:_ctrl.signal});
+  }catch(e){lastErr=new Error(t('errNetwork'));continue}
+  finally{clearTimeout(_to)}
+  if(r.status===404){lastErr=new Error('model 404: '+model);continue}
+  if(r.status===401)throw new Error(t('errClaudeKey'));
+  if(r.status===429)throw new Error(t('errClaudeQuota'));
+  if(!r.ok){let d='';try{const e=await r.json();d=e?.error?.message||''}catch(_){}lastErr=new Error(d||('Claude HTTP '+r.status));continue}
+  const j=await r.json();
+  return (j?.content||[]).map(p=>p.text||'').join('');
+ }
+ throw lastErr||new Error('No Claude vision model available');
+}
+async function analyzeLogoWithClaude(inp){
+ if(!inp.logo||!S.claudeKey.trim())return null;
+ const sys='You are a senior brand & exhibition-design strategist. You will SEE the client logo image and infer the brand direction. Respond ONLY with valid JSON (no markdown): {"styleKeywordsEn":["3-5 short words"],"styleKeywordsAr":["..."],"personalityEn":"one sentence brand personality","personalityAr":"جملة واحدة","boothDirectionEn":"1-2 sentences: the booth aesthetic, materials, mood and lighting that match this brand","boothDirectionAr":"..","paletteRoleEn":"how to apply the brand colors across the booth (dominant/secondary/accent)","paletteRoleAr":".."}';
+ const usr='Client industry: '+(inp.industry||'unspecified')+'. Brand name: '+(inp.companyName||'unspecified')+'. Analyze the attached official logo and propose a booth design direction matching this brand identity. Brand colors detected: '+((inp.logoColors||[]).join(', ')||'derive from the logo')+'.';
+ try{
+  const j=parseLooseJSON(await callClaudeVision(sys,usr,inp.logo,800));
+  if(!j)return null;
+  inp.logoAnalysis=j;return j;
+ }catch(e){console.warn('logo analysis failed',e);return null}
+}
+
+async function geminiCall(model,body){
+ const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),75000);
+ try{
+  return await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(S.googleKey.trim()),
+   {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctrl.signal});
+ }finally{clearTimeout(to)}
+}
+function buildImageParts(prompt,logo){
+ const parts=[];
+ let text='Generate one photorealistic image. '+prompt;
+ if(logo){
+  text='Generate one photorealistic image. The first attached image is the official client logo: place it accurately and prominently on the booth signage, reception counter front and wall branding, keeping its exact colors and proportions. '+prompt;
+ }
+ parts.push({text});
+ if(logo){
+  const comma=logo.indexOf(',');
+  const meta=logo.slice(0,comma);const data=logo.slice(comma+1);
+  const mime=(meta.match(/data:([^;]+)/)||[])[1]||'image/png';
+  parts.push({inline_data:{mime_type:mime,data}});
+ }
+ return parts;
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function renderOnce(reqParts){
+ let lastErr=null,rate=null;
+ for(const model of GEMINI_MODELS){
+  let r;
+  try{
+   r=await geminiCall(model,{contents:[{parts:reqParts}],
+    generationConfig:{responseModalities:['IMAGE'],imageConfig:{aspectRatio:'16:9'}}});
+   if(r.status===400){ /* older models reject IMAGE-only or imageConfig */
+    r=await geminiCall(model,{contents:[{parts:reqParts}],
+     generationConfig:{responseModalities:['TEXT','IMAGE']}});
+   }
+  }catch(e){lastErr=new Error(t('errNetwork'));continue} /* timeout/network -> try next model */
+  if(r.status===404){lastErr=new Error('Image model not found: '+model);continue}
+  if(r.status===401||r.status===403)throw new Error(t('errGoogleKey'));
+  if(r.status===429){
+   let sec=20;
+   try{const e=await r.json();const ds=e?.error?.details||[];
+    for(const d of ds){const rd=d.retryDelay||d.retry_delay;
+     if(rd){const v=parseInt(rd);if(v>0)sec=Math.min(Math.max(v+2,8),30)}}}catch(_){}
+   rate=new Error(t('errGoogleQuota'));rate.code=429;rate.retrySec=sec;lastErr=rate;continue; /* try other models first */
+  }
+  if(!r.ok){let d='';try{const e=await r.json();d=e?.error?.message||''}catch(_){}
+   lastErr=new Error(d||('Google HTTP '+r.status));continue}
+  const data=await r.json();
+  const parts=data?.candidates?.[0]?.content?.parts||[];
+  const img=parts.find(p=>p.inlineData&&p.inlineData.data);
+  if(!img){lastErr=new Error('No image in Gemini response');continue}
+  return compress('data:'+(img.inlineData.mimeType||'image/png')+';base64,'+img.inlineData.data);
+ }
+ if(rate)throw rate; /* every model rate-limited -> let withRetry back off once */
+ throw lastErr||new Error('Image generation failed');
+}
+async function withRetry(makeParts,onWait){
+ for(let attempt=0;attempt<3;attempt++){
+  try{return await renderOnce(makeParts())}
+  catch(e){
+   if(e.code===429&&attempt<2){
+    let s=e.retrySec||45;
+    while(s>0){if(onWait)onWait(s);await sleep(1000);s--}
+    continue;
+   }
+   throw e;
+  }
+ }
+}
+function renderImage(prompt,logo,onWait){return withRetry(()=>buildImageParts(prompt,logo),onWait)}
+function buildAngleParts(refImage,angleText){
+ const comma=refImage.indexOf(',');
+ const mime=(refImage.slice(0,comma).match(/data:([^;]+)/)||[])[1]||'image/jpeg';
+ return [
+  {text:'The attached image is an exhibition booth design. Render the SAME exact booth — identical structure, dimensions, brand colors, logo placement and all elements — from a different camera angle: '+angleText+'. Keep the same exhibition hall environment and professional lighting. Photorealistic architectural visualization, 16:9.'},
+  {inline_data:{mime_type:mime,data:refImage.slice(comma+1)}}
+ ];
+}
+function renderAngle(refImage,angleText,onWait){return withRetry(()=>buildAngleParts(refImage,angleText),onWait)}
+/* image-to-image edit: keep the SAME booth, apply only requested modifications */
+function buildEditParts(refImage,modText,logo){
+ const comma=refImage.indexOf(',');
+ const mime=(refImage.slice(0,comma).match(/data:([^;]+)/)||[])[1]||'image/jpeg';
+ const parts=[{text:'The attached image is an existing exhibition booth design. Re-render the SAME booth: keep the identical structure, dimensions, layout, proportions, brand colors, materials, finishes, logo placement, signage text and the same camera angle and exhibition-hall environment. Apply ONLY these client-requested modifications and change nothing else: '+modText+'. Keep it photorealistic architectural visualization, 16:9, ultra-detailed 8k.'},
+  {inline_data:{mime_type:mime,data:refImage.slice(comma+1)}}];
+ if(logo){const lc=logo.indexOf(',');const lmime=(logo.slice(0,lc).match(/data:([^;]+)/)||[])[1]||'image/png';parts.push({inline_data:{mime_type:lmime,data:logo.slice(lc+1)}});}
+ return parts;
+}
+function renderEdit(refImage,modText,logo,onWait){return withRetry(()=>buildEditParts(refImage,modText,logo),onWait)}
+
+/* compress render to JPEG so 3 designs fit in localStorage */
+function compress(dataUrl){return new Promise(res=>{
+ const img=new Image();
+ img.onload=()=>{const w=Math.min(1280,img.width),h=Math.round(img.height*w/img.width);
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  c.getContext('2d').drawImage(img,0,0,w,h);
+  res(c.toDataURL('image/jpeg',0.82))};
+ img.onerror=()=>res(dataUrl);
+ img.src=dataUrl;})}
+
+/* ───────── logo handling: shrink + extract palette ───────── */
+function shrinkLogo(dataUrl){return new Promise(res=>{
+ const img=new Image();
+ img.onload=()=>{const max=384;const f=Math.min(1,max/Math.max(img.width,img.height));
+  const c=document.createElement('canvas');c.width=Math.round(img.width*f);c.height=Math.round(img.height*f);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  res(c.toDataURL('image/png'))};
+ img.onerror=()=>res(dataUrl);
+ img.src=dataUrl;})}
+function extractColors(dataUrl){return new Promise(res=>{
+ const img=new Image();
+ img.onload=()=>{
+  const c=document.createElement('canvas');const N=80;c.width=N;c.height=N;
+  const ctx=c.getContext('2d');ctx.drawImage(img,0,0,N,N);
+  let d;try{d=ctx.getImageData(0,0,N,N).data}catch(e){res([]);return}
+  const buckets={};
+  for(let i=0;i<d.length;i+=4){
+   const r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];
+   if(a<140)continue;
+   const key=(r>>5)+','+(g>>5)+','+(b>>5);
+   const bk=buckets[key]||(buckets[key]={n:0,r:0,g:0,b:0});
+   bk.n++;bk.r+=r;bk.g+=g;bk.b+=b;
+  }
+  const sorted=Object.values(buckets).sort((a,b)=>b.n-a.n);
+  const picked=[];
+  const hex=v=>('0'+Math.round(v).toString(16)).slice(-2);
+  for(const bk of sorted){
+   const r=bk.r/bk.n,g=bk.g/bk.n,b=bk.b/bk.n;
+   const isNearWhite=r>235&&g>235&&b>235;
+   if(isNearWhite&&picked.length)continue;
+   const far=picked.every(p=>Math.abs(p.r-r)+Math.abs(p.g-g)+Math.abs(p.b-b)>90);
+   if(!far)continue;
+   picked.push({r,g,b});
+   if(picked.length>=4)break;
+  }
+  res(picked.map(p=>'#'+hex(p.r)+hex(p.g)+hex(p.b)));
+ };
+ img.onerror=()=>res([]);
+ img.src=dataUrl;})}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('load failed: '+src));document.head.appendChild(s);});}
+async function pdfToImage(file){
+ if(!window.pdfjsLib){
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+  if(window.pdfjsLib&&window.pdfjsLib.GlobalWorkerOptions) window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+ }
+ if(!window.pdfjsLib) throw new Error('pdf.js unavailable');
+ const buf=await file.arrayBuffer();
+ const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
+ const page=await pdf.getPage(1);
+ let vp=page.getViewport({scale:2});
+ const targetW=Math.min(1600,vp.width);const f=targetW/vp.width;
+ vp=page.getViewport({scale:2*f});
+ const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+ await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+ return c.toDataURL('image/png');
+}
+async function onLogoFile(ev){
+ const f=ev.target.files&&ev.target.files[0];
+ if(!f)return;
+ const isPdf=(f.type==='application/pdf')||/\.pdf$/i.test(f.name||'');
+ try{
+  let dataUrl;
+  if(isPdf){ dataUrl=await pdfToImage(f); }
+  else{ dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result));r.onerror=()=>rej(new Error('read error'));r.readAsDataURL(f);}); }
+  const small=await shrinkLogo(dataUrl);
+  const colors=await extractColors(small);
+  S.input.logo=small;
+  if(colors.length)S.input.logoColors=colors;
+  render();
+ }catch(e){ alert((S.lang==='ar'?'تعذّر قراءة الملف: ':'Could not read file: ')+((e&&e.message)||e)); }
+}
+function setLogoColor(i,v){S.input.logoColors[i]=v}
+function addLogoColor(){captureStep();S.input.logoColors.push('#7DC242');render()}
+function removeLogoColor(i){captureStep();S.input.logoColors.splice(i,1);render()}
+
+/* ───────── generation flows ───────── */
+async function generate(){
+ S.genError='';S.genMode='new';
+ if(!S.claudeKey.trim()){S.genError=t('noKey');render();return}
+ if((S.imgProvider==='google'||S.imgProvider==='both')&&!S.googleKey.trim()){S.genError=t('noKey');render();return}
+ if((S.imgProvider==='openai'||S.imgProvider==='both')&&(!S.openaiKey.trim()||!S.proxyUrl.trim())){S.genError=S.proxyUrl.trim()?t('noOpenaiKey'):t('noProxy');render();return}
+ try{
+  if(S.input.logo&&!S.input.logoAnalysis&&S.claudeKey.trim()){S.genStatus=t('analyzingLogo');render();try{await analyzeLogoWithClaude(S.input)}catch(_){}}
+  S.genStatus=t('analyzing');render();
+  const {concepts,tips}=await analyze(S.input);
+  let lastImgErr='';
+  for(let i=0;i<concepts.length;i++){
+   S.genStatus=t('rendering',{n:i+1});render();
+   try{await renderConcept(concepts[i],concepts[i].imagePrompt,S.input.logo,
+    sec=>{S.genStatus=t('waiting',{s:sec});render()})}
+   catch(e){console.warn('render '+(i+1)+' failed',e);lastImgErr=e.message}
+   if(i<concepts.length-1)await sleep(3000);
+  }
+  if(!concepts.some(c=>c.image))throw new Error(lastImgErr||'All image renders failed. Press "Test keys" in Settings.');
+  S.genError='';
+  if(S.editingProjectId){
+   const ep=S.projects.find(x=>x.id===S.editingProjectId);
+   if(ep){
+    ep.versions=ep.versions||[];
+    ep.versions.unshift({ts:ep.updatedAt||ep.createdAt,input:ep.input,concepts:ep.concepts,tips:ep.tips,selectedConceptId:ep.selectedConceptId});
+    if(ep.versions.length>8)ep.versions=ep.versions.slice(0,8);
+    ep.input=S.input;ep.concepts=concepts;ep.tips=tips;ep.selectedConceptId=null;ep.updatedAt=Date.now();
+    S.currentId=ep.id;S.editingProjectId=null;persist();nav('results');return;
+   }
+   S.editingProjectId=null;
+  }
+  const np={id:'p'+Date.now(),createdAt:Date.now(),input:S.input,concepts,tips,selectedConceptId:null};
+  S.projects.unshift(np);persist();
+  S.currentId=np.id;nav('results');
+ }catch(e){S.genError=e.message||t('failed');render()}
+}
+async function fillMissingImages(){
+ const p=proj();if(!p)return;
+ S.genMode='fill';S.genError='';S.view='generating';
+ const missing=p.concepts.filter(c=>!c.image);
+ let lastImgErr='';
+ for(let i=0;i<missing.length;i++){
+  S.genStatus=t('rendering',{n:i+1});render();
+  try{await renderConcept(missing[i],missing[i].imagePrompt,p.input.logo,
+   sec=>{S.genStatus=t('waiting',{s:sec});render()})}
+  catch(e){lastImgErr=e.message}
+  if(i<missing.length-1)await sleep(3000);
+ }
+ persist();
+ if(p.concepts.some(c=>!c.image)&&lastImgErr){S.genError=lastImgErr;render();return}
+ S.genError='';nav('results');
+}
+const EXTRA_ANGLES=[
+ {id:'side',txt:'eye-level view from the side aisle, 90-degree side angle showing the booth depth'},
+ {id:'inside',txt:'interior view standing inside the booth looking toward the open front, showing counters, screens and visitor areas'},
+ {id:'top',txt:'high aerial top-down three-quarter view revealing the full floor layout'}
+];
+async function generateViews(conceptId){
+ const p=proj();if(!p)return;
+ const c=p.concepts.find(x=>x.id===conceptId);
+ if(!c||!c.image)return;
+ S.genMode='views';S.viewsTarget=conceptId;S.genError='';S.view='generating';
+ c.views=c.views||[];
+ let lastErr='';let first=true;
+ for(let i=0;i<EXTRA_ANGLES.length;i++){
+  const ang=EXTRA_ANGLES[i];
+  if(c.views.some(v=>v.id===ang.id))continue;
+  if(!first)await sleep(3000);
+  first=false;
+  S.genStatus=t('generatingAngle',{n:i+1});render();
+  try{
+   const img=await renderAngle(c.image,ang.txt,sec=>{S.genStatus=t('waiting',{s:sec});render()});
+   c.views.push({id:ang.id,image:img});persist();
+  }catch(e){lastErr=e.message}
+ }
+ if(c.views.length<EXTRA_ANGLES.length&&lastErr){S.genError=lastErr;render();return}
+ S.genError='';nav('results');
+}
+function showView(cid,idx){const p=proj();if(!p)return;
+ const c=p.concepts.find(x=>x.id===cid);if(!c)return;c._shown=idx;render()}
+function retryGen(){S.genError='';S.view='generating';render();
+ (S.genMode==='refine'?applyRefine((S.refineTarget||{}).cid,(S.refineTarget||{}).txt):S.genMode==='views'?generateViews(S.viewsTarget):S.genMode==='fill'?fillMissingImages():generate())}
+
+async function testKeys(){
+ const out=document.getElementById('keyTest');
+ const ck=document.getElementById('ckey').value.trim();
+ const gk=document.getElementById('gkey').value.trim();
+ const _ok=(document.getElementById('okey')||{}).value||'';const _pu=(document.getElementById('purl')||{}).value||'';
+ S.claudeKey=ck;S.googleKey=gk;S.openaiKey=_ok.trim();S.proxyUrl=_pu.trim();persist();
+ out.innerHTML='<div style="color:var(--muted)">'+t('testing')+'</div>';
+ const lines=[];
+ if(!ck)lines.push('<div style="color:var(--danger)">'+t('noClaudeKey')+'</div>');
+ else{
+  try{
+   let ok=false,msg='';
+   for(const model of CLAUDE_MODELS){
+    let r;
+    try{
+     r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'content-type':'application/json','x-api-key':ck,
+       'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model,max_tokens:1,messages:[{role:'user',content:'hi'}]})});
+    }catch(e){msg=t('errNetwork');break}
+    if(r.status===404)continue;
+    if(r.status===401){msg=t('errClaudeKey');break}
+    if(r.status===429){msg=t('errClaudeQuota');break}
+    if(r.ok){ok=true;break}
+    let d='';try{const e=await r.json();d=e?.error?.message||''}catch(_){}
+    msg='Claude: '+(d||('HTTP '+r.status));break;
+   }
+   lines.push(ok?'<div style="color:var(--primary)">'+t('claudeOk')+'</div>'
+    :'<div style="color:var(--danger)">✗ '+esc(msg||'Claude model unavailable')+'</div>');
+  }catch(e){lines.push('<div style="color:var(--danger)">✗ '+esc(e.message)+'</div>')}
+ }
+ if(!gk)lines.push('<div style="color:var(--danger)">'+t('noGoogleKey')+'</div>');
+ else{
+  try{
+   let r;
+   try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000&key='+encodeURIComponent(gk))}
+   catch(e){lines.push('<div style="color:var(--danger)">✗ '+t('errNetwork')+'</div>');r=null}
+   if(r){
+    if(!r.ok)lines.push('<div style="color:var(--danger)">✗ '+t('errGoogleKey')+'</div>');
+    else{
+     const data=await r.json();
+     const names=(data?.models||[]).map(m=>m.name||'');
+     const hasImg=names.some(n=>n.includes('image'));
+     lines.push(hasImg?'<div style="color:var(--primary)">'+t('googleOk')+'</div>'
+      :'<div style="color:var(--accent)">'+t('googleNoImg')+'</div>');
+    }
+   }
+  }catch(e){lines.push('<div style="color:var(--danger)">✗ '+esc(e.message)+'</div>')}
+ }
+ if(S.imgProvider!=='google'){lines.push((S.openaiKey&&S.proxyUrl)?'<div style="color:var(--primary)">'+t('openaiOk')+'</div>':'<div style="color:var(--accent)">'+(S.proxyUrl?t('noOpenaiKey'):t('noProxy'))+'</div>');}
+ out.innerHTML=lines.join('');
+}
+
+/* ───────── 2D plan ───────── */
+const P={paper:'#FFFFFF',ink:'#141414',acc:'#5A9E2F',acc2:'#C77F22',grid:'#E6EADF'};
+const SW=680,SH=480,MG=64;
+function schedule(inp){
+ const rows=[];let n=1;
+ for(const id of inp.decorations){const i=DECOR.find(x=>x.id===id);if(!i)continue;
+  rows.push({n:n++,id,label:S.lang==='ar'?i.ar:i.en,cat:'decor',placed:i.w>0})}
+ for(const id of inp.services){const i=SERV.find(x=>x.id===id);if(!i)continue;
+  rows.push({n:n++,id,label:S.lang==='ar'?i.ar:i.en,cat:'service',placed:i.w>0})}
+ if(inp.decorInside&&inp.decorInside.trim())rows.push({n:'•',id:'_inside',label:(S.lang==='ar'?'داخلي: ':'Interior: ')+inp.decorInside.trim(),cat:'custom',placed:false});
+ if(inp.decorOutside&&inp.decorOutside.trim())rows.push({n:'•',id:'_outside',label:(S.lang==='ar'?'خارجي: ':'Exterior: ')+inp.decorOutside.trim(),cat:'custom',placed:false});
+ return rows;
+}
+function dimH(x1,x2,y,lb){return `<g stroke="${P.ink}" stroke-width="1" fill="${P.ink}">
+<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}"/><line x1="${x1}" y1="${y-5}" x2="${x1}" y2="${y+5}"/>
+<line x1="${x2}" y1="${y-5}" x2="${x2}" y2="${y+5}"/>
+<polygon points="${x1},${y} ${x1+7},${y-3} ${x1+7},${y+3}"/><polygon points="${x2},${y} ${x2-7},${y-3} ${x2-7},${y+3}"/>
+<text x="${(x1+x2)/2}" y="${y-6}" font-size="12" font-family="Arial" text-anchor="middle" stroke="none">${esc(lb)}</text></g>`}
+function dimV(x,y1,y2,lb){return `<g stroke="${P.ink}" stroke-width="1" fill="${P.ink}">
+<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}"/><line x1="${x-5}" y1="${y1}" x2="${x+5}" y2="${y1}"/>
+<line x1="${x-5}" y1="${y2}" x2="${x+5}" y2="${y2}"/>
+<polygon points="${x},${y1} ${x-3},${y1+7} ${x+3},${y1+7}"/><polygon points="${x},${y2} ${x-3},${y2-7} ${x+3},${y2-7}"/>
+<text x="${x-8}" y="${(y1+y2)/2}" font-size="12" font-family="Arial" text-anchor="middle" stroke="none" transform="rotate(-90 ${x-8} ${(y1+y2)/2})">${esc(lb)}</text></g>`}
+function tagSvg(cx,cy,n){return `<g><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="9" fill="${P.acc}"/>
+<text x="${cx.toFixed(1)}" y="${(cy+3.5).toFixed(1)}" font-size="10" font-weight="bold" font-family="Arial" text-anchor="middle" fill="#FFF">${n}</text></g>`}
+
+function topViewSvg(inp){
+ const sc=Math.min((SW-MG*2)/inp.width,(SH-MG*2)/inp.depth);
+ const bw=inp.width*sc,bd=inp.depth*sc,x0=(SW-bw)/2,y0=(SH-bd)/2;
+ const sh=shapeById(inp.type);
+ let s=`<svg viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg"><rect width="${SW}" height="${SH}" fill="${P.paper}"/>`;
+ s+=`<g stroke="${P.grid}" stroke-width="1">`;
+ for(let m=1;m<inp.width;m++){const gx=x0+m*sc;s+=`<line x1="${gx}" y1="${y0}" x2="${gx}" y2="${y0+bd}"/>`}
+ for(let m=1;m<inp.depth;m++){const gy=y0+m*sc;s+=`<line x1="${x0}" y1="${gy}" x2="${x0+bw}" y2="${gy}"/>`}
+ s+=`</g><rect x="${x0}" y="${y0}" width="${bw}" height="${bd}" fill="none" stroke="${P.ink}" stroke-width="1"/>`;
+ const closed={back:['inline','corner','peninsula'].includes(inp.type),left:['inline','corner'].includes(inp.type),right:['inline'].includes(inp.type)};
+ const wall=(a,b,c,d)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${P.ink}" stroke-width="6"/>`;
+ const open=(a,b,c,d)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${P.acc}" stroke-width="2" stroke-dasharray="8 5"/>`;
+ s+=closed.back?wall(x0,y0,x0+bw,y0):open(x0,y0,x0+bw,y0);
+ s+=closed.left?wall(x0,y0,x0,y0+bd):open(x0,y0,x0,y0+bd);
+ s+=closed.right?wall(x0+bw,y0,x0+bw,y0+bd):open(x0+bw,y0,x0+bw,y0+bd);
+ s+=open(x0,y0+bd,x0+bw,y0+bd);
+ if(inp.type==='doubleDecker'){
+  const sw2=Math.min(1.2*sc,bw*0.25),sd=Math.min(2.4*sc,bd*0.45),sx=x0+4,sy=y0+4;
+  s+=`<rect x="${sx}" y="${sy}" width="${sw2}" height="${sd}" fill="none" stroke="${P.acc2}" stroke-width="1.5"/>`;
+  for(let i=1;i<6;i++){const yy=sy+(sd/6)*i;s+=`<line x1="${sx}" y1="${yy}" x2="${sx+sw2}" y2="${yy}" stroke="${P.acc2}" stroke-width="1"/>`}
+  s+=`<text x="${sx+sw2/2}" y="${sy+sd+12}" font-size="10" font-family="Arial" text-anchor="middle" fill="${P.acc2}">${t('stairs')}</text>`;
+ }
+ const PAD=0.15;
+ const placeable=schedule(inp).filter(r=>r.placed).map(r=>{const it=itemById(r.id);
+  return{n:r.n,id:r.id,w:Math.min(it.w,inp.width*0.45),d:Math.min(it.d,inp.depth*0.45)}});
+ const draw=(xM,yM,wM,dM,n)=>{const rx=x0+xM*sc,ry=y0+yM*sc,rw=wM*sc,rd=dM*sc;
+  s+=`<rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${rw.toFixed(1)}" height="${rd.toFixed(1)}" rx="2" fill="#F2F7EC" stroke="${P.acc}" stroke-width="1.5"/>`;
+  s+=tagSvg(rx+rw/2,ry+rd/2,n)};
+ const led=placeable.find(i=>i.id==='backWallLed');
+ const rec=placeable.find(i=>i.id==='receptionCounter');
+ const gen=placeable.filter(i=>i!==led&&i!==rec);
+ const used=gen.reduce((a,i)=>a+i.w*i.d,0),budget=0.5*inp.width*inp.depth;
+ if(used>budget){const f=Math.sqrt(budget/used);for(const i of gen){i.w*=f;i.d*=f}}
+ gen.sort((a,b)=>b.w*b.d-a.w*a.d);
+ let yC=PAD;
+ if(led){const lw=Math.min(led.w,inp.width-2*PAD);draw((inp.width-lw)/2,PAD,lw,led.d,led.n);yC=led.d+2*PAD}
+ const frontRes=rec?rec.d+2*PAD:PAD;
+ const stW=inp.type==='doubleDecker'?Math.min(1.2,inp.width*0.25)+PAD:0;
+ const stD=inp.type==='doubleDecker'?Math.min(2.4,inp.depth*0.45):0;
+ let xC=PAD,rowD=0;const maxY=inp.depth-frontRes;
+ for(const it of gen){
+  if(yC<stD&&xC<stW+PAD)xC=stW+PAD;
+  if(xC+it.w>inp.width-PAD){xC=PAD;yC+=rowD+PAD;rowD=0;if(yC<stD)xC=stW+PAD}
+  if(yC+it.d>maxY){const rem=maxY-yC;if(rem>0.4)it.d=rem;else continue}
+  draw(xC,yC,it.w,it.d,it.n);xC+=it.w+PAD;rowD=Math.max(rowD,it.d);
+ }
+ if(rec){const rw=Math.min(rec.w,inp.width-2*PAD);draw((inp.width-rw)/2,inp.depth-PAD-rec.d,rw,rec.d,rec.n)}
+ s+=`<text x="${x0+bw/2}" y="${y0+bd+18}" font-size="11" font-weight="bold" font-family="Arial" text-anchor="middle" fill="${P.acc}">▼ ${t('front')} ▼</text>`;
+ s+=dimH(x0,x0+bw,y0+bd+36,inp.width.toFixed(2)+' m');
+ s+=dimV(x0-24,y0,y0+bd,inp.depth.toFixed(2)+' m');
+ const shLabel=S.lang==='ar'?sh.ar:sh.en;
+ s+=`<text x="${SW/2}" y="24" font-size="12" font-family="Arial" text-anchor="middle" fill="${P.ink}">${esc(shLabel)}${inp.type==='custom'&&inp.customShapeNote?' — '+esc(inp.customShapeNote.slice(0,60)):''}</text>`;
+ return s+'</svg>';
+}
+function frontViewSvg(inp){
+ const H=420;
+ const sc=Math.min((SW-MG*2)/inp.width,(H-MG*2)/inp.height);
+ const bw=inp.width*sc,bh=inp.height*sc,x0=(SW-bw)/2,y0=H-MG-bh,gy=y0+bh;
+ let s=`<svg viewBox="0 0 ${SW} ${H}" xmlns="http://www.w3.org/2000/svg"><rect width="${SW}" height="${H}" fill="${P.paper}"/>`;
+ s+=`<line x1="${x0-30}" y1="${gy}" x2="${x0+bw+30}" y2="${gy}" stroke="${P.ink}" stroke-width="2"/>`;
+ for(let i=0;i<24;i++){const hx=x0-30+i*((bw+60)/24);s+=`<line x1="${hx}" y1="${gy}" x2="${hx-7}" y2="${gy+7}" stroke="${P.ink}" stroke-width="1"/>`}
+ s+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" fill="#FAFCF7" stroke="${P.ink}" stroke-width="2.5"/>`;
+ if(inp.type==='doubleDecker'){
+  const mid=y0+bh*0.5;
+  s+=`<line x1="${x0}" y1="${mid}" x2="${x0+bw}" y2="${mid}" stroke="${P.ink}" stroke-width="2"/>`;
+  for(let i=0;i<=12;i++){const rx=x0+(bw/12)*i;s+=`<line x1="${rx}" y1="${mid}" x2="${rx}" y2="${mid-14}" stroke="${P.acc2}" stroke-width="1"/>`}
+  s+=`<line x1="${x0}" y1="${mid-14}" x2="${x0+bw}" y2="${mid-14}" stroke="${P.acc2}" stroke-width="1.5"/>`;
+ }
+ const bandH=Math.min(34,bh*0.16);
+ s+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bandH}" fill="${P.acc}"/>`;
+ s+=`<text x="${x0+bw/2}" y="${y0+bandH/2+5}" font-size="${bandH*0.5}" font-weight="bold" font-family="Arial" text-anchor="middle" fill="#FFF">${esc(inp.companyName.trim()||'BRAND')}</text>`;
+ if(inp.decorations.includes('backWallLed')){
+  const lw=bw*0.5,lh=bh*0.42,lx=x0+(bw-lw)/2,ly=y0+bandH+12;
+  s+=`<rect x="${lx}" y="${ly}" width="${lw}" height="${lh}" fill="#1A1A1A" stroke="${P.ink}" stroke-width="1.5"/>`;
+  s+=`<text x="${lx+lw/2}" y="${ly+lh/2+4}" font-size="12" font-family="Arial" text-anchor="middle" fill="#9AE26B">${t('led')}</text>`;
+ }
+ if(inp.decorations.includes('receptionCounter')){
+  const cw=Math.min(2*sc,bw*0.4),ch=Math.min(1.1*sc,bh*0.36),cx=x0+bw*0.12;
+  s+=`<rect x="${cx}" y="${gy-ch}" width="${cw}" height="${ch}" fill="#EDF3E4" stroke="${P.ink}" stroke-width="1.5"/>`;
+ }
+ s+=dimH(x0,x0+bw,gy+30,inp.width.toFixed(2)+' m');
+ s+=dimV(x0+bw+26,y0,gy,inp.height.toFixed(2)+' m');
+ return s+'</svg>';
+}
+
+/* ───────── fabrication engine ───────── */
+function buildParts(inp){
+ const parts=[];let pid=1;
+ const add=(ar,en,mat,w,h,qty,linear)=>{qty=Math.round(qty);if(qty<1)return;
+  parts.push({n:pid++,ar,en,mat,w:Math.round(w),h:Math.round(h),qty,linear:!!linear})};
+ const H=Math.round(inp.height*1000);
+ const structMat=inp.reusable==='reusable'?'alu':'steel';
+ const walls=[];
+ if(['inline','corner','peninsula'].includes(inp.type))walls.push({ar:'الجدار الخلفي',en:'Back wall',len:Math.round(inp.width*1000)});
+ if(['inline','corner'].includes(inp.type))walls.push({ar:'الجدار الجانبي الأيسر',en:'Left side wall',len:Math.round(inp.depth*1000)});
+ if(inp.type==='inline')walls.push({ar:'الجدار الجانبي الأيمن',en:'Right side wall',len:Math.round(inp.depth*1000)});
+  const bands=[];let _h=H;while(_h>0){const bh=Math.min(_h,2440);bands.push(bh);_h-=bh}
+ for(const w of walls){
+  const full=Math.floor(w.len/1220);
+  const rem=Math.round(w.len-full*1220);
+  for(const bh of bands){
+   if(full>0)add('لوح '+w.ar,w.en+' panel','mdf18',1220,bh,full);
+   if(rem>50)add('لوح مكمل '+w.ar,w.en+' filler','mdf18',rem,bh,1);
+  }
+  add('قائم هيكل '+w.ar,w.en+' post',structMat,H,0,full+1,true);
+  add('جسر '+w.ar,w.en+' rail',structMat,Math.min(w.len,6000),0,Math.ceil(w.len/6000)*2,true);
+ }
+  if(inp.decorations.includes('meetingRoom')){
+  const _mi=itemById('meetingRoom');const len=Math.round(2*((_mi?_mi.w:3)+(_mi?_mi.d:2.5))*1000-900);
+  const full=Math.ceil(len/1220);
+  add('لوح جدار غرفة اجتماعات','Meeting room wall panel','mdf18',1220,2400,full);
+  add('قائم غرفة اجتماعات','Meeting room post',structMat,2400,0,full+2,true);
+ }
+ if(inp.decorations.includes('storageRoom')){
+  add('لوح جدار مستودع','Storage wall panel','mdf18',1220,2400,Math.ceil(3600/1220));
+  add('قائم مستودع','Storage post',structMat,2400,0,5,true);
+ }
+ if(inp.decorations.includes('receptionCounter')){
+  add('سطح كاونتر استقبال','Counter top','mdf18',2000,600,1);
+  add('واجهة كاونتر','Counter front','mdf18',2000,950,1);
+  add('جانب كاونتر','Counter side','mdf18',600,950,2);
+  add('رف داخلي كاونتر','Counter shelf','mdf18',1900,400,1);
+ }
+ if(inp.decorations.includes('backWallLed')){
+  const lw=Math.round(Math.min(4,inp.width-0.4)*1000),lh=Math.round(Math.min(2.5,inp.height-0.5)*1000);
+  add('إطار LED أفقي','LED frame horizontal','alu',lw,0,2,true);
+  add('إطار LED رأسي','LED frame vertical','alu',lh,0,2,true);
+ }
+ if(inp.decorations.includes('raisedFloor')){
+  const modules=Math.ceil((inp.width*inp.depth)/1.4641);
+  add('بلاطة أرضية مرتفعة','Raised floor module','ply18',1210,1210,modules);
+  add('عارضة أرضية','Floor joist',structMat,1220,0,modules*2,true);
+ }
+ if(inp.decorations.includes('logoTower')){
+  add('قائم برج لوقو','Logo tower post',structMat,H,0,4,true);
+  add('تغليف برج لوقو','Logo tower cladding','mdf18',1000,Math.min(H,2440),4);
+ }
+ if(inp.decorations.includes('productShelves'))add('رف عرض منتجات','Display shelf','mdf18',2000,500,3);
+ if(inp.decorations.includes('displayPodium')){
+  add('جانب بوديوم','Podium side','mdf18',600,1000,4);
+  add('سطح بوديوم','Podium top','mdf18',600,600,1);
+ }
+ if(inp.decorations.includes('archEntrance')){
+  add('قوس مدخل (قطاعات)','Arch entrance segments','mdf18',1220,800,4);
+  add('قائم قوس','Arch post',structMat,Math.min(H,3000),0,2,true);
+ }
+ if(inp.type==='doubleDecker'){
+  add('درجة سلم','Stair tread','ply18',1000,280,13);
+  add('عارضة سلم','Stair stringer',structMat,3500,0,2,true);
+  add('عارضة سقف علوي','Upper deck joist',structMat,Math.round(Math.min(inp.width,6)*1000),0,Math.ceil(inp.depth/0.6),true);
+  add('بلاطة أرضية علوية','Upper deck floor','ply18',1210,1210,Math.ceil((inp.width*inp.depth*0.7)/1.4641));
+  add('درابزين علوي','Upper railing','alu',1000,0,Math.ceil((inp.width+inp.depth)*2*0.7),true);
+ }
+ if(inp.type==='stand'&&walls.length===0){
+  add('جسم الاستند','Stand body panel','mdf18',Math.round(inp.width*1000),Math.min(H,2440),2);
+  add('جانب الاستند','Stand side panel','mdf18',Math.round(inp.depth*1000),Math.min(H,2440),2);
+  add('قاعدة الاستند','Stand base','ply18',Math.round(inp.width*1000),Math.round(inp.depth*1000),1);
+ }
+ return parts;
+}
+function bomSummary(parts){
+ const mats={};
+ for(const p of parts){
+  const m=mats[p.mat]||(mats[p.mat]={area:0,len:0});
+  if(p.linear)m.len+=p.w*p.qty;else m.area+=(p.w*p.h*p.qty)/1e6;
+ }
+ const out=[];
+ for(const[mat,v]of Object.entries(mats)){
+  const info=MATERIALS[mat];
+  if(info.sheet)out.push({mat,label:t(info.key),qty:Math.ceil(v.area*1.15/2.9768),unit:t('sheetsOf')});
+  else{const meters=Math.ceil(v.len*1.15/1000);
+   out.push({mat,label:t(info.key),qty:meters,unit:t('linMeters'),bars:Math.ceil(meters/6)})}
+ }
+ return out;
+}
+function nestParts(parts){
+ const SW2=2440,SH2=1220,GAP=6,M=4;
+ const byMat={};
+ for(const p of parts){
+  if(!MATERIALS[p.mat].sheet)continue;
+  for(let q=0;q<p.qty;q++){
+   let w=p.w,h=p.h;
+   if(h>SH2&&w<=SH2){const tmp=w;w=h;h=tmp}
+   if(h>SH2)h=SH2;
+   if(w>SW2)w=SW2;
+   (byMat[p.mat]=byMat[p.mat]||[]).push({w,h,label:'#'+p.n+'  '+w+'×'+h});
+  }
+ }
+ const out={};
+ for(const[mat,rects]of Object.entries(byMat)){
+  const full=rects.filter(r=>r.w>=SW2-12&&r.h>=SH2-12);
+  const rest=rects.filter(r=>!(r.w>=SW2-12&&r.h>=SH2-12));
+  const sheets=full.map(r=>({rects:[{x:0,y:0,w:SW2,h:SH2,label:r.label}]}));
+  rest.sort((a,b)=>b.h-a.h||b.w-a.w);
+  let sh=null,x=M,y=M,rowH=0;
+  const newSheet=()=>{sh={rects:[]};sheets.push(sh);x=M;y=M;rowH=0};
+  if(rest.length)newSheet();
+  for(const r of rest){
+   const mx=(r.w>=SW2-2*M)?0:M;  /* full-width parts sit flush */
+   const my=(r.h>=SH2-2*M)?0:M;  /* full-height parts sit flush */
+   if(x+r.w>SW2-mx){if(rowH>0)y+=rowH+GAP;x=mx;rowH=0}
+   if(x<mx)x=mx;
+   if(y+r.h>SH2-my){if(sh.rects.length)newSheet();x=mx;y=my;rowH=0}
+   if(y<my)y=my;
+   sh.rects.push({x,y,w:r.w,h:r.h,label:r.label});
+   x+=r.w+GAP;rowH=Math.max(rowH,r.h);
+  }
+  out[mat]=sheets;
+ }
+ return out;
+}
+function sheetSvg(sheet){
+ const W=2440,H=1220;
+ let s='<svg viewBox="-25 -25 '+(W+50)+' '+(H+50)+'" xmlns="http://www.w3.org/2000/svg">';
+ s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#FFFFFF" stroke="#141414" stroke-width="5"/>';
+ for(const r of sheet.rects){
+  s+='<rect x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" fill="#F2F7EC" stroke="#5A9E2F" stroke-width="3"/>';
+  const fs=Math.max(30,Math.min(64,Math.min(r.h,r.w)/4));
+  s+='<text x="'+(r.x+r.w/2)+'" y="'+(r.y+r.h/2+fs/3)+'" font-size="'+fs+'" font-family="Arial" text-anchor="middle" fill="#141414">'+esc(r.label)+'</text>';
+ }
+ return s+'</svg>';
+}
+
+/* ───────── DXF export ───────── */
+function buildDxf(inp){
+ const parts=buildParts(inp);
+ const nested=nestParts(parts);
+ const L=[];
+ const push=(...a)=>{for(const x of a)L.push(String(x))};
+ push(0,'SECTION',2,'HEADER',9,'$ACADVER',1,'AC1009',9,'$INSUNITS',70,4,0,'ENDSEC');
+ push(0,'SECTION',2,'TABLES',0,'TABLE',2,'LAYER',70,6);
+ for(const[name,color]of [['SHEET',8],['MDF',1],['PLY',3],['STEEL',5],['ALU',4],['LABELS',2]])
+  push(0,'LAYER',2,name,70,0,62,color,6,'CONTINUOUS');
+ push(0,'ENDTAB',0,'ENDSEC');
+ push(0,'SECTION',2,'ENTITIES');
+ const rect=(layer,x,y,w,h)=>{
+  const pts=[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+  for(let i=0;i<4;i++){const a=pts[i],b=pts[(i+1)%4];
+   push(0,'LINE',8,layer,10,a[0].toFixed(1),20,a[1].toFixed(1),30,0,11,b[0].toFixed(1),21,b[1].toFixed(1),31,0)}
+ };
+ const text=(layer,x,y,hgt,str)=>{push(0,'TEXT',8,layer,10,x.toFixed(1),20,y.toFixed(1),30,0,40,hgt,1,str)};
+ let oy=0;
+ for(const[mat,sheets]of Object.entries(nested)){
+  let ox=0;
+  text('LABELS',0,oy+1260,90,MATERIALS[mat].layer+' — 2440x1220 sheets');
+  for(const sh of sheets){
+   rect('SHEET',ox,oy,2440,1220);
+   for(const r of sh.rects){
+    rect(MATERIALS[mat].layer,ox+r.x,oy+(1220-r.y-r.h),r.w,r.h);
+    text('LABELS',ox+r.x+25,oy+(1220-r.y-r.h)+r.h/2,Math.min(60,Math.max(30,r.h/4)),r.label.replace(/\s+/g,' '));
+   }
+   ox+=2440+300;
+  }
+  oy-=1220+700;
+ }
+ let lyy=oy-400;
+ text('LABELS',0,lyy+260,90,'LINEAR CUTTING LIST (structure)');
+ for(const p of parts.filter(p=>p.linear)){
+  rect(MATERIALS[p.mat].layer,0,lyy,p.w,50);
+  text('LABELS',p.w+120,lyy+10,60,'#'+p.n+'  L='+p.w+'mm  x'+p.qty+'  ['+MATERIALS[p.mat].layer+']');
+  lyy-=220;
+ }
+ push(0,'ENDSEC',0,'EOF');
+ return L.join('\r\n');
+}
+function downloadDxf(){
+ const p=proj();if(!p)return;
+ const blob=new Blob([buildDxf(p.input)],{type:'application/dxf'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='BOOTH-STUDIO-fab-'+((p.input.companyName.trim()||p.id).replace(/[^\w؀-ۿ-]+/g,'_'))+'.dxf';
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+
+/* ───────── print: execution plan ───────── */
+function titleBlock(proj){
+ const inp=proj.input;
+ const sel=proj.concepts.find(c=>c.id===proj.selectedConceptId);
+ const sh=shapeById(inp.type);
+ const date=new Date(proj.createdAt).toLocaleDateString(S.lang==='ar'?'ar-SA':'en-GB');
+ const pal=(inp.logoColors||[]).map(c=>'<div style="background:'+esc(c)+'"></div>').join('');
+ return `
+  <div class="tb">
+   <div>${hiveMark(34)}<div class="ps" style="text-align:center;margin-top:3px">BOOTH DESIGNER</div></div>
+   <div class="meta">
+    <div><b>${t('project')}:</b> ${esc(inp.companyName.trim()||'Client')}</div>
+    <div><b>${t('date')}:</b> ${date}</div>
+    <div><b>${t('dimsL')}:</b> ${inp.width} × ${inp.depth} × ${inp.height} m &nbsp;|&nbsp; <b>${t('areaP')}:</b> ${(inp.width*inp.depth).toFixed(1)} m²</div>
+    <div><b>${t('boothType')}:</b> ${esc(S.lang==='ar'?sh.ar:sh.en)}${sel?` &nbsp;|&nbsp; <b>${t('style')}:</b> `+esc(S.lang==='ar'?sel.styleNameAr:sel.styleNameEn):''}</div>
+    <div><b>${t('reusableLbl')}:</b> ${inp.reusable==='reusable'?t('reusableOpt'):t('once')} &nbsp;|&nbsp; <b>${t('budgetLbl')}:</b> ${t(inp.budget||'mid')}</div>
+    ${pal?`<div style="display:flex;align-items:center;gap:6px"><b>${t('brandPalette')}:</b><span class="palette" style="display:flex;gap:4px">${pal}</span></div>`:''}
+   </div>
+  </div>`;
+}
+function printPlan(proj){
+ const inp=proj.input;
+ const sel=proj.concepts.find(c=>c.id===proj.selectedConceptId);
+ const rows=schedule(inp).map(r=>`<tr><td class="n">${r.placed?r.n:(r.cat==='custom'?'✎':'—')}</td><td>${esc(r.label)}</td><td>${r.cat==='decor'?t('catD'):r.cat==='custom'?t('catCustom'):t('catS')}</td></tr>`).join('');
+ document.getElementById('printArea').innerHTML=titleBlock(proj)+`
+  ${sel&&sel.image?`<h2>3D</h2><img class="render" src="${sel.image}"/><div class="pb"></div>`:''}
+  <h2>${t('topView')} — ${t('scale')} 1:50</h2><div class="dw">${topViewSvg(inp)}</div>
+  <h2>${t('frontView')} — ${t('scale')} 1:50</h2><div class="dw">${frontViewSvg(inp)}</div>
+  <div class="pb"></div>
+  <h2>${t('schedT')}</h2>
+  <table><thead><tr><th>#</th><th>${t('item')}</th><th>${t('cat')}</th></tr></thead><tbody>${rows}</tbody></table>
+  ${inp.notes.trim()?`<h2>${t('notes')}</h2><div style="font-size:12px;color:#555">${esc(inp.notes)}</div>`:''}
+  <div class="pfoot">BOOTH STUDIO — ${new Date().getFullYear()}</div>`;
+ window.print();
+}
+
+/* ───────── print: fabrication file ───────── */
+function printFab(proj){
+ const inp=proj.input;
+ const parts=buildParts(inp);
+ const nested=nestParts(parts);
+ const bom=bomSummary(parts);
+ const panelRows=parts.filter(p=>!p.linear).map(p=>
+  `<tr><td class="n">${p.n}</td><td>${esc(S.lang==='ar'?p.ar:p.en)}</td><td>${t(MATERIALS[p.mat].key)}</td><td>${p.w} × ${p.h}</td><td class="n">${p.qty}</td></tr>`).join('');
+ const linRows=parts.filter(p=>p.linear).map(p=>
+  `<tr><td class="n">${p.n}</td><td>${esc(S.lang==='ar'?p.ar:p.en)}</td><td>${t(MATERIALS[p.mat].key)}</td><td>L = ${p.w}</td><td class="n">${p.qty}</td></tr>`).join('');
+ const bomRows=bom.map(b=>
+  `<tr><td>${esc(b.label)}</td><td class="n">${b.qty}</td><td>${esc(b.unit)}${b.bars?' ≈ '+b.bars+' '+t('barsOf'):''}</td></tr>`).join('');
+ let sheetsHtml='';
+ for(const[mat,sheets]of Object.entries(nested)){
+  sheetsHtml+=`<h2>${t('cutSheets')} — ${t(MATERIALS[mat].key)} (${sheets.length})</h2>`;
+  sheets.forEach((sh,i)=>{sheetsHtml+=`<div class="sheet">${sheetSvg(sh)}</div>`});
+ }
+ document.getElementById('printArea').innerHTML=titleBlock(proj)+`
+  <h2>${t('fab')}</h2>
+  <div class="note">${inp.reusable==='reusable'?t('assemblyReuse'):t('assemblyOnce')} — ${t('wasteNote')}</div>
+  <h2>${t('panelsList')}</h2>
+  <table><thead><tr><th>#</th><th>${t('part')}</th><th>${t('material')}</th><th>${t('dimsMm')}</th><th>${t('qty')}</th></tr></thead>
+  <tbody>${panelRows||'<tr><td colspan="5">—</td></tr>'}</tbody></table>
+  <h2>${t('linearList')}</h2>
+  <table><thead><tr><th>#</th><th>${t('part')}</th><th>${t('material')}</th><th>${t('dimsMm')}</th><th>${t('qty')}</th></tr></thead>
+  <tbody>${linRows||'<tr><td colspan="5">—</td></tr>'}</tbody></table>
+  <h2>${t('matSummary')}</h2>
+  <table><thead><tr><th>${t('material')}</th><th>${t('qty')}</th><th></th></tr></thead><tbody>${bomRows}</tbody></table>
+  <div class="pb"></div>
+  ${sheetsHtml}
+  ${specsPrintHtml(inp)}
+  ${costPrintHtml(inp)}
+  <div class="pfoot">BOOTH STUDIO — FABRICATION FILE — ${new Date().getFullYear()}</div>`;
+ window.print();
+}
+
+/* ───────── views ───────── */
+const app=document.getElementById('app');
+function hiveMark(h){
+ const w=Math.round(h*3.47);
+ return `<div style="height:${h}px;display:flex;align-items:center;justify-content:center;font-size:${Math.max(18,Math.round(h*.46))}px;font-weight:900;letter-spacing:-1px;color:#39FF14;white-space:nowrap">BOOTH<span style="color:#F3F5F1">STUDIO</span></div>`;
+}
+const proj=()=>S.projects.find(p=>p.id===S.currentId);
+
+function header(backTo){
+ return `<div class="topbar">
+  ${backTo?`<button class="back-link" onclick="nav('${backTo}')">‹ ${t('back')}</button>`:'<span></span>'}
+  <button class="lang-toggle" onclick="setLang('${S.lang==='ar'?'en':'ar'}')">${S.lang==='ar'?'EN':'عربي'}</button>
+ </div>`;
+}
+
+function vHome(){
+ app.innerHTML=header(null)+`
+  <div class="logo">${hiveMark(58)}<div class="sub">BOOTH DESIGNER</div></div>
+  <div class="tagline">${t('tagline')}</div>
+  <div class="card hl menu-item" onclick="startWizard()">
+   <div class="icon-box hl">✦</div>
+   <div><div class="mi-title">${t('newDesign')}</div><div class="mi-sub">${t('newDesignSub')}</div></div>
+  </div>
+  <div class="card menu-item" onclick="nav('projects')">
+   <div class="icon-box">▤</div>
+   <div><div class="mi-title">${t('myProjects')}</div><div class="mi-sub">${t('myProjectsSub')}</div></div>
+  </div>
+  <div class="card menu-item" onclick="nav('settings')">
+   <div class="icon-box">⚙</div>
+   <div><div class="mi-title">${t('settings')}</div><div class="mi-sub">${t('settingsSub')}</div></div>
+  </div>
+  <div class="footer-note">${t('footer')}</div>`;
+}
+function startWizard(){S.input=defaultInput();S.step=0;nav('wizard')}
+
+const TOTAL_STEPS=5;
+function vWizard(){
+ const i=S.input,st=S.step;
+ const stepBars=Array.from({length:TOTAL_STEPS}).map((_,k)=>`<div class="${k<=st?'on':''}"></div>`).join('');
+ let body='';
+ if(st===0){
+  body=`<h2 class="section">${t('dims')}</h2><div class="section-sub">${t('dimsSub')}</div>
+  <div class="card">
+   <div class="row">
+    <div style="flex:1"><label>${t('width')} (${t('m')})</label><input type="number" step="0.1" min="0.5" id="w" value="${i.width}"></div>
+    <div style="flex:1"><label>${t('depth')} (${t('m')})</label><input type="number" step="0.1" min="0.5" id="d" value="${i.depth}"></div>
+   </div>
+   <label>${t('height')} (${t('m')})</label><input type="number" step="0.1" min="1" id="h" value="${i.height}">
+   <div class="area-note">${t('areaL')}: <span id="area">${(i.width*i.depth).toFixed(1)}</span> m²</div>
+  </div>`;
+ }else if(st===1){
+  body=`<h2 class="section">${t('shape')}</h2><div class="section-sub">${t('shapeSub')}</div>`+
+  SHAPES.map(s=>`<div class="card shape ${i.type===s.id?'sel':''}" onclick="pickShape('${s.id}')">
+   <div class="s-icon">${s.icon}</div>
+   <div><div class="s-title">${S.lang==='ar'?s.ar:s.en}</div><div class="s-desc">${S.lang==='ar'?s.dar:s.den}</div></div>
+   <div class="radio"></div></div>`).join('')+
+  (i.type==='custom'?`<label style="margin-top:10px">${t('customNote')}</label>
+   <textarea id="customNote" placeholder="${esc(t('customPh'))}">${esc(i.customShapeNote)}</textarea>`:'');
+ }else if(st===2){
+  const chips=(list,key)=>list.map(x=>`<div class="chip ${i[key].includes(x.id)?'on':''}" onclick="toggleItem('${key}','${x.id}')">${x.icon} ${S.lang==='ar'?x.ar:x.en}</div>`).join('');
+  body=`<h2 class="section">${t('decor')}</h2><div class="section-sub">${t('decorSub')}</div>
+  <div class="chips">${chips(DECOR,'decorations')}</div>
+  <h2 class="section" style="margin-top:24px">${t('services')}</h2><div class="section-sub">${t('servicesSub')}</div>
+  <div class="chips">${chips(SERV,'services')}</div>
+  <div class="card" style="margin-top:20px;border-color:var(--accent)">
+   <div class="opt-label" style="color:var(--accent)">✎ ${t('customDecorTitle')}</div>
+   <label>${t('decorInside')}</label><textarea id="decorInside" placeholder="${esc(t('decorInsidePh'))}">${esc(i.decorInside||'')}</textarea>
+   <label>${t('decorOutside')}</label><textarea id="decorOutside" placeholder="${esc(t('decorOutsidePh'))}">${esc(i.decorOutside||'')}</textarea>
+  </div>`;
+ }else if(st===3){
+  const swatches=(i.logoColors||[]).map((c,idx)=>`
+   <span style="position:relative;display:inline-block">
+    <input type="color" class="swatch" value="${esc(c)}" onchange="setLogoColor(${idx},this.value)">
+    <button onclick="removeLogoColor(${idx})" style="position:absolute;top:-7px;${S.lang==='ar'?'left':'right'}:-7px;width:18px;height:18px;border-radius:9px;border:none;background:var(--danger);color:#fff;font-size:10px;cursor:pointer;line-height:1">✕</button>
+   </span>`).join('');
+  body=`<h2 class="section">${t('identity')}</h2><div class="section-sub">${t('identitySub')}</div>
+  <div class="card">
+   <div class="logo-box" onclick="document.getElementById('logoFile').click()">
+    ${i.logo?`<img src="${i.logo}" alt="logo">`:''}
+    <div class="lb-hint">${i.logo?t('changeLogo'):t('uploadLogo')}</div>
+   </div>
+   <input type="file" id="logoFile" accept="image/*,.svg,.pdf,application/pdf" style="display:none" onchange="onLogoFile(event)">
+   ${(i.logoColors&&i.logoColors.length)?`
+    <div class="opt-label">${t('extracted')}</div>
+    <div class="swatches">${swatches}
+     <button class="chip" onclick="addLogoColor()">${t('addColor')}</button>
+    </div>`:''}
+   <label>${t('company')}</label><input type="text" id="company" value="${esc(i.companyName)}">
+   <label>${t('industry')}</label><input type="text" id="industry" placeholder="${esc(t('industryPh'))}" value="${esc(i.industry)}">
+   <label>${t('brandColor')}</label><input type="text" id="brandColor" placeholder="${esc(t('brandColorPh'))}" value="${esc(i.brandColor)}">
+   <label>${t('tagline')}</label><input type="text" id="tagline" placeholder="${esc(t('taglinePh'))}" value="${esc(i.tagline||'')}">
+  </div>`;
+ }else{
+  const opt=(field,val,lbl)=>`<div class="chip ${String(i[field])===String(val)?'on':''}" onclick="pickOpt('${field}',${typeof val==='string'?`'${val}'`:val})">${lbl}</div>`;
+  body=`<h2 class="section">${t('details')}</h2><div class="section-sub">${t('detailsSub')}</div>
+  <div class="card">
+   <div class="opt-label">${t('reusable')}</div>
+   <div class="chips">${opt('reusable','once',t('once'))}${opt('reusable','reusable',t('reusableOpt'))}</div>
+   <div class="opt-label">${t('budget')}</div>
+   <div class="chips">${opt('budget','eco',t('eco'))}${opt('budget','mid',t('mid'))}${opt('budget','premium',t('premium'))}</div>
+   <div class="opt-label">${t('hanging')}</div>
+   <div class="chips">${opt('hangingAllowed',true,t('allowed'))}${opt('hangingAllowed',false,t('notAllowed'))}</div>
+   <label style="margin-top:10px">${t('eventType')}</label>
+   <input type="text" id="eventType" placeholder="${esc(t('eventPh'))}" value="${esc(i.eventType)}">
+   <label>${t('notes')}</label><textarea id="notes" placeholder="${esc(t('notesPh'))}">${esc(i.notes)}</textarea>
+  </div>`;
+ }
+ app.innerHTML=header('home')+
+  `<div class="step-label">${t('step',{c:st+1,t:TOTAL_STEPS})}</div><div class="steps">${stepBars}</div>`+body+
+  `<div class="row" style="margin-top:26px">
+   <button class="btn btn-ghost" style="flex:1" onclick="wizBack()">${t('back')}</button>
+   <button class="btn btn-primary" style="flex:2" onclick="wizNext()">${st===TOTAL_STEPS-1?t('generate'):t('next')}</button>
+  </div>`;
+ if(st===0){
+  const upd=()=>{const w=+document.getElementById('w').value,d=+document.getElementById('d').value;
+   document.getElementById('area').textContent=(w>0&&d>0)?(w*d).toFixed(1):'0'};
+  document.getElementById('w').oninput=upd;document.getElementById('d').oninput=upd;
+ }
+}
+function pickShape(id){captureStep();S.input.type=id;render()}
+function pickOpt(field,val){captureStep();S.input[field]=val;render()}
+function toggleItem(key,id){captureStep();const l=S.input[key];
+ S.input[key]=l.includes(id)?l.filter(x=>x!==id):[...l,id];render()}
+function captureStep(){
+ const i=S.input,st=S.step,g=id=>document.getElementById(id);
+ if(!i)return;
+ if(st===0&&g('w')){i.width=+g('w').value;i.depth=+g('d').value;i.height=+g('h').value}
+ if(st===1&&g('customNote'))i.customShapeNote=g('customNote').value;
+ if(st===2&&g('decorInside')){i.decorInside=g('decorInside').value;i.decorOutside=g('decorOutside').value}
+ if(st===3&&g('company')){i.companyName=g('company').value;i.industry=g('industry').value;
+  i.brandColor=g('brandColor').value;if(g('tagline'))i.tagline=g('tagline').value}
+ if(st===4&&g('eventType')){i.eventType=g('eventType').value;i.notes=g('notes').value}
+}
+function wizBack(){captureStep();if(S.step>0){S.step--;render()}else nav('home')}
+function wizNext(){
+ captureStep();const i=S.input;
+ if(S.step===0&&(!(i.width>0)||!(i.depth>0)||!(i.height>0))){alert(t('invalidDims'));return}
+ if(S.step===1&&i.type==='custom'&&!i.customShapeNote.trim()){alert(t('customRequired'));return}
+ if(S.step<TOTAL_STEPS-1){S.step++;render()}else{nav('generating');generate()}
+}
+
+function vGenerating(){
+ app.innerHTML=header(null)+`
+  <div class="logo">${hiveMark(40)}<div class="sub" style="font-size:10px">BOOTH DESIGNER</div></div>
+  <div class="center">`+
+  (S.genError?`
+   <div class="err">${t('failed')}</div><div class="err-msg">${esc(S.genError)}</div>
+   ${(!S.claudeKey.trim()||!S.googleKey.trim())
+     ?`<button class="btn btn-primary" style="max-width:300px" onclick="nav('settings')">${t('goSettings')}</button>`
+     :`<button class="btn btn-primary" style="max-width:300px" onclick="retryGen()">${t('retry')}</button>`}
+   <button class="btn btn-ghost" style="max-width:300px" onclick="nav('home')">${t('cancel')}</button>`
+  :`<div class="spinner"></div><div class="gen-status">${esc(S.genStatus)}</div><div class="gen-hint">${t('genHint')}</div>`)+
+  `</div>`;
+}
+
+function logoInsightHtml(inp){
+ const la=inp&&inp.logoAnalysis;if(!la)return '';
+ const kw=((S.lang==='ar'?(la.styleKeywordsAr||la.styleKeywordsEn):(la.styleKeywordsEn||la.styleKeywordsAr))||[]).filter(Boolean);
+ const pers=S.lang==='ar'?(la.personalityAr||la.personalityEn||''):(la.personalityEn||la.personalityAr||'');
+ const dir=S.lang==='ar'?(la.boothDirectionAr||la.boothDirectionEn||''):(la.boothDirectionEn||la.boothDirectionAr||'');
+ if(!kw.length&&!pers&&!dir)return '';
+ return `<div class="card" style="margin-top:14px;border-color:var(--primary)"><div class="style-name">🔎 ${t('logoInsight')}</div>
+  ${kw.length?`<div class="chips" style="margin:4px 0 8px">${kw.map(k=>`<span class="badge">${esc(k)}</span>`).join('')}</div>`:''}
+  ${pers?`<div class="style-desc" style="margin-bottom:6px">${esc(pers)}</div>`:''}
+  ${dir?`<div class="hint" style="line-height:1.7">${esc(dir)}</div>`:''}</div>`;
+}
+function vResults(){
+ const p=proj();if(!p){nav('home');return}
+ const missingN=p.concepts.filter(c=>!c.image).length;
+ const tips=(p.tips&&p.tips[S.lang])||[];
+ app.innerHTML=header('home')+
+ `<h2 class="section">${t('results')}</h2><div class="section-sub">${t('resultsSub')}</div>`+
+ p.concepts.map((c,i)=>{
+  const views=c.views||[];
+  const shown=(typeof c._shown==='number'&&views[c._shown])?c._shown:-1;
+  const mainImg=shown>=0?views[shown].image:c.image;
+  const thumbs=(c.image&&views.length)?[`<img class="thumb ${shown===-1?'on':''}" src="${c.image}" onclick="showView('${c.id}',-1)" title="${t('hero')}">`]
+   .concat(views.map((v,vi)=>`<img class="thumb ${shown===vi?'on':''}" src="${v.image}" onclick="showView('${c.id}',${vi})">`)).join(''):'';
+  return `
+  <div class="card design-card ${p.selectedConceptId===c.id?'sel':''}">
+   ${mainImg?`<img src="${mainImg}" alt="">`:`<div style="aspect-ratio:3/2;display:flex;align-items:center;justify-content:center;color:var(--muted)">${t('noImage')}</div>`}
+   <div class="design-body">
+    ${thumbs?`<div class="thumbs">${thumbs}</div>`:''}
+    ${c.gen&&c.gen.google&&c.gen.openai?`<div class="prov-toggle" style="display:flex;align-items:center;gap:6px;margin:2px 0 8px">
+     <span style="color:var(--muted);font-size:12px">${t('pickBest')}:</span>
+     <button class="chip ${c.activeProvider==='google'?'on':''}" style="padding:5px 12px;font-size:12.5px" onclick="setProvider('${c.id}','google')">Google</button>
+     <button class="chip ${c.activeProvider==='openai'?'on':''}" style="padding:5px 12px;font-size:12.5px" onclick="setProvider('${c.id}','openai')">OpenAI</button></div>`:''}
+    <span class="badge">${t('concept',{n:i+1})}${c.activeProvider?' · '+(c.activeProvider==='openai'?t('byOpenai'):t('byGoogle')):''}</span>
+    <div class="style-name">${esc(S.lang==='ar'?c.styleNameAr:c.styleNameEn)}</div>
+    <div class="style-desc">${esc(S.lang==='ar'?c.descriptionAr:c.descriptionEn)}</div>
+    <button class="btn ${p.selectedConceptId===c.id?'btn-primary':'btn-outline'}" onclick="selectConcept('${c.id}')">
+     ${p.selectedConceptId===c.id?t('selected'):t('select')}</button>
+    ${c.image&&views.length<EXTRA_ANGLES.length?`<button class="btn btn-ghost" style="margin-top:8px" onclick="generateViews('${c.id}')">🔄 ${t('genAngles')}</button>`:''}
+    ${c.image?`<button class="btn btn-ghost" style="margin-top:8px" onclick="startRefine('${c.id}')">✨ ${t('refineTitle')}</button>`:''}
+   </div>
+  </div>`}).join('')+
+ (tips.length?`
+  <div class="card tips-card">
+   <div class="style-name" style="color:var(--accent)">💡 ${t('tips')}</div>
+   ${tips.map(x=>`<div class="tip-row"><span class="ti">◆</span><span>${esc(x)}</span></div>`).join('')}
+  </div>`:'')+
+  logoInsightHtml(p.input)+
+  `<div class="row" style="margin-top:14px">
+   <button class="btn btn-outline" onclick="openBooth3D()">🧊 ${t('view3dModel')}</button>
+   <button class="btn btn-outline" onclick="openBoothTurntable()">🎞 ${t('view3dTurn')}</button>
+   <button class="btn btn-ghost" onclick="startEdit('${p.id}')">✎ ${t('editProject')}</button>
+  </div>`+
+ versionsHtml(p)+
+ (missingN?`<button class="btn btn-outline" style="margin-top:14px" onclick="fillMissingImages()">${t('fillMissing',{n:missingN})}</button>`:'')+
+ (p.selectedConceptId?`<button class="btn btn-primary" style="margin-top:14px" onclick="nav('plan')">${t('viewPlan')}</button>`:'');
+}
+function selectConcept(cid){const p=proj();p.selectedConceptId=cid;persist();render()}
+
+function vPlan(){
+ const p=proj();if(!p){nav('home');return}
+ const prevSpec=specFromInputs(p.input);
+ app.innerHTML=header('results')+
+ `<h2 class="section">${t('plan')}</h2><div class="section-sub">${t('planSub')}</div>
+  <button class="btn btn-primary" onclick="openShopDrawings()">📐 ${t('shopBtn')}</button>
+  <button class="btn btn-outline" style="margin-top:10px" onclick="downloadShopDxf()">⤓ ${t('shopDxfBtn')}</button>
+  <div class="row" style="margin-top:10px">
+   <button class="btn btn-outline" onclick="openBooth3D()">🧊 ${t('view3dModel')}</button>
+   <button class="btn btn-outline" onclick="openBoothTurntable()">🎞 ${t('view3dTurn')}</button>
+  </div>
+  <div class="row" style="margin-top:10px">
+   <button class="btn btn-primary" onclick="makeClientBrief()">📄 ${t('clientBriefBtn')}</button>
+   <button class="btn btn-ghost" onclick="exportProject('${p.id}')">⤓ ${t('exportProject')}</button>
+  </div>
+  ${warningsCardHtml(p.input)}
+  <div class="drawing-h">${t('topView')} — ${S.lang==='ar'?'معاينة':'preview'}</div>
+  <div class="plan-svg-card">${planSvgSpec(prevSpec)}</div>
+  <div class="drawing-h">${t('frontView')}</div>
+  <div class="plan-svg-card">${frontElevSpecSvg(prevSpec)}</div>
+  <div class="card" style="margin-top:12px"><div class="hint">${S.lang==='ar'?'هذه معاينة مبدئية من المدخلات. اضغط «مخططات ورشة كاملة (CNC)» للحصول على المخططات والكميات وملف القص المرتبطة بالتصميم المختار (قص/تعريق/عاشق ومعشوق + غراء ودبوس وبراغي).':'This is a quick preview from inputs. Tap “Full shop drawings (CNC)” for the design-linked drawings, quantities and cut file (cuts/grain/tongue&groove + glue, staples & screws).'}</div></div>`;
+}
+function printCurrentPlan(){const p=proj();if(p)printPlan(p)}
+function printFabCurrent(){const p=proj();if(p)printFab(p)}
+
+function vProjects(){
+ if(!S.projects.length){
+  app.innerHTML=header('home')+`<div class="empty"><div class="e-icon">▤</div>
+   <div style="font-size:18px;font-weight:800;margin:12px 0 6px">${t('empty')}</div>
+   <div style="font-size:13px">${t('emptySub')}</div></div>`;return}
+ app.innerHTML=header('home')+`<h2 class="section" style="margin-bottom:10px">${t('myProjects')}</h2>
+  <div class="row" style="margin-bottom:14px"><button class="btn btn-outline" onclick="triggerImportProject()">⤒ ${t('importProject')}</button><button class="btn btn-ghost" onclick="exportAllProjects()">⤓ ${t('exportAll')}</button></div>`+
+ S.projects.map(p=>{
+  const cover=(p.concepts.find(c=>c.id===p.selectedConceptId)||p.concepts.find(c=>c.image)||{}).image;
+  const sh=shapeById(p.input.type);
+  const date=new Date(p.createdAt).toLocaleDateString(S.lang==='ar'?'ar-SA':'en-GB');
+  return `<div class="card design-card">
+   ${cover?`<img class="proj-cover" src="${cover}" onclick="openProject('${p.id}')" style="cursor:pointer">`:''}
+   <div class="design-body">
+    <div class="style-name" style="cursor:pointer" onclick="openProject('${p.id}')">
+     ${esc(p.input.companyName.trim()||(p.input.width+'×'+p.input.depth+' m — '+(S.lang==='ar'?sh.ar:sh.en)))}</div>
+    <div class="style-desc">${date} · ${p.input.width}×${p.input.depth}×${p.input.height} m · ${t('designs',{n:p.concepts.length})}</div>
+    <div class="row">
+     ${p.selectedConceptId?`<button class="btn btn-outline" onclick="openPlan('${p.id}')">${t('plan')}</button>`:''}
+     <button class="btn btn-outline" onclick="startEdit('${p.id}')">✎ ${t('editProject')}</button>
+     <button class="btn btn-ghost" onclick="exportProject('${p.id}')" title="${esc(t('exportProject'))}">⤓</button>
+     <button class="btn btn-danger" onclick="delProject('${p.id}')">${t('del')}</button>
+    </div>
+   </div></div>`}).join('');
+}
+function openProject(id){S.currentId=id;nav('results')}
+function openPlan(id){S.currentId=id;nav('plan')}
+function delProject(id){if(confirm(t('confirmDel'))){S.projects=S.projects.filter(p=>p.id!==id);persist();render()}}
+
+/* ───────── project export / import (full external file: inputs + images + drawings data + versions) ───────── */
+function _downloadJson(obj,filename){
+ const blob=new Blob([JSON.stringify(obj)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+function _projFilename(p){const base=(p&&p.input&&p.input.companyName.trim())||(p&&p.id)||'project';return 'BOOTH-STUDIO-'+base.replace(/[^\w؀-ۿ-]+/g,'_')+'.hive.json';}
+function exportProject(id){
+ const p=S.projects.find(x=>x.id===id);if(!p)return;
+ _downloadJson({app:'BOOTH STUDIO',type:'hive-project',version:1,exportedAt:Date.now(),project:p},_projFilename(p));
+ S.savedMsg=true;render();setTimeout(()=>{S.savedMsg=false;if(S.view==='projects'||S.view==='plan')render()},1800);
+}
+function exportAllProjects(){
+ if(!S.projects.length){alert(t('empty'));return}
+ _downloadJson({app:'BOOTH STUDIO',type:'hive-projects',version:1,exportedAt:Date.now(),projects:S.projects},'BOOTH-STUDIO-all-projects-'+new Date().toISOString().slice(0,10)+'.hive.json');
+}
+function triggerImportProject(){
+ let fin=document.getElementById('hiveImportFile');if(fin)fin.remove();
+ fin=document.createElement('input');fin.type='file';fin.id='hiveImportFile';fin.accept='.json,application/json';fin.style.display='none';
+ fin.onchange=async ev=>{
+  const f=ev.target.files&&ev.target.files[0];if(!f){fin.remove();return}
+  try{
+   const txt=await f.text();const obj=JSON.parse(txt);
+   let added=0;const addOne=pr=>{if(!pr||!pr.input||!Array.isArray(pr.concepts))return;
+    pr.id='p'+Date.now()+'_'+(added++);if(!pr.createdAt)pr.createdAt=Date.now();S.projects.unshift(pr);};
+   if(obj&&obj.type==='hive-project'&&obj.project)addOne(obj.project);
+   else if(obj&&obj.type==='hive-projects'&&Array.isArray(obj.projects))obj.projects.forEach(addOne);
+   else if(Array.isArray(obj))obj.forEach(addOne);
+   else if(obj&&obj.input&&Array.isArray(obj.concepts))addOne(obj);
+   if(!added)throw new Error('empty');
+   persist();alert(t('importOk'));nav('projects');
+  }catch(e){alert(t('importErr'));}
+  fin.remove();
+ };
+ document.body.appendChild(fin);fin.click();
+}
+
+function vSettings(){
+ app.innerHTML=header('home')+
+ `<h2 class="section">${t('apiKey')}</h2>
+  <div class="card">
+   <label>${t('claudeKey')}</label>
+   <input type="password" id="ckey" placeholder="sk-ant-..." value="${esc(S.claudeKey)}">
+   <label>${t('googleKey')}</label>
+   <input type="password" id="gkey" placeholder="AIza..." value="${esc(S.googleKey)}">
+   <div class="hint">${t('apiKeyHint')}</div>
+   <label style="margin-top:14px">${t('openaiKey')}</label>
+   <input type="password" id="okey" placeholder="sk-..." value="${esc(S.openaiKey)}">
+   <label>${t('proxyUrl')}</label>
+   <input type="text" id="purl" placeholder="https://your-worker.workers.dev" value="${esc(S.proxyUrl)}">
+   <div class="hint">${t('openaiHint')}</div>
+   <div class="opt-label" style="margin-top:12px">${t('imgProviderLbl')}</div>
+   <div class="chips">
+    <div class="chip ${S.imgProvider==='google'?'on':''}" onclick="setImgProvider('google')">${t('provGoogle')}</div>
+    <div class="chip ${S.imgProvider==='openai'?'on':''}" onclick="setImgProvider('openai')">${t('provOpenai')}</div>
+    <div class="chip ${S.imgProvider==='both'?'on':''}" onclick="setImgProvider('both')">${t('provBoth')}</div>
+   </div>
+   <div class="opt-label" style="margin-top:6px">${t('styleBoostLbl')}</div>
+   <div class="chips">
+    <div class="chip ${S.styleBoost?'on':''}" onclick="setStyleBoost(true)">${t('onLbl')}</div>
+    <div class="chip ${!S.styleBoost?'on':''}" onclick="setStyleBoost(false)">${t('offLbl')}</div>
+   </div>
+   <div class="opt-label" style="margin-top:12px;color:var(--accent)">🪚 ${t('fabSettings')}</div>
+   <div class="opt-label" style="margin-top:4px">${t('sheetSizeLbl')}</div>
+   <div class="chips">
+    <div class="chip ${S.sheetSize!=='jumbo'?'on':''}" onclick="setSheetSize('std')">${t('sheetStd')}</div>
+    <div class="chip ${S.sheetSize==='jumbo'?'on':''}" onclick="setSheetSize('jumbo')">${t('sheetJumbo')}</div>
+   </div>
+   <div class="opt-label" style="margin-top:6px">${t('doubleSkinLbl')}</div>
+   <div class="chips">
+    <div class="chip ${S.doubleSkin?'on':''}" onclick="setDoubleSkin(true)">${t('onLbl')}</div>
+    <div class="chip ${!S.doubleSkin?'on':''}" onclick="setDoubleSkin(false)">${t('offLbl')}</div>
+   </div>
+   <div class="row" style="margin-top:12px">
+    <button class="btn btn-primary" onclick="saveKeys()">${t('save')}</button>
+    <button class="btn btn-outline" onclick="testKeys()">${t('testKeyBtn')}</button>
+   </div>
+   <div id="keyTest" class="hint" style="margin-top:10px;font-size:13.5px;font-weight:600"></div>
+   ${S.savedMsg?`<div class="saved-msg">${t('saved')}</div>`:''}
+  </div>
+  <h2 class="section" style="margin-top:24px">${t('language')}</h2>
+  <div class="card"><div class="chips" style="justify-content:center">
+   <div class="chip ${S.lang==='ar'?'on':''}" onclick="setLang('ar')">العربية</div>
+   <div class="chip ${S.lang==='en'?'on':''}" onclick="setLang('en')">English</div>
+  </div></div>
+  <h2 class="section" style="margin-top:24px">${t('about')}</h2>
+  <div class="card"><div class="hint" style="font-size:13.5px">${t('aboutText')}</div></div>`;
+}
+function saveKeys(){
+ S.claudeKey=document.getElementById('ckey').value.trim();
+ S.googleKey=document.getElementById('gkey').value.trim();
+ const ok=document.getElementById('okey');if(ok)S.openaiKey=ok.value.trim();
+ const pu=document.getElementById('purl');if(pu)S.proxyUrl=pu.value.trim();
+ persist();S.savedMsg=true;render();
+ setTimeout(()=>{S.savedMsg=false;if(S.view==='settings')render()},2200)}
+
+/* ───────── router ───────── */
+function render(){
+ ({home:vHome,wizard:vWizard,generating:vGenerating,results:vResults,plan:vPlan,projects:vProjects,settings:vSettings}[S.view]||vHome)();
+ renderBottomNav();
+ document.body.setAttribute('data-view',S.view);
+}
+function renderBottomNav(){
+ const nv=document.getElementById('bottomNav');if(!nv)return;
+ const hide=(S.view==='wizard'||S.view==='generating');
+ nv.style.display=hide?'none':'';
+ if(hide){nv.innerHTML='';return}
+ const items=[
+  {v:'home',ic:'⌂',l:S.lang==='ar'?'الرئيسية':'Home'},
+  {v:'projects',ic:'▤',l:t('myProjects')},
+  {v:'settings',ic:'⚙',l:t('settings')}
+ ];
+ const cur=(S.view==='results'||S.view==='plan')?'projects':S.view;
+ nv.innerHTML=items.map(it=>`<button class="bn-item ${cur===it.v?'on':''}" onclick="nav('${it.v}')"><span class="bn-ic">${it.ic}</span><span class="bn-l">${esc(it.l)}</span></button>`).join('');
+}
+Object.assign(window,{nav,setLang,startWizard,pickShape,pickOpt,toggleItem,wizBack,wizNext,selectConcept,
+ openProject,openPlan,delProject,saveKeys,generate,render,
+ testKeys,fillMissingImages,retryGen,onLogoFile,setLogoColor,addLogoColor,removeLogoColor,generateViews,showView,openBooth3D,openBoothTurntable,makeClientBrief,startEdit,restoreVersion,startRefine,applyRefine,setProvider,setImgProvider,setStyleBoost,exportProject,exportAllProjects,triggerImportProject});
+document.documentElement.lang=S.lang;
+document.documentElement.dir=S.lang==='ar'?'rtl':'ltr';
+render();
+
+/* ============ PWA: single-file manifest + install ============ */
+(function(){
+ try{
+  const icon='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0C0C0A"/><g transform="translate(96 150) scale(0.62)" fill="#65C235"><rect x="14" y="10" width="36" height="130"/><rect x="92" y="10" width="36" height="130"/><rect x="50" y="62" width="42" height="26"/><rect x="148" y="10" width="36" height="130"/><polygon points="204,10 242,10 281,118 320,10 358,10 303,140 259,140"/><rect x="378" y="10" width="36" height="130"/><rect x="378" y="10" width="118" height="27"/><rect x="378" y="62" width="100" height="25"/><rect x="378" y="113" width="118" height="27"/></g><text x="256" y="430" font-family="Arial" font-size="64" font-weight="bold" fill="#E89C3C" text-anchor="middle" letter-spacing="6">BOOTH</text></svg>');
+  const manifest={name:'BOOTH STUDIO',short_name:'BOOTH STUDIO',start_url:'.',scope:'.',display:'standalone',orientation:'portrait',background_color:'#0C0C0A',theme_color:'#0C0C0A',lang:S.lang,dir:S.lang==='ar'?'rtl':'ltr',description:'AI studio for exhibition booths and stands',icons:[{src:icon,sizes:'any',type:'image/svg+xml',purpose:'any maskable'}]};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));
+  const lk=document.createElement('link');lk.rel='manifest';lk.href=url;document.head.appendChild(lk);
+  const al=document.createElement('link');al.rel='apple-touch-icon';al.href=icon;document.head.appendChild(al);
+ }catch(e){console.warn('manifest inject failed',e)}
+ const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+ let deferred=null;
+ const banner=document.getElementById('pwaInstall');
+ const T={ar:{cta:'تثبيت التطبيق على الجوال',ios:'للتثبيت: اضغط زر المشاركة ↑ ثم «إضافة إلى الشاشة الرئيسية»',x:'✕'},en:{cta:'Install app on your phone',ios:'To install: tap Share ↑ then “Add to Home Screen”',x:'✕'}};
+ function L(){return T[S.lang]||T.en}
+ function show(mode){
+  if(!banner||standalone)return;
+  if(S.view!=='home'&&S.view!=='settings'){banner.hidden=true;return}
+  banner.hidden=false;
+  banner.innerHTML=mode==='ios'
+   ? '<span class="pwa-msg">'+L().ios+'</span><button class="pwa-x" onclick="dismissPWA()">'+L().x+'</button>'
+   : '<button class="pwa-cta" onclick="installPWA()">⬇ '+L().cta+'</button><button class="pwa-x" onclick="dismissPWA()">'+L().x+'</button>';
+ }
+ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show('android')});
+ window.installPWA=async function(){if(!deferred)return;deferred.prompt();try{await deferred.userChoice}catch(_){}deferred=null;if(banner)banner.hidden=true};
+ window.dismissPWA=function(){if(banner)banner.hidden=true};
+ if(isIOS&&!standalone){setTimeout(()=>show('ios'),1200)}
+})();
+
+/* ============ NEW MODULES: warnings · cost · specs · versions · refine · 3D · client brief ============ */
+(function(){const st=document.createElement('style');st.textContent=`
+#booth3d{position:fixed;inset:0;z-index:1000;background:#0c0c0a;display:flex;flex-direction:column}
+.b3-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px;background:#161612;border-bottom:1px solid #2A2C22}
+.b3-info{color:#F2F2EA;font-size:13px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b3-act{display:flex;gap:6px}
+.b3-act button{background:#1F1F18;border:1px solid #2A2C22;color:#9BA08E;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.b3-act button.on{background:#6CBE45;color:#0C0C0A;border-color:#6CBE45}
+.b3-act #b3x{color:#E05B4C;border-color:#E05B4C}
+.b3-stage{flex:1;position:relative;overflow:hidden;touch-action:none}
+.b3-stage canvas{display:block;width:100%;height:100%}
+.b3-hint{position:absolute;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#9BA08E;font-size:12px;pointer-events:none}
+.b3-err{color:#E05B4C;text-align:center;padding:46px 20px;font-weight:700}
+.modal-ov{position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-card{background:#161612;border:1px solid #2A2C22;border-radius:16px;padding:18px;width:100%;max-width:460px}
+.modal-card textarea{width:100%;min-height:96px;background:#1F1F18;border:1px solid #2A2C22;border-radius:10px;color:#F2F2EA;padding:11px;font-family:inherit;font-size:16px;margin:10px 0;resize:vertical}
+.warn-row{display:flex;gap:8px;padding:7px 0;font-size:13.5px;line-height:1.6;border-bottom:1px solid #2A2C22}
+.warn-row:last-child{border-bottom:none}
+.warn-warn span:first-child{color:#E89C3C}.warn-info span:first-child{color:#6CBE45}
+.cost-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:13px;border-bottom:1px solid #2A2C22}
+.cost-total{margin-top:10px;font-size:15px;font-weight:800;color:#6CBE45;text-align:end}
+.spec-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:13px;border-bottom:1px solid #2A2C22}
+.spec-k{color:#9BA08E}.spec-v{font-weight:700;text-align:end}
+.ver-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #2A2C22;font-size:13px}
+.ver-row:last-child{border-bottom:none}
+@media print{#booth3d,.modal-ov{display:none!important} #printArea .bp{font-size:12px;line-height:1.7;color:#333;margin:4px 0 8px} #printArea .palette div{width:26px;height:26px;border:1px solid #999;border-radius:4px}}
+`;document.head.appendChild(st)})();
+
+/* ---- QA warnings ---- */
+function buildWarnings(inp){
+ const w=[];const area=inp.width*inp.depth;
+ const P=(lvl,ar,en)=>w.push({lvl,ar,en});
+ if(inp.height>6)P('warn','الارتفاع يتجاوز 6م — تحقّق من حد ارتفاع القاعة وتصاريح السلامة','Height exceeds 6m — verify hall height limit & safety permits');
+ if(inp.type==='doubleDecker'&&inp.height<4)P('warn','بوث طابقين بارتفاع أقل من 4م — غير كافٍ لطابقين (يوصى ≥4.5م)','Double-decker under 4m — not enough for two decks (≥4.5m recommended)');
+ if(!inp.hangingAllowed&&inp.decorations.includes('hangingBanner'))P('warn','اخترت «بانر معلق» مع منع التعليق السقفي — تعارض؛ انقل الشعار إلى برج/جدار','Hanging banner selected but rigging not allowed — conflict; move signage to a tower/wall');
+ if(area<6&&(inp.decorations.length+inp.services.length)>5)P('warn','مساحة صغيرة (<6م²) مع عناصر كثيرة — خطر الازدحام، قلّل العناصر','Small area (<6 sqm) with many elements — crowding risk');
+ if(inp.decorations.includes('meetingRoom')&&area<12)P('warn','غرفة اجتماعات مغلقة في مساحة <12م² تستهلك معظم البوث','Enclosed meeting room in <12 sqm consumes most of the booth');
+ if(inp.width<1||inp.depth<1||inp.height<1)P('warn','أبعاد صغيرة جداً — تحقّق من الإدخال','Very small dimensions — check input');
+ if(inp.type==='island'&&area<9)P('info','بوث جزيرة في مساحة صغيرة — تأكد من وضوح الرؤية من كل الجهات','Island booth in small area — ensure all-round visibility');
+ if((inp.decorInside&&inp.decorInside.trim())||(inp.decorOutside&&inp.decorOutside.trim()))P('info','يوجد ديكور مخصّص — مُدرَج في الصور والبريف؛ يحتاج تفصيلاً هندسياً منفصلاً في الورشة','Custom decor present — included in renders & brief; needs separate shop detailing');
+ return w;
+}
+function warningsCardHtml(inp){
+ const w=buildWarnings(inp);
+ const body=w.length?w.map(x=>`<div class="warn-row warn-${x.lvl}"><span>${x.lvl==='warn'?'⚠':'ℹ'}</span><span>${esc(S.lang==='ar'?x.ar:x.en)}</span></div>`).join(''):`<div class="hint">${t('warnNone')}</div>`;
+ return `<div class="card" style="margin-top:14px"><div class="style-name">${t('warnTitle')}</div>${body}</div>`;
+}
+
+/* ---- cost estimate (indicative SAR) ---- */
+const RATES={mdf18:95,ply18:130,steel:22,alu:38,ledM2:1800,floorM2:120,graphicsM2:90,lightingLump:1500,laborPct:0.25};
+function costEstimate(inp){
+ const parts=buildParts(inp);const bom=bomSummary(parts);const rows=[];
+ for(const b of bom){const rate=b.mat==='mdf18'?RATES.mdf18:b.mat==='ply18'?RATES.ply18:b.mat==='steel'?RATES.steel:RATES.alu;
+  rows.push({label:b.label+' ('+b.unit+')',qty:b.qty,unit:rate,sub:Math.round(b.qty*rate)})}
+ if(inp.decorations.includes('backWallLed')){const a=Math.max(1,Math.min(4,inp.width-0.4)*Math.min(2.5,inp.height-0.5));rows.push({label:t('led'),qty:+a.toFixed(1),unit:RATES.ledM2,sub:Math.round(a*RATES.ledM2)})}
+ if(inp.decorations.includes('woodFloor')||inp.decorations.includes('raisedFloor')){const a=inp.width*inp.depth;rows.push({label:(S.lang==='ar'?'أرضية':'Flooring'),qty:+a.toFixed(1),unit:RATES.floorM2,sub:Math.round(a*RATES.floorM2)})}
+ const wallLen=(['inline','corner','peninsula'].includes(inp.type)?inp.width:0)+(['inline','corner'].includes(inp.type)?inp.depth:0)+(inp.type==='inline'?inp.depth:0);
+ if(wallLen>0){const a=wallLen*inp.height*0.5;rows.push({label:(S.lang==='ar'?'طباعة وجرافيك':'Graphics & print'),qty:+a.toFixed(1),unit:RATES.graphicsM2,sub:Math.round(a*RATES.graphicsM2)})}
+ if(inp.decorations.includes('hiddenLighting')||inp.decorations.includes('spotLighting'))rows.push({label:(S.lang==='ar'?'إضاءة':'Lighting'),qty:1,unit:RATES.lightingLump,sub:RATES.lightingLump});
+ const mat=rows.reduce((a,r)=>a+r.sub,0);
+ const labor=Math.round(mat*RATES.laborPct);
+ rows.push({label:(S.lang==='ar'?'تركيب وعمالة':'Assembly & labor')+' ('+(RATES.laborPct*100)+'%)',qty:1,unit:labor,sub:labor});
+ return {rows,total:mat+labor};
+}
+function costCardHtml(inp){
+ const {rows,total}=costEstimate(inp);
+ const tr=rows.map(r=>`<div class="cost-row"><span>${esc(r.label)}</span><span>${r.qty} × ${r.unit.toLocaleString()} = <b>${r.sub.toLocaleString()}</b></span></div>`).join('');
+ return `<div class="card" style="margin-top:14px"><div class="style-name">${t('costTitle')}</div><div class="hint">${t('costNote')}</div>${tr}<div class="cost-total">${t('costTotal')}: ${total.toLocaleString()} ${t('sar')}</div></div>`;
+}
+function costPrintHtml(inp){const {rows,total}=costEstimate(inp);
+ return `<h2>${t('costTitle')}</h2><div class="note">${t('costNote')}</div><table><thead><tr><th>${t('costItem')}</th><th>${t('costQty')}</th><th>${t('costUnit')}</th><th>${t('costSub')}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.label)}</td><td class="n">${r.qty}</td><td class="n">${r.unit.toLocaleString()}</td><td class="n">${r.sub.toLocaleString()}</td></tr>`).join('')}<tr><td colspan="3"><b>${t('costTotal')}</b></td><td class="n"><b>${total.toLocaleString()} ${t('sar')}</b></td></tr></tbody></table>`;}
+
+/* ---- build specs + hardware ---- */
+function buildSpecs(inp){
+ const reuse=inp.reusable==='reusable';const r=[];
+ const add=(ar,en,vAr,vEn)=>r.push({name:S.lang==='ar'?ar:en,val:S.lang==='ar'?vAr:vEn});
+ add('ألواح الجدران','Wall panels','MDF 18مم، مقاس 1220×2440مم','MDF 18mm, 1220×2440mm sheets');
+ add('الهيكل الإنشائي','Structure',reuse?'بروفايل ألمنيوم 40×40مم':'ماسورة حديد 25×50مم',reuse?'Aluminium profile 40×40mm':'Steel tube 25×50mm');
+ add('طريقة الوصل','Joinery',reuse?'براغي M8 + صواميل قفصية — قابل للفك':'براغي خشب + غراء إنشائي — لمرة واحدة',reuse?'M8 bolts + cage nuts — demountable':'Wood screws + structural glue — single-use');
+ add('التشطيب','Finish',inp.budget==='premium'?'لاكيه/أسطح خلفية مضيئة':inp.budget==='eco'?'دهان/فينيل':'لامينيت عالي الضغط HPL',inp.budget==='premium'?'Lacquer / backlit':inp.budget==='eco'?'Paint / vinyl':'High-pressure laminate (HPL)');
+ add('الحواف','Edges','شريط حواف PVC 2مم','2mm PVC edge banding');
+ add('الأرضية','Flooring',inp.decorations.includes('raisedFloor')?'بلاتفورم مرتفع 100مم':inp.decorations.includes('woodFloor')?'باركيه/خشب':'سجاد/أرضية المعرض',inp.decorations.includes('raisedFloor')?'Raised platform 100mm':inp.decorations.includes('woodFloor')?'Wood/parquet':'Carpet/expo floor');
+ return r;
+}
+function buildHardware(inp){
+ const parts=buildParts(inp);const reuse=inp.reusable==='reusable';
+ const posts=parts.filter(p=>/post|قائم/i.test((p.en||'')+(p.ar||''))).reduce((a,p)=>a+p.qty,0)||4;
+ const hw=[];const add=(ar,en,q)=>{q=Math.round(q);if(q>0)hw.push({name:S.lang==='ar'?ar:en,qty:q})};
+ if(reuse){add('براغي M8 + صواميل قفصية','M8 bolts + cage nuts',posts*6);add('زوايا تثبيت معدنية','Steel angle brackets',posts*2)}
+ else{add('براغي خشب 4×40مم','Wood screws 4×40mm',posts*20);add('غراء إنشائي (أنبوب)','Structural glue (tube)',Math.ceil(posts/4))}
+ add('أرجل تسوية','Leveling feet',posts);
+ add('شرائح ربط زاوية','Corner connectors',posts*2);
+ if(inp.decorations.includes('meetingRoom'))add('مفصلات باب','Door hinges',3);
+ if(inp.decorations.includes('backWallLed'))add('كتائف تعليق LED','LED mounting brackets',8);
+ return hw;
+}
+function specsCardHtml(inp){
+ const sp=buildSpecs(inp);const hw=buildHardware(inp);
+ const sr=sp.map(s=>`<div class="spec-row"><span class="spec-k">${esc(s.name)}</span><span class="spec-v">${esc(s.val)}</span></div>`).join('');
+ const hr=hw.map(h=>`<div class="spec-row"><span class="spec-k">${esc(h.name)}</span><span class="spec-v">×${h.qty}</span></div>`).join('');
+ return `<div class="card" style="margin-top:14px"><div class="style-name">${t('specsTitle')}</div>${sr}<div class="opt-label" style="margin-top:10px">${t('hwTitle')}</div>${hr}</div>`;
+}
+function specsPrintHtml(inp){
+ const sp=buildSpecs(inp);const hw=buildHardware(inp);
+ return `<h2>${t('specsTitle')}</h2><table><tbody>${sp.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.val)}</td></tr>`).join('')}</tbody></table>`
+  +`<h2>${t('hwTitle')}</h2><table><thead><tr><th>${t('spName')}</th><th>${t('qty')}</th></tr></thead><tbody>${hw.map(h=>`<tr><td>${esc(h.name)}</td><td class="n">${h.qty}</td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---- version history + edit ---- */
+function versionsHtml(p){
+ if(!p.versions||!p.versions.length)return '';
+ const rows=p.versions.map((v,i)=>{const d=new Date(v.ts||Date.now()).toLocaleDateString(S.lang==='ar'?'ar-SA':'en-GB');
+  return `<div class="ver-row"><span>${t('versionLbl')} ${p.versions.length-i} · ${d} · ${t('designs',{n:(v.concepts||[]).length})}</span><button class="btn btn-ghost" style="width:auto;padding:7px 12px" onclick="restoreVersion(${i})">↩ ${t('restore')}</button></div>`}).join('');
+ return `<div class="card" style="margin-top:14px"><div class="style-name">${t('versionsTitle')} <span style="color:var(--muted);font-size:12px;font-weight:400">${t('currentLbl')}</span></div>${rows}</div>`;
+}
+function startEdit(id){const p=S.projects.find(x=>x.id===id);if(!p)return;
+ S.input=JSON.parse(JSON.stringify(p.input));
+ if(S.input.decorInside==null)S.input.decorInside='';if(S.input.decorOutside==null)S.input.decorOutside='';
+ S.editingProjectId=id;S.step=0;nav('wizard');}
+function restoreVersion(i){const p=proj();if(!p||!p.versions||!p.versions[i])return;
+ const v=p.versions[i];
+ const cur={ts:p.updatedAt||p.createdAt,input:p.input,concepts:p.concepts,tips:p.tips,selectedConceptId:p.selectedConceptId};
+ p.versions.splice(i,1);p.versions.unshift(cur);
+ p.input=v.input;p.concepts=v.concepts;p.tips=v.tips;p.selectedConceptId=v.selectedConceptId;p.updatedAt=Date.now();
+ persist();render();}
+
+/* ---- refine a single design ---- */
+function startRefine(cid){
+ const p=proj();if(!p)return;const c=p.concepts.find(x=>x.id===cid);if(!c)return;
+ let ov=document.getElementById('refineModal');if(ov)ov.remove();
+ ov=document.createElement('div');ov.id='refineModal';ov.className='modal-ov';
+ ov.innerHTML=`<div class="modal-card"><div class="style-name">✨ ${t('refineTitle')}</div>
+  <textarea id="refineTxt" placeholder="${esc(t('refinePh'))}"></textarea>
+  <div class="hint" style="margin:-2px 0 10px">💡 ${t('refineImgNote')}</div>
+  <div class="row"><button class="btn btn-ghost" id="refineCancel">${t('cancel')}</button>
+  <button class="btn btn-primary" id="refineGo">${t('refineBtn')}</button></div></div>`;
+ document.body.appendChild(ov);
+ ov.querySelector('#refineCancel').onclick=()=>ov.remove();
+ ov.querySelector('#refineGo').onclick=()=>{const txt=(ov.querySelector('#refineTxt').value||'').trim();ov.remove();applyRefine(cid,txt)};
+}
+async function applyRefine(cid,txt){
+ const p=proj();if(!p)return;const c=p.concepts.find(x=>x.id===cid);if(!c||!c.image)return;
+ S.refineTarget={cid,txt};S.genMode='refine';S.genError='';S.view='generating';
+ const prov=c.activeProvider||(S.imgProvider==='openai'?'openai':'google');
+ if(prov==='openai'){if(!S.openaiKey.trim()||!S.proxyUrl.trim()){S.genError=S.proxyUrl.trim()?t('noOpenaiKey'):t('noProxy');render();return}}
+ else if(!S.googleKey.trim()){S.genError=t('noKey');render();return}
+ S.genStatus=t('refining');render();
+ const base=styledPrompt(c.imagePrompt)+(txt?(' . CLIENT-REQUESTED MODIFICATIONS (apply precisely, keep the same booth identity, brand colors and logo placement): '+txt):'');
+ try{
+  const onWait=sec=>{S.genStatus=t('waiting',{s:sec});render()};
+  const img=prov==='openai'
+   ?await renderOpenAI(base,p.input.logo,onWait)
+   :(txt?await renderEdit(c.image,txt,p.input.logo,onWait):await renderImage(base,p.input.logo,onWait));
+  c.history=c.history||[];c.history.unshift({image:c.image,ts:Date.now()});
+  c.gen=c.gen||{};c.gen[prov]=img;c.activeProvider=prov;c.image=img;c.views=[];c._shown=undefined;if(txt)c.refineNote=txt;
+  persist();S.genError='';nav('results');
+ }catch(e){S.genError=e.message||t('failed');render();}
+}
+
+/* ---- AI client brief ---- */
+async function makeClientBrief(){
+ const p=proj();if(!p)return;
+ const sel=p.concepts.find(c=>c.id===p.selectedConceptId)||p.concepts.find(c=>c.image);
+ if(!sel){alert(S.lang==='ar'?'اختر تصميماً أولاً':'Please select a design first');return}
+ let data=null;
+ if(S.claudeKey.trim()){
+  let ov=document.createElement('div');ov.id='briefLoad';ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-card" style="text-align:center"><div class="spinner" style="margin:0 auto"></div><div class="gen-status" style="margin-top:12px">${t('writingBrief')}</div></div>`;
+  document.body.appendChild(ov);
+  try{
+   const sys='You are a senior exhibition designer writing a polished, persuasive but strictly factual CLIENT-FACING brief for an APPROVED exhibition booth design. Write in BOTH Arabic and English. Reference the real dimensions, brand and elements from the brief; invent nothing; no markdown. Respond ONLY with valid JSON: {"headlineAr","headlineEn","overviewAr","overviewEn","conceptAr","conceptEn","experienceAr","experienceEn","whyAr","whyEn"}';
+   const usr='Approved concept: '+(sel.styleNameEn||'')+'. Description: '+(sel.descriptionEn||'')+'\n\nFull brief:\n'+buildBrief(p.input);
+   data=parseLooseJSON(await callClaude(sys,usr))||null;
+  }catch(e){console.warn('brief failed',e)}
+  const o=document.getElementById('briefLoad');if(o)o.remove();
+ }
+ printClientBrief(p,sel,data);
+}
+function sideViewSvg(inp){
+ const H=420;
+ const sc=Math.min((SW-MG*2)/inp.depth,(H-MG*2)/inp.height);
+ const bd=inp.depth*sc,bh=inp.height*sc,x0=(SW-bd)/2,y0=H-MG-bh,gy=y0+bh;
+ let s=`<svg viewBox="0 0 ${SW} ${H}" xmlns="http://www.w3.org/2000/svg"><rect width="${SW}" height="${H}" fill="${P.paper}"/>`;
+ s+=`<line x1="${x0-30}" y1="${gy}" x2="${x0+bd+30}" y2="${gy}" stroke="${P.ink}" stroke-width="2"/>`;
+ for(let i=0;i<24;i++){const hx=x0-30+i*((bd+60)/24);s+=`<line x1="${hx}" y1="${gy}" x2="${hx-7}" y2="${gy+7}" stroke="${P.ink}" stroke-width="1"/>`}
+ s+=`<rect x="${x0}" y="${y0}" width="${bd}" height="${bh}" fill="#FAFCF7" stroke="${P.ink}" stroke-width="2.5"/>`;
+ if(['inline','corner','peninsula'].includes(inp.type)) s+=`<rect x="${x0}" y="${y0}" width="6" height="${bh}" fill="${P.ink}"/>`;
+ const bandH=Math.min(34,bh*0.16);
+ s+=`<rect x="${x0}" y="${y0}" width="${bd}" height="${bandH}" fill="${P.acc}"/>`;
+ if(inp.type==='doubleDecker'){const mid=y0+bh*0.5;s+=`<line x1="${x0}" y1="${mid}" x2="${x0+bd}" y2="${mid}" stroke="${P.ink}" stroke-width="2"/>`;}
+ s+=dimH(x0,x0+bd,gy+30,inp.depth.toFixed(2)+' m');
+ s+=dimV(x0+bd+26,y0,gy,inp.height.toFixed(2)+' m');
+ s+=`<text x="${x0+bd}" y="${y0-6}" font-size="11" font-weight="bold" font-family="Arial" text-anchor="end" fill="${P.acc}">${t('front')} →</text>`;
+ return s+'</svg>';
+}
+function printTechnical2D(proj){
+ const inp=proj.input;
+ const rows=schedule(inp).map(r=>`<tr><td class="n">${r.placed?r.n:(r.cat==='custom'?'✎':'—')}</td><td>${esc(r.label)}</td><td>${r.cat==='decor'?t('catD'):r.cat==='custom'?t('catCustom'):t('catS')}</td></tr>`).join('');
+ const parts=buildParts(inp);const bom=bomSummary(parts);
+ const bomRows=bom.map(b=>`<tr><td>${esc(b.label)}</td><td class="n">${b.qty}</td><td>${esc(b.unit)}${b.bars?' ≈ '+b.bars+' '+t('barsOf'):''}</td></tr>`).join('');
+ document.getElementById('printArea').innerHTML=titleBlock(proj)+`
+  <h2>${t('tech2dTitle')} — ${t('scale')} 1:50</h2>
+  <h2>${t('topView')}</h2><div class="dw">${topViewSvg(inp)}</div>
+  <div class="pb"></div>
+  <h2>${t('frontView')}</h2><div class="dw">${frontViewSvg(inp)}</div>
+  <h2>${t('sideView')}</h2><div class="dw">${sideViewSvg(inp)}</div>
+  <div class="pb"></div>
+  <h2>${t('schedT')}</h2>
+  <table><thead><tr><th>#</th><th>${t('item')}</th><th>${t('cat')}</th></tr></thead><tbody>${rows}</tbody></table>
+  <h2>${t('matSummary')}</h2>
+  <table><thead><tr><th>${t('material')}</th><th>${t('qty')}</th><th></th></tr></thead><tbody>${bomRows}</tbody></table>
+  <div class="note">${t('dimsNote')}</div>
+  <div class="pfoot">BOOTH STUDIO — 2D — ${new Date().getFullYear()}</div>`;
+ window.print();
+}
+function printTech2DCurrent(){const p=proj();if(p)printTechnical2D(p);}
+function printClientBrief(p,sel,d){
+ const inp=p.input;const L=S.lang;const pk=(ar,en)=>L==='ar'?ar:en;
+ const imgs=[sel.image].concat((sel.views||[]).map(v=>v.image)).filter(Boolean);
+ const grid=imgs.map(s=>`<img src="${s}" style="width:100%;border-radius:10px;border:1px solid #2A2C22;margin-bottom:8px"/>`).join('');
+ const decorList=schedule(inp).map(r=>esc(r.label)).join(L==='ar'?'، ':', ');
+ const headline=d?pk(d.headlineAr,d.headlineEn):pk(sel.styleNameAr,sel.styleNameEn);
+ const overview=d?pk(d.overviewAr,d.overviewEn):pk(sel.descriptionAr,sel.descriptionEn);
+ const concept=d?pk(d.conceptAr,d.conceptEn):pk(sel.descriptionAr,sel.descriptionEn);
+ const exp=d?pk(d.experienceAr,d.experienceEn):'';
+ const why=d?pk(d.whyAr,d.whyEn):'';
+ const pal=(inp.logoColors||[]).map(x=>`<div style="width:30px;height:30px;border-radius:6px;border:1px solid #444;background:${esc(x)}"></div>`).join('');
+ const sh=shapeById(inp.type);
+ const row=(k,v)=>`<tr><td style="color:#9BA08E;padding:7px 10px;border-bottom:1px solid #2A2C22;white-space:nowrap;vertical-align:top">${k}</td><td style="color:#F2F2EA;padding:7px 10px;border-bottom:1px solid #2A2C22">${v}</td></tr>`;
+ document.getElementById('printArea').innerHTML=`
+  <style>
+   @media print{ #briefDark{-webkit-print-color-adjust:exact;print-color-adjust:exact;} #printArea{background:#0C0C0A !important;} @page{margin:0;} }
+   #briefDark h2{color:#6CBE45 !important;border:0 !important;border-inline-start:3px solid #6CBE45 !important;padding:0 10px !important;margin:18px 0 8px !important;font-size:15px !important;background:transparent !important;}
+   #briefDark table{width:100%;border-collapse:collapse;}
+   #briefDark td{border:0 !important;}
+  </style>
+  <div id="briefDark" dir="${L==='ar'?'rtl':'ltr'}" style="background:#0C0C0A;color:#F2F2EA;font-family:'Segoe UI',Tahoma,Arial,sans-serif;padding:28px 26px;min-height:100vh">
+   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #2A2C22;padding-bottom:14px;margin-bottom:18px">
+    <div>${hiveMark(40)}<div style="color:#E89C3C;font-size:10px;font-weight:700;letter-spacing:3px;text-align:center;margin-top:3px">BOOTH DESIGNER</div></div>
+    <div style="text-align:${L==='ar'?'left':'right'};font-size:12px;line-height:1.9;color:#9BA08E">
+     <div><b style="color:#6CBE45">${t('project')}:</b> ${esc(inp.companyName.trim()||'Client')}</div>
+     <div><b style="color:#6CBE45">${t('date')}:</b> ${new Date(p.createdAt).toLocaleDateString(L==='ar'?'ar-SA':'en-GB')}</div>
+     <div><b style="color:#6CBE45">${t('dimsL')}:</b> ${inp.width}×${inp.depth}×${inp.height} m</div>
+    </div>
+   </div>
+   <div style="color:#E89C3C;font-size:22px;font-weight:800;margin-bottom:14px">${esc(headline||'')}</div>
+   ${imgs.length?`<div style="margin-bottom:14px">${grid}</div>`:''}
+   <h2>${t('briefIntro')}</h2><div style="font-size:13px;line-height:1.8;color:#D8D8CE">${esc(overview||'')}</div>
+   <h2>${t('briefConcept')}</h2><div style="font-size:13px;line-height:1.8;color:#D8D8CE">${esc(concept||'')}</div>
+   ${exp?`<h2>${t('briefExperience')}</h2><div style="font-size:13px;line-height:1.8;color:#D8D8CE">${esc(exp)}</div>`:''}
+   ${why?`<h2>${t('briefWhy')}</h2><div style="font-size:13px;line-height:1.8;color:#D8D8CE">${esc(why)}</div>`:''}
+   <h2>${t('briefSpecs')}</h2>
+   <table><tbody>
+    ${row(t('dimsL'),inp.width+' × '+inp.depth+' × '+inp.height+' m ('+(inp.width*inp.depth).toFixed(1)+' m²)')}
+    ${row(t('boothType'),esc(L==='ar'?sh.ar:sh.en))}
+    ${row(t('schedT'),decorList||'—')}
+    ${inp.tagline&&inp.tagline.trim()?row(t('tagline'),esc(inp.tagline)):''}
+    ${inp.decorInside&&inp.decorInside.trim()?row(t('decorInside'),esc(inp.decorInside)):''}
+    ${inp.decorOutside&&inp.decorOutside.trim()?row(t('decorOutside'),esc(inp.decorOutside)):''}
+    ${inp.companyName.trim()?row(t('company'),esc(inp.companyName)):''}
+   </tbody></table>
+   ${pal?`<div style="margin-top:12px"><div style="color:#9BA08E;font-size:12px;margin-bottom:6px">${t('brandPalette')}</div><div style="display:flex;gap:8px">${pal}</div></div>`:''}
+   <div style="margin-top:32px;text-align:center;border-top:1px solid #2A2C22;padding-top:16px">${hiveMark(30)}<div style="color:#9BA08E;font-size:10px;letter-spacing:3px;margin-top:4px">BOOTH STUDIO</div></div>
+  </div>`;
+ setTimeout(()=>window.print(),300);
+}
+
+/* ---- 3D geometric viewer (Three.js, loaded on demand) ---- */
+let _threeLoading=null;
+function ensureThree(){
+ if(window.THREE)return Promise.resolve();
+ if(_threeLoading)return _threeLoading;
+ const urls=['https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+  'https://unpkg.com/three@0.128.0/build/three.min.js',
+  'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'];
+ _threeLoading=(async()=>{let err;for(const u of urls){try{await loadScript(u);if(window.THREE)return;}catch(e){err=e}}throw err||new Error('three load failed')})();
+ return _threeLoading;
+}
+function openBooth3D(){
+ const p=proj();if(!p)return;const inp=p.input;
+ const _c=p.concepts.find(x=>x.id===p.selectedConceptId)||p.concepts.find(x=>x.image);const _tn=(_c&&_c.turn)||{};const _img=_c?{t_front:_c.image,t_left:_tn.t_left,t_fl:_tn.t_fl,t_fr:_tn.t_fr,t_right:_tn.t_right}:null;
+ let ov=document.getElementById('booth3d');if(ov){if(ov._cleanup)ov._cleanup();ov.remove();}
+ ov=document.createElement('div');ov.id='booth3d';
+ ov.innerHTML=`<div class="b3-bar"><div class="b3-info">🧊 ${esc(inp.companyName.trim()||'BOOTH')} · ${inp.width}×${inp.depth}×${inp.height} m</div>
+  <div class="b3-act"><button id="b3rot">${t('autoRot')}</button><button id="b3reset">${t('resetView')}</button><button id="b3turn">🎞 ${t('view3dTurn')}</button><button id="b3x">${t('closeBtn')}</button></div></div>
+  <div class="b3-stage"><div class="b3-err" id="b3loading" style="color:#9BA08E"><div class="spinner" style="margin:0 auto 12px"></div>${t('loading3d')}</div></div>
+  <div class="b3-hint">${t('view3dSub')}</div>`;
+ document.body.appendChild(ov);
+ const stage=ov.querySelector('.b3-stage');
+ const close=()=>{if(ov._cleanup)ov._cleanup();ov.remove();};
+ ov.querySelector('#b3x').onclick=close;
+ ov.querySelector('#b3turn').onclick=()=>{close();openBoothTurntable();};
+ ensureThree().then(()=>{
+  if(!document.getElementById('booth3d'))return; /* closed while loading */
+  const ld=stage.querySelector('#b3loading');if(ld)ld.remove();
+  try{init3D(stage,inp,ov,_img);}catch(e){stage.innerHTML='<div class="b3-err">'+esc((e&&e.message)||t('err3d'))+'</div>';}
+ }).catch(()=>{const ld=stage.querySelector('#b3loading');if(ld){ld.style.color='#E05B4C';ld.innerHTML=t('err3d');}});
+}
+/* ---- 360° image turntable (AI angles) ---- */
+function openBoothTurntable(){
+ const p=proj();if(!p)return;
+ const c=p.concepts.find(x=>x.id===p.selectedConceptId)||p.concepts.find(x=>x.image);
+ if(!c||!c.image){alert(S.lang==='ar'?'اختر تصميماً له صورة أولاً':'Select a design with an image first');return}
+ c.turn=c.turn||{};
+ const order=['t_left','t_fl','t_front','t_fr','t_right'];
+ const frame=id=>id==='t_front'?c.image:(c.turn[id]||null);
+ let idx=2;
+ if(!document.getElementById('turnCss')){const st=document.createElement('style');st.id='turnCss';st.textContent=`
+.turn-ov{position:fixed;inset:0;z-index:1000;background:#0c0c0a;display:flex;flex-direction:column}
+.turn-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px;background:#161612;border-bottom:1px solid #2A2C22}
+.turn-info{color:#F2F2EA;font-size:14px;font-weight:700}
+.turn-act{display:flex;gap:6px}
+.turn-stage{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;background:#0c0c0a}
+.turn-stage img{max-width:100%;max-height:100%;object-fit:contain;-webkit-user-drag:none;user-select:none}
+.turn-status{position:absolute;top:10px;left:0;right:0;text-align:center;color:#6CBE45;font-weight:700;font-size:13px}
+.turn-hint{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#9BA08E;font-size:12px;pointer-events:none}`;document.head.appendChild(st);}
+ let ov=document.getElementById('turn');if(ov)ov.remove();
+ ov=document.createElement('div');ov.id='turn';ov.className='turn-ov';
+ ov.innerHTML=`<div class="turn-bar"><div class="turn-info">${S.lang==='ar'?'عرض 360° للبوث':'360° booth view'}</div>
+   <div class="turn-act"><button id="turnGen" class="btn btn-primary" style="width:auto;padding:8px 14px">${t('genTurn')}</button><button id="turnX" class="btn btn-ghost" style="width:auto;padding:8px 14px">${t('closeBtn')}</button></div></div>
+   <div class="turn-stage"><img id="turnImg" src="${c.image}" draggable="false"><div id="turnStatus" class="turn-status"></div></div>
+   <div class="turn-hint">${t('turnHint')}</div>`;
+ document.body.appendChild(ov);
+ const imgEl=ov.querySelector('#turnImg');const statusEl=ov.querySelector('#turnStatus');const stage=ov.querySelector('.turn-stage');
+ const show=()=>{const f=frame(order[idx]);imgEl.src=f||c.image;imgEl.style.opacity='1';};
+ let down=false,lx=0,acc=0;
+ const dn=e=>{down=true;lx=(e.touches?e.touches[0]:e).clientX;acc=0;};
+ const mv=e=>{if(!down)return;const x=(e.touches?e.touches[0]:e).clientX;acc+=x-lx;lx=x;const step=38;if(acc<=-step){idx=Math.min(order.length-1,idx+1);acc=0;show();}else if(acc>=step){idx=Math.max(0,idx-1);acc=0;show();}if(e.cancelable)e.preventDefault();};
+ const up=()=>{down=false;};
+ stage.addEventListener('mousedown',dn);window.addEventListener('mousemove',mv);window.addEventListener('mouseup',up);
+ stage.addEventListener('touchstart',dn,{passive:false});stage.addEventListener('touchmove',mv,{passive:false});stage.addEventListener('touchend',up);
+ ov.querySelector('#turnX').onclick=()=>{window.removeEventListener('mousemove',mv);window.removeEventListener('mouseup',up);ov.remove();};
+ const doGen=async()=>{
+  if(!S.googleKey.trim()){statusEl.textContent=(S.lang==='ar'?'أضف مفتاح Google من الإعدادات لتوليد الدوران':'Add a Google key in Settings to generate rotation');return;}
+  const gen=ov.querySelector('#turnGen');if(gen)gen.disabled=true;
+  const frames=[['t_left','eye-level 3/4 view from the FAR LEFT of the booth, camera rotated about 60 degrees to the left'],['t_fl','eye-level 3/4 view from the LEFT, camera rotated about 30 degrees to the left'],['t_fr','eye-level 3/4 view from the RIGHT, camera rotated about 30 degrees to the right'],['t_right','eye-level 3/4 view from the FAR RIGHT, camera rotated about 60 degrees to the right']];
+  for(let k=0;k<frames.length;k++){const fid=frames[k][0],txt=frames[k][1];if(c.turn[fid])continue;
+   statusEl.textContent=t('genTurnN',{n:k+1,t:frames.length});
+   try{c.turn[fid]=await renderAngle(c.image,txt,()=>{});persist();idx=order.indexOf(fid);show();}catch(e){statusEl.textContent=(e&&e.message)||'';}
+  }
+  statusEl.textContent='';if(gen)gen.disabled=false;idx=2;show();
+ };
+ ov.querySelector('#turnGen').onclick=doGen;
+ show();
+ if(!order.every(id=>frame(id))){
+  if(S.googleKey.trim()){statusEl.textContent=(S.lang==='ar'?'جارٍ توليد الدوران تلقائياً...':'Auto-generating rotation...');doGen();}
+  else statusEl.textContent=(S.lang==='ar'?'اضغط «توليد الدوران» (يلزم مفتاح Google)':'Tap “Generate rotation” (Google key required)');
+ }
+}
+function nameTexture(THREE,text,color){
+ const cv=document.createElement('canvas');cv.width=1024;cv.height=160;const x=cv.getContext('2d');
+ x.fillStyle=color;x.fillRect(0,0,cv.width,cv.height);
+ x.fillStyle='#ffffff';x.font='bold 92px Arial';x.textAlign='center';x.textBaseline='middle';
+ x.fillText(text,cv.width/2,cv.height/2+4);
+ return new THREE.CanvasTexture(cv);
+}
+function booth3DModel(THREE,inp,views){
+ const g=new THREE.Group();
+ const cols=(inp.logoColors&&inp.logoColors.length)?inp.logoColors:['#6CBE45','#E89C3C','#F2F2EA'];
+ const primary=new THREE.Color(cols[0]||'#6CBE45'),accent=new THREE.Color(cols[1]||'#E89C3C'),wallCol=new THREE.Color('#ECEFE6');
+ const W=inp.width,D=inp.depth,H=inp.height,th=0.08;
+ const mat=(col,opt)=>new THREE.MeshStandardMaterial(Object.assign({color:col,roughness:0.85,metalness:0.05},opt||{}));
+ const box=(w,h,d,col,x,y,z,m)=>{const me=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m||mat(col));me.position.set(x,y,z);g.add(me);return me;};
+ const floorY=inp.decorations.includes('raisedFloor')?0.1:0.02;
+ const floorCol=inp.decorations.includes('woodFloor')?new THREE.Color('#8a5a2b'):new THREE.Color('#26261f');
+ box(W,floorY*2,D,floorCol,0,floorY-0.02,0);
+ const closed={back:['inline','corner','peninsula'].includes(inp.type),left:['inline','corner'].includes(inp.type),right:['inline'].includes(inp.type)};
+ const vk=['t_left','t_fl','t_front','t_fr','t_right'];
+ const front=views&&views.t_front;
+ const haveSide=!!(views&&(views.t_left||views.t_right||views.t_fl||views.t_fr));
+ if(haveSide){
+  const tl=new THREE.TextureLoader();const tex={};
+  vk.forEach(k=>{const u=views[k];if(u){const tx=tl.load(u);try{tx.encoding=THREE.sRGBEncoding;}catch(_){}tex[k]=tx;}});
+  const plane=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial({map:tex.t_front||tex[Object.keys(tex)[0]]}));
+  plane.position.set(0,H/2+0.02,0);g.add(plane);
+  g.userData.photo={plane,tex};
+  return g;
+ }
+ const wm=mat(wallCol);
+ if(closed.back)box(W,H,th,wallCol,0,H/2,-D/2+th/2,wm);
+ if(closed.left)box(th,H,D,wallCol,-W/2+th/2,H/2,0,wm);
+ if(closed.right)box(th,H,D,wallCol,W/2-th/2,H/2,0,wm);
+ const bandH=Math.min(0.5,H*0.16);
+ if(front){
+  /* single realistic image mapped onto the booth back face */
+  const tex=new THREE.TextureLoader().load(front);try{tex.encoding=THREE.sRGBEncoding;}catch(_){}
+  const pw=Math.max(0.6,W-2*th),ph=Math.max(0.6,H-0.04);
+  const back=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshBasicMaterial({map:tex,side:THREE.FrontSide}));
+  back.position.set(0,ph/2+0.02,-D/2+th+0.03);g.add(back);
+  box(W,bandH*0.5,th*1.2,primary,0,H-bandH*0.25,-D/2+th*1.7);
+ } else {
+  if(closed.back){
+   const fm=new THREE.MeshStandardMaterial({map:nameTexture(THREE,inp.companyName.trim()||'BRAND',cols[0]||'#6CBE45'),roughness:0.7});
+   const band=new THREE.Mesh(new THREE.BoxGeometry(W,bandH,th*1.3),[mat(primary),mat(primary),mat(primary),mat(primary),fm,mat(primary)]);
+   band.position.set(0,H-bandH/2,-D/2+th);g.add(band);
+  } else { box(Math.min(W,2.6),bandH,Math.min(D,1.2),primary,0,H-bandH/2,0); }
+  if(inp.decorations.includes('backWallLed')&&closed.back){
+   const lw=Math.min(W*0.6,W-0.4),lh=Math.min(H*0.45,H-bandH-0.3);
+   box(lw,lh,0.06,null,0,H*0.5,-D/2+th+0.05,new THREE.MeshStandardMaterial({color:0x0a0a0a,emissive:new THREE.Color('#1f6f3a'),emissiveIntensity:0.6,roughness:0.4}));
+  }
+  if(inp.decorations.includes('receptionCounter'))box(Math.min(2,W*0.4),1.05,0.6,accent,0,0.55,D/2-0.7);
+  if(inp.decorations.includes('logoTower')){const tw=0.6,tht=Math.min(H+0.6,H*1.15);box(tw,tht,tw,primary,-W/2+tw,tht/2,D/2-tw);box(tw*1.1,0.4,tw*1.1,accent,-W/2+tw,tht,D/2-tw);}
+  if(inp.decorations.includes('archEntrance')){const ax=Math.min(W*0.3,1.5);box(0.2,H*0.9,0.2,primary,-ax,H*0.45,D/2-0.2);box(0.2,H*0.9,0.2,primary,ax,H*0.45,D/2-0.2);box(Math.min(W*0.62,3.2),0.3,0.2,primary,0,H*0.9,D/2-0.2);}
+  if(inp.decorations.includes('greenWall')&&closed.left){const gh=Math.min(H*0.8,2.4);box(0.08,gh,Math.min(D*0.6,2),new THREE.Color('#3f7d34'),-W/2+th+0.06,gh/2+0.1,0);}
+  if(inp.decorations.includes('meetingRoom')){const mw=Math.min(3,W*0.5),md=Math.min(2.5,D*0.5),mh=Math.min(2.6,H);
+   const mm=new THREE.MeshStandardMaterial({color:wallCol,transparent:true,opacity:0.82,roughness:0.6});
+   box(mw,mh,0.06,wallCol,W/2-mw/2-th,mh/2,-D/2+md+th,mm);box(0.06,mh,md,wallCol,W/2-mw-th,mh/2,-D/2+md/2+th,mm);}
+  const blocks=[];const addBlk=(id,w,h,d,col)=>{if(inp.decorations.includes(id)||inp.services.includes(id))blocks.push({w,h,d,col});};
+  addBlk('productShelves',2,2,0.5,wallCol);addBlk('displayPodium',0.6,1,0.6,accent);addBlk('loungeSeating',2.2,0.8,1,new THREE.Color('#444038'));
+  addBlk('storageRoom',1.5,2.4,1.5,wallCol);addBlk('coffeeBar',2,1.1,1,accent);addBlk('vrCorner',2,0.1,2,primary);
+  addBlk('presentationStage',3,0.3,2,primary);addBlk('photoBooth',2,2.2,0.3,accent);addBlk('kidsCorner',2,0.4,2,accent);
+  let bx=-W/2+0.8,bz=-D/2+1.3;
+  for(const b of blocks){ if(bx+b.w>W/2-0.4){bx=-W/2+0.8;bz+=1.5;} if(bz>D/2-0.8)break; box(b.w,b.h,b.d,b.col,bx+b.w/2-0.4,b.h/2+floorY,bz); bx+=b.w+0.5; }
+  if(inp.type==='doubleDecker'){const mid=H*0.5;
+   box(W,0.12,D*0.8,new THREE.Color('#3a3a30'),0,mid,-D*0.1);
+   for(let i=0;i<=8;i++)box(0.05,0.5,0.05,accent,-W/2+(W/8)*i,mid+0.3,D*0.3);
+   box(W,0.05,0.05,accent,0,mid+0.55,D*0.3);
+   for(let i=0;i<8;i++)box(1,0.12,0.3,wallCol,-W/2+0.7,(mid/8)*(i+1)-0.06,-D/2+0.4+i*0.3);
+  }
+  const person=(x,z)=>{const pm=new THREE.MeshStandardMaterial({color:0x9aa08e,roughness:1});
+   const body=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.2,1.2,12),pm);body.position.set(x,0.6+floorY,z);g.add(body);
+   const head=new THREE.Mesh(new THREE.SphereGeometry(0.16,14,14),pm);head.position.set(x,1.4+floorY,z);g.add(head);};
+  if(W>1.4&&D>1.4){person(W/2-0.6,D/2-0.5);person(-W/2+0.6,D/2-0.4);}
+ }
+ return g;
+}
+function init3D(stage,inp,ov,img){
+ const THREE=window.THREE;
+ let W=stage.clientWidth||window.innerWidth,H=stage.clientHeight||Math.max(320,window.innerHeight-130);
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x0c0c0a);
+ const camera=new THREE.PerspectiveCamera(45,W/H,0.05,500);
+ const renderer=new THREE.WebGLRenderer({antialias:true});
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);stage.appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x3a3a30,0.95));
+ const dir=new THREE.DirectionalLight(0xffffff,0.75);dir.position.set(6,12,8);scene.add(dir);
+ scene.add(new THREE.AmbientLight(0xffffff,0.22));
+ const maxD=Math.max(inp.width,inp.depth,inp.height);
+ const grid=new THREE.GridHelper(Math.ceil(maxD*3),Math.ceil(maxD*3),0x333327,0x222218);scene.add(grid);
+ const _model=booth3DModel(THREE,inp,img);scene.add(_model);const _photo=_model.userData&&_model.userData.photo;
+ const target=new THREE.Vector3(0,inp.height*0.42,0);
+ let radius=maxD*2.3,theta=Math.PI*0.75,phi=Math.PI*0.36,auto=false;
+ const apply=()=>{camera.position.set(target.x+radius*Math.sin(phi)*Math.cos(theta),target.y+radius*Math.cos(phi),target.z+radius*Math.sin(phi)*Math.sin(theta));camera.lookAt(target);};
+ apply();
+ let raf;const loop=()=>{if(auto)theta+=0.0035;apply();
+  if(_photo){const dg=Math.atan2(camera.position.x-target.x,camera.position.z-target.z)*180/Math.PI;
+   const k=dg<=-45?'t_left':dg<=-15?'t_fl':dg<15?'t_front':dg<45?'t_fr':'t_right';
+   const tx=_photo.tex[k]||_photo.tex.t_front;if(tx&&_photo.plane.material.map!==tx){_photo.plane.material.map=tx;_photo.plane.material.needsUpdate=true;}
+   _photo.plane.quaternion.copy(camera.quaternion);}
+  renderer.render(scene,camera);raf=requestAnimationFrame(loop);};loop();
+ const dom=renderer.domElement;let drag=false,lx=0,ly=0,pinch=0;
+ const down=e=>{drag=true;const t=e.touches?e.touches[0]:e;lx=t.clientX;ly=t.clientY;};
+ const move=e=>{
+  if(e.touches&&e.touches.length===2){const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,dist=Math.hypot(dx,dy);if(pinch)radius=Math.min(maxD*6,Math.max(maxD*0.9,radius*(pinch/dist)));pinch=dist;if(e.cancelable)e.preventDefault();return;}
+  if(!drag)return;const t=e.touches?e.touches[0]:e;const dx=t.clientX-lx,dy=t.clientY-ly;lx=t.clientX;ly=t.clientY;
+  theta-=dx*0.006;phi=Math.min(1.45,Math.max(0.12,phi-dy*0.006));if(e.cancelable)e.preventDefault();};
+ const up=()=>{drag=false;pinch=0;};
+ dom.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+ dom.addEventListener('touchstart',down,{passive:false});dom.addEventListener('touchmove',move,{passive:false});dom.addEventListener('touchend',up);
+ dom.addEventListener('wheel',e=>{radius=Math.min(maxD*6,Math.max(maxD*0.9,radius*(1+e.deltaY*0.0012)));e.preventDefault();},{passive:false});
+ const onResize=()=>{W=stage.clientWidth;H=stage.clientHeight;if(!W||!H)return;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);};
+ window.addEventListener('resize',onResize);
+ const rotBtn=ov.querySelector('#b3rot');
+ rotBtn.onclick=()=>{auto=!auto;rotBtn.classList.toggle('on',auto);};
+ ov.querySelector('#b3reset').onclick=()=>{radius=maxD*2.3;theta=Math.PI*0.75;phi=Math.PI*0.36;auto=false;rotBtn.classList.remove('on');};
+ ov._cleanup=()=>{cancelAnimationFrame(raf);window.removeEventListener('mousemove',move);window.removeEventListener('mouseup',up);window.removeEventListener('resize',onResize);try{renderer.dispose();}catch(e){}};
+}
+
+
+/* ---- OpenAI provider + dual render + luxury style booster + logo edits ---- */
+function styledPrompt(p){return S.styleBoost?(p+' . STYLE DIRECTION: ultra-premium luxury yet modern exhibition booth; high-end materials (brushed metal, backlit stone, glass, warm wood); sophisticated cove and accent lighting; minimalist contemporary architecture; immaculate finish; award-winning trade-show design; photorealistic architectural visualization, ultra-detailed, 8k.'):p}
+async function openaiCall(body){
+ if(!S.proxyUrl.trim())throw new Error(t('noProxy'));
+ if(!S.openaiKey.trim())throw new Error(t('noOpenaiKey'));
+ const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),150000);
+ try{return await fetch(S.proxyUrl.trim(),{method:'POST',headers:{'Content-Type':'application/json','x-openai-key':S.openaiKey.trim()},body:JSON.stringify(body),signal:ctrl.signal});}
+ finally{clearTimeout(to)}
+}
+function dataURLtoBlob(d){const i=String(d).indexOf(',');const meta=d.slice(0,i);const b64=d.slice(i+1);const mime=(meta.match(/data:([^;]+)/)||[])[1]||'image/png';const bin=atob(b64);const u=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)u[k]=bin.charCodeAt(k);return new Blob([u],{type:mime});}
+async function openaiCallForm(fd){
+ if(!S.proxyUrl.trim())throw new Error(t('noProxy'));
+ if(!S.openaiKey.trim())throw new Error(t('noOpenaiKey'));
+ const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),150000);
+ try{return await fetch(S.proxyUrl.trim(),{method:'POST',headers:{'x-openai-key':S.openaiKey.trim()},body:fd,signal:ctrl.signal});}
+ finally{clearTimeout(to)}
+}
+async function renderOpenAIOnce(prompt,logo){
+ const model=S.openaiModel||'gpt-image-2';
+ let r;
+ if(logo){
+  const p2='The attached image is the client OFFICIAL LOGO. Place this EXACT logo prominently and accurately on the booth signage, fascia and reception counter, preserving its exact shapes, text and colors. Do NOT invent, redraw or alter any logo. '+String(prompt);
+  const fd=new FormData();
+  fd.append('model',model);fd.append('prompt',p2.slice(0,30000));fd.append('size','1536x1024');fd.append('quality','medium');
+  try{fd.append('image',dataURLtoBlob(logo),'logo.png')}catch(e){}
+  try{r=await openaiCallForm(fd)}catch(e){if(e.message===t('noProxy')||e.message===t('noOpenaiKey'))throw e;throw new Error(t('errNetwork'))}
+ } else {
+  const p2='Do NOT invent or include any company logo or third-party brand marks; show only the brand name text rendered in the exact brand colors. '+String(prompt);
+  const body={model:model,prompt:p2.slice(0,30000),size:'1536x1024',quality:'medium',n:1};
+  try{r=await openaiCall(body)}catch(e){if(e.message===t('noProxy')||e.message===t('noOpenaiKey'))throw e;throw new Error(t('errNetwork'))}
+ }
+ if(r.status===401||r.status===403)throw new Error(t('errOpenaiKey'));
+ if(r.status===429){const err=new Error(t('errOpenaiQuota'));err.code=429;err.retrySec=20;throw err}
+ if(!r.ok){let d='';try{const e=await r.json();d=(e&&e.error&&e.error.message)||(e&&e.message)||''}catch(_){}throw new Error(d||('OpenAI HTTP '+r.status))}
+ let data;try{data=await r.json()}catch(e){throw new Error('Proxy returned non-JSON (check the Worker URL)')}
+ const item=(data&&data.data&&data.data[0])?data.data[0]:null;
+ if(item&&item.b64_json)return compress('data:image/png;base64,'+item.b64_json);
+ if(item&&item.url)return item.url;
+ throw new Error(t('errOpenaiNoimg'));
+}
+async function renderOpenAI(prompt,logo,onWait){
+ for(let attempt=0;attempt<3;attempt++){
+  try{return await renderOpenAIOnce(prompt,logo)}
+  catch(e){if(e.code===429&&attempt<2){let s=e.retrySec||20;while(s>0){if(onWait)onWait(s);await sleep(1000);s--}continue}throw e}
+ }
+}
+async function renderConcept(c,prompt,logo,onWait){
+ const prov=S.imgProvider;c.gen=c.gen||{};const sp=styledPrompt(prompt);let err='';
+ if(prov==='google'||prov==='both'){try{c.gen.google=await renderImage(sp,logo,onWait)}catch(e){err=e.message}}
+ if(prov==='openai'||prov==='both'){try{c.gen.openai=await renderOpenAI(sp,logo,onWait)}catch(e){err=err||e.message}}
+ c.activeProvider=c.gen.google?'google':(c.gen.openai?'openai':null);
+ c.image=c.activeProvider?c.gen[c.activeProvider]:null;
+ if(!c.image)throw new Error(err||t('failed'));
+ return c;
+}
+function setProvider(cid,prov){const p=proj();if(!p)return;const c=p.concepts.find(x=>x.id===cid);if(!c||!c.gen||!c.gen[prov])return;c.activeProvider=prov;c.image=c.gen[prov];c.views=[];c._shown=undefined;persist();render();}
+function _grabKeys(){const m={ckey:'claudeKey',gkey:'googleKey',okey:'openaiKey',purl:'proxyUrl'};for(const id in m){const el=document.getElementById(id);if(el)S[m[id]]=el.value.trim();}}
+function setImgProvider(v){_grabKeys();S.imgProvider=v;persist();render();}
+function setStyleBoost(b){_grabKeys();S.styleBoost=!!b;persist();render();}
+
+/* ════════ HIVE PRODUCTION FABRICATION v3 — spec-driven, design-linked, CNC ════════ */
+let FSHEET={L:2440,C:1220,KERF:6};
+function setFabSheet(){const j=(typeof S!=='undefined'&&S&&S.sheetSize==='jumbo');FSHEET={L:j?3660:2440,C:j?1830:1220,KERF:6};}
+const FMAT={
+ mdf6:{sheet:true,ar:'MDF 6مم',en:'MDF 6mm',layer:'MDF6'},mdf8:{sheet:true,ar:'MDF 8مم',en:'MDF 8mm',layer:'MDF8'},
+ mdf9:{sheet:true,ar:'MDF 9مم',en:'MDF 9mm',layer:'MDF9'},mdf12:{sheet:true,ar:'MDF 12مم',en:'MDF 12mm',layer:'MDF12'},
+ mdf14:{sheet:true,ar:'MDF 14مم',en:'MDF 14mm',layer:'MDF14'},mdf18:{sheet:true,ar:'MDF 18مم',en:'MDF 18mm',layer:'MDF18'},
+ ply12:{sheet:true,ar:'بلايوود 12مم',en:'Plywood 12mm',layer:'PLY12'},ply18:{sheet:true,ar:'بلايوود 18مم',en:'Plywood 18mm',layer:'PLY18'},
+ bat50:{sheet:false,ar:'مربّع خشب 50×50',en:'Timber 50×50',layer:'BAT50',barLen:3000},bat100:{sheet:false,ar:'مربّع خشب 100×100',en:'Timber 100×100',layer:'BAT100',barLen:3000}};
+function fSplitGrained(out,ar,en,mat,crossW,grainLen,groove){crossW=Math.round(crossW);grainLen=Math.round(grainLen);if(crossW<=0||grainLen<=0)return;
+ const gs=[];let g=grainLen;while(g>0){const s=Math.min(g,FSHEET.L);gs.push(s);g-=s;}
+ const cs=[];let c=crossW;while(c>0){const s=Math.min(c,FSHEET.C);cs.push(s);c-=s;}
+ for(const G of gs)for(const Cc of cs)out.push({ar,en,mat,g:G,c:Cc,grain:true,groove:!!groove});}
+function fSplitFree(out,ar,en,mat,A,B){A=Math.round(A);B=Math.round(B);if(A<=0||B<=0)return;
+ let X=Math.max(A,B),Y=Math.min(A,B);const xs=[];let x=X;while(x>0){const s=Math.min(x,FSHEET.L);xs.push(s);x-=s;}
+ const ys=[];let y=Y;while(y>0){const s=Math.min(y,FSHEET.C);ys.push(s);y-=s;}
+ for(const a of xs)for(const b of ys)out.push({ar,en,mat,g:a,c:b,grain:false});}
+function partsFromSpec(spec){setFabSheet();
+ const P=[],Lk=[];const sMat=spec.structMat||'bat50';const dbl=(typeof S!=='undefined'&&S&&S.doubleSkin)?2:1;const note=[];
+ const lin=(ar,en,mat,len,qty)=>{len=Math.round(len);qty=Math.round(qty);if(len>0&&qty>0)Lk.push({ar,en,mat,len,qty,linear:true});};
+ const face=(ar,en,cw,gl)=>{for(let k=0;k<dbl;k++)fSplitGrained(P,(dbl>1?'(تجليد مزدوج) ':'')+ar,en,'mdf18',cw,gl,true);};
+ for(const e of (spec.elements||[])){const w=e.w||0,d=e.d||0,h=e.h||0,len=e.len||w;
+  switch(e.kind){
+   case 'wall':face('لوح جدار '+(e.ar||''),'Wall panel '+(e.en||''),len,h);
+     lin('قائم '+(e.ar||''),'Post '+(e.en||''),sMat,h,Math.ceil(len/600)+1);
+     lin('جسر علوي '+(e.ar||''),'Top rail '+(e.en||''),sMat,len,1);lin('جسر سفلي '+(e.ar||''),'Bottom rail '+(e.en||''),sMat,len,1);break;
+   case 'counter':fSplitGrained(P,'سطح كاونتر','Counter top','mdf18',d,w,false);face('واجهة كاونتر','Counter front',w,h);
+     fSplitGrained(P,'جانب كاونتر','Counter side','mdf18',d,h,true);fSplitGrained(P,'جانب كاونتر','Counter side','mdf18',d,h,true);
+     fSplitFree(P,'رف داخلي كاونتر','Counter shelf','mdf18',w-40,d-60);break;
+   case 'led':lin('إطار LED أفقي','LED frame H',sMat,w,2);lin('إطار LED رأسي','LED frame V',sMat,h,2);fSplitFree(P,'خلفية LED','LED backer','mdf9',w,h);break;
+   case 'tower':for(let f=0;f<4;f++)face('تغليف برج','Tower cladding',(f%2?d:w),h);lin('قائم برج','Tower post','bat100',h,4);break;
+   case 'shelfUnit':{fSplitGrained(P,'جانب وحدة أرفف','Shelf side','mdf18',d,h,true);fSplitGrained(P,'جانب وحدة أرفف','Shelf side','mdf18',d,h,true);
+     const n=e.shelves||4;for(let i=0;i<n;i++)fSplitFree(P,'رف','Shelf','mdf18',w,d);break;}
+   case 'podium':fSplitGrained(P,'جانب بوديوم','Podium side','mdf18',d,h,true);fSplitGrained(P,'جانب بوديوم','Podium side','mdf18',d,h,true);
+     face('واجهة بوديوم','Podium face',w,h);fSplitGrained(P,'ظهر بوديوم','Podium back','mdf18',w,h,true);fSplitFree(P,'سطح بوديوم','Podium top','mdf18',w,d);break;
+   case 'room':{const run=2*d+w-(e.door?900:0);face('لوح جدار '+(e.ar||'غرفة'),'Room panel '+(e.en||''),run,h);
+     lin('قائم غرفة','Room post',sMat,h,Math.ceil(run/600)+2);if(e.door)fSplitGrained(P,'باب غرفة','Room door','mdf18',900,Math.min(h,2100),true);break;}
+   case 'floor':fSplitFree(P,'لوح أرضية',(e.raised?'Raised floor deck':'Floor deck'),(e.mat||'ply18'),w,d);
+     if(e.raised)lin('عارضة أرضية','Floor joist',sMat,Math.min(d,FSHEET.L),Math.ceil(w/600)+1);break;
+   case 'stage':fSplitFree(P,'لوح منصة','Stage deck','ply18',w,d);lin('دعامة منصة','Stage support',sMat,h||300,Math.ceil(w/600)*Math.ceil(d/600));break;
+   case 'arch':note.push('arch');for(let i=0;i<6;i++)fSplitGrained(P,'ضلع قوس','Arch rib','mdf18',Math.min(d||300,FSHEET.C),Math.min(h,FSHEET.L),false);
+     fSplitFree(P,'جلدة قوس مرنة','Arch bend skin','mdf6',Math.min(h,FSHEET.L),Math.min((e.w||1500),FSHEET.C));lin('قائم قوس','Arch post',sMat,h,2);break;
+   default:fSplitGrained(P,'لوح '+(e.ar||'عنصر'),'Panel '+(e.en||''),'mdf18',w||len||600,h||600,true);}
+ }
+ const map=new Map();for(const p of P){const k=p.mat+'|'+p.g+'|'+p.c+'|'+(p.grain?1:0)+'|'+(p.groove?1:0)+'|'+p.en;if(map.has(k))map.get(k).qty++;else map.set(k,Object.assign({qty:1},p));}
+ let n=1;const sheetParts=[...map.values()].map(p=>Object.assign(p,{n:n++}));
+ const lmap=new Map();for(const p of Lk){const k=p.mat+'|'+p.len+'|'+p.en;if(lmap.has(k))lmap.get(k).qty+=p.qty;else lmap.set(k,Object.assign({},p));}
+ const linParts=[...lmap.values()].map(p=>Object.assign(p,{n:n++}));
+ return {sheetParts,linParts,note:[...new Set(note)]};
+}
+function nestSheets(sheetParts){setFabSheet();const byMat={};
+ for(const p of sheetParts){if(!FMAT[p.mat]||!FMAT[p.mat].sheet)continue;for(let q=0;q<p.qty;q++)(byMat[p.mat]=byMat[p.mat]||[]).push({g:p.g,c:p.c,grain:p.grain,groove:p.groove,n:p.n,label:'#'+p.n+' '+p.g+'×'+p.c});}
+ const out={};for(const mat in byMat){const items=byMat[mat];items.sort((a,b)=>b.c-a.c||b.g-a.g);
+  const sheets=[];let sh=null,x=0,y=0,rowH=0,placed=0;const ns=()=>{sh={rects:[]};sheets.push(sh);x=0;y=0;rowH=0;};ns();
+  for(const it of items){let g=it.g,c=it.c;
+   if(!it.grain&&c>FSHEET.C-y&&g<=FSHEET.C-y&&c<=FSHEET.L){const tt=g;g=c;c=tt;}
+   if(x+g>FSHEET.L){y+=rowH+FSHEET.KERF;x=0;rowH=0;}
+   if(y+c>FSHEET.C){ns();}
+   sh.rects.push({x,y,w:g,h:c,grain:it.grain,groove:it.groove,n:it.n,label:it.label});placed++;x+=g+FSHEET.KERF;rowH=Math.max(rowH,c);}
+  out[mat]={sheets,placed,total:items.length};}
+ return out;}
+function barNest(linParts){const byMat={};
+ for(const p of linParts){if(FMAT[p.mat]&&FMAT[p.mat].sheet)continue;for(let q=0;q<p.qty;q++)(byMat[p.mat]=byMat[p.mat]||[]).push(p.len);}
+ const out={};for(const mat in byMat){const BL=(FMAT[mat]&&FMAT[mat].barLen)||6000;const lens=byMat[mat].sort((a,b)=>b-a);const bars=[];let meters=0;
+  for(const Lp of lens){meters+=Lp;let bar=bars.find(b=>b.rem>=Lp+(b.cuts?5:0));if(!bar){bar={rem:BL,cuts:0,parts:[]};bars.push(bar);}bar.rem-=Lp+5;bar.cuts++;bar.parts.push(Lp);}
+  out[mat]={bars:bars.length,meters:Math.round(meters/100)/10,barLen:BL};}
+ return out;}
+function bomFromNest(nest,barn){const rows=[];for(const m in nest)rows.push({mat:m,sheet:true,qty:nest[m].sheets.length});
+ for(const m in barn)rows.push({mat:m,sheet:false,qty:barn[m].bars,meters:barn[m].meters,barLen:barn[m].barLen});return rows;}
+function dxfFromNest(nest){const L=[];const Pp=(...a)=>{for(const x of a)L.push(String(x));};
+ Pp(0,'SECTION',2,'HEADER',9,'$ACADVER',1,'AC1015',9,'$INSUNITS',70,4,0,'ENDSEC');
+ Pp(0,'SECTION',2,'TABLES',0,'TABLE',2,'LAYER',70,5);
+ for(const[nm,col]of[['SHEET',8],['CUT',3],['LABEL',2],['DRILL',1],['DADO',5]])Pp(0,'LAYER',5,'10',100,'AcDbSymbolTableRecord',100,'AcDbLayerTableRecord',2,nm,70,0,62,col,6,'CONTINUOUS');
+ Pp(0,'ENDTAB',0,'ENDSEC',0,'SECTION',2,'ENTITIES');
+ const poly=(ly,x,y,w,h)=>Pp(0,'LWPOLYLINE',100,'AcDbEntity',8,ly,100,'AcDbPolyline',90,4,70,1,43,0,10,x.toFixed(2),20,y.toFixed(2),10,(x+w).toFixed(2),20,y.toFixed(2),10,(x+w).toFixed(2),20,(y+h).toFixed(2),10,x.toFixed(2),20,(y+h).toFixed(2));
+ const txt=(ly,x,y,hg,s)=>Pp(0,'TEXT',100,'AcDbEntity',8,ly,100,'AcDbText',10,x.toFixed(2),20,y.toFixed(2),30,0,40,hg,1,s,100,'AcDbText');
+ const line=(ly,x1,y1,x2,y2)=>Pp(0,'LINE',100,'AcDbEntity',8,ly,100,'AcDbLine',10,x1.toFixed(2),20,y1.toFixed(2),30,0,11,x2.toFixed(2),21,y2.toFixed(2),31,0);
+ let oy=0;for(const mat in nest){let ox=0;txt('LABEL',0,oy+(FSHEET.C+40),40,(FMAT[mat]?FMAT[mat].layer:mat)+' '+FSHEET.L+'x'+FSHEET.C+' ('+nest[mat].sheets.length+' sheets)');
+  for(const sh of nest[mat].sheets){poly('SHEET',ox,oy,FSHEET.L,FSHEET.C);
+   for(const r of sh.rects){poly('CUT',ox+r.x,oy+r.y,r.w,r.h);
+    if(r.groove){const gi=9;line('DADO',ox+r.x+gi,oy+r.y+gi,ox+r.x+r.w-gi,oy+r.y+gi);line('DADO',ox+r.x+gi,oy+r.y+gi,ox+r.x+gi,oy+r.y+r.h-gi);}
+    txt('LABEL',ox+r.x+20,oy+r.y+r.h/2,Math.min(40,Math.max(18,Math.min(r.w,r.h)/5)),r.label);}ox+=FSHEET.L+250;}
+  oy-=FSHEET.C+650;}
+ Pp(0,'ENDSEC',0,'EOF');return L.join('\r\n');}
+function costFromSpec(spec){
+ const r=partsFromSpec(spec);const nest=nestSheets(r.sheetParts);const barn=barNest(r.linParts);const jn=buildJoinery(spec,r.sheetParts,r.linParts,barn);
+ const RATE={mdf6:55,mdf8:65,mdf9:70,mdf12:85,mdf14:95,mdf18:110,ply12:120,ply18:150};
+ const sizeF=(FSHEET.L*FSHEET.C)/(2440*1220);
+ const rows=[];let m=0;const ar=S.lang==='ar';
+ for(const k in nest){const base=RATE[k]||110;const sub=Math.round(nest[k].sheets.length*base*sizeF);rows.push({label:(ar?FMAT[k].ar:FMAT[k].en),qty:nest[k].sheets.length+(ar?' لوح':' sheet'),sub});m+=sub;}
+ for(const k in barn){const per=(k==='bat100'?28:12);const sub=Math.round((barn[k].meters||0)*per);rows.push({label:(ar?FMAT[k].ar:FMAT[k].en),qty:(barn[k].meters||0)+' م.ط',sub});m+=sub;}
+ const cons=Math.round((jn.jointM||0)*9);if(cons>0){rows.push({label:(ar?'مستهلكات تجليد (غراء/دبوس/براغي)':'Bonding (glue/staples/screws)'),qty:'—',sub:cons});m+=cons;}
+ const ledEl=spec.elements.find(e=>e.kind==='led');if(ledEl){const a=Math.max(1,(ledEl.w/1000)*(ledEl.h/1000));const sub=Math.round(a*1800);rows.push({label:(ar?'شاشة LED':'LED screen'),qty:a.toFixed(1)+' م²',sub});m+=sub;}
+ const floorEl=spec.elements.find(e=>e.kind==='floor');if(floorEl){const a=(spec.booth.W/1000)*(spec.booth.D/1000);const sub=Math.round(a*120);rows.push({label:(ar?'أرضية':'Flooring'),qty:a.toFixed(1)+' م²',sub});m+=sub;}
+ const wa=spec.elements.filter(e=>e.kind==='wall').reduce((s,e)=>s+(e.len/1000)*(spec.booth.H/1000),0);if(wa>0){const sub=Math.round(wa*90);rows.push({label:(ar?'طباعة وجرافيك':'Graphics & print'),qty:wa.toFixed(1)+' م²',sub});m+=sub;}
+ const labor=Math.round(m*0.3);rows.push({label:(ar?'تركيب وعمالة (30%)':'Assembly & labor (30%)'),qty:'—',sub:labor});
+ return {rows,total:m+labor};
+}
+function specFromInputs(inp){const W=Math.round(inp.width*1000),D=Math.round(inp.depth*1000),H=Math.round(inp.height*1000);
+ const closed={back:['inline','corner','peninsula'].includes(inp.type),left:['inline','corner'].includes(inp.type),right:['inline'].includes(inp.type)};
+ const structMat='bat50';const el=[];
+ if(closed.back)el.push({kind:'wall',ar:'خلفي',en:'Back',x:0,y:0,len:W,d:80,h:H});
+ if(closed.left)el.push({kind:'wall',ar:'أيسر',en:'Left',x:0,y:0,len:D,d:80,h:H});
+ if(closed.right)el.push({kind:'wall',ar:'أيمن',en:'Right',x:W-80,y:0,len:D,d:80,h:H});
+ const has=id=>(inp.decorations||[]).includes(id)||(inp.services||[]).includes(id);
+ if(has('backWallLed'))el.push({kind:'led',ar:'شاشة LED',en:'LED wall',x:Math.round(W/2-Math.min(4000,W-400)/2),y:90,w:Math.min(4000,W-400),h:Math.min(2500,H-500)});
+ if(has('receptionCounter'))el.push({kind:'counter',ar:'كاونتر',en:'Counter',x:Math.round(W/2-1000),y:D-700,w:2000,d:600,h:1050});
+ if(has('logoTower'))el.push({kind:'tower',ar:'برج لوقو',en:'Logo tower',x:120,y:D-720,w:600,d:600,h:Math.min(H+600,3600)});
+ if(has('meetingRoom'))el.push({kind:'room',ar:'غرفة اجتماعات',en:'Meeting',x:Math.max(120,W-3000-120),y:120,w:Math.min(3000,Math.round(W*0.45)),d:Math.min(2500,Math.round(D*0.5)),h:2600,door:true});
+ if(has('storageRoom'))el.push({kind:'room',ar:'مستودع',en:'Storage',x:120,y:120,w:1500,d:1500,h:2400,door:true});
+ if(has('productShelves'))el.push({kind:'shelfUnit',ar:'أرفف',en:'Shelves',x:120,y:Math.round(D/2),w:2000,d:500,h:2000,shelves:4});
+ if(has('displayPodium'))for(let i=0;i<3;i++)el.push({kind:'podium',ar:'بوديوم',en:'Podium',x:700+i*900,y:Math.round(D*0.45),w:600,d:600,h:1000});
+ if(has('archEntrance'))el.push({kind:'arch',ar:'قوس',en:'Arch',x:Math.round(W/2-1500),y:D-300,w:3000,d:300,h:Math.min(H,3000)});
+ if(has('presentationStage'))el.push({kind:'stage',ar:'منصة',en:'Stage',x:Math.round(W/2-1500),y:Math.round(D/2-1000),w:3000,d:2000,h:300});
+ if(has('raisedFloor'))el.push({kind:'floor',ar:'أرضية مرتفعة',en:'Raised floor',x:0,y:0,w:W,d:D,raised:true,mat:'ply18'});
+ else if(has('woodFloor'))el.push({kind:'floor',ar:'أرضية خشب',en:'Wood floor',x:0,y:0,w:W,d:D,mat:'ply18'});
+ return {booth:{W,D,H,type:inp.type},closed,structMat,elements:el};}
+function planSvgSpec(spec){const W=spec.booth.W,D=spec.booth.D;const pad=70,vw=900,inW=vw-2*pad;const sc=inW/W;const bw=W*sc,bh=D*sc;const x0=pad,y0=pad,vh=Math.round(bh)+2*pad+60;
+ let s=`<svg viewBox="0 0 ${vw} ${vh}" xmlns="http://www.w3.org/2000/svg"><rect width="${vw}" height="${vh}" fill="#fff"/><g stroke="#e6eadf" stroke-width="1">`;
+ for(let m=1;m*1000<W;m++){const gx=x0+m*1000*sc;s+=`<line x1="${gx.toFixed(1)}" y1="${y0}" x2="${gx.toFixed(1)}" y2="${(y0+bh).toFixed(1)}"/>`;}
+ for(let m=1;m*1000<D;m++){const gy=y0+m*1000*sc;s+=`<line x1="${x0}" y1="${gy.toFixed(1)}" x2="${(x0+bw).toFixed(1)}" y2="${gy.toFixed(1)}"/>`;}
+ s+=`</g><rect x="${x0}" y="${y0}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="none" stroke="#141414" stroke-width="1.2"/>`;
+ const wl=(a,b,c,d)=>`<line x1="${a.toFixed(1)}" y1="${b.toFixed(1)}" x2="${c.toFixed(1)}" y2="${d.toFixed(1)}" stroke="#141414" stroke-width="6"/>`;
+ if(spec.closed.back)s+=wl(x0,y0,x0+bw,y0);if(spec.closed.left)s+=wl(x0,y0,x0,y0+bh);if(spec.closed.right)s+=wl(x0+bw,y0,x0+bw,y0+bh);
+ let n=1;for(const e of spec.elements){if(e.kind==='wall'||e.kind==='floor'){continue;}
+  const ex=x0+(e.x||0)*sc,ey=y0+(e.y||0)*sc,ew=(e.w||300)*sc,ed=(e.d||300)*sc;
+  s+=`<rect x="${ex.toFixed(1)}" y="${ey.toFixed(1)}" width="${ew.toFixed(1)}" height="${ed.toFixed(1)}" rx="2" fill="#F2F7EC" stroke="#5A9E2F" stroke-width="1.4"/>`;
+  s+=`<circle cx="${(ex+ew/2).toFixed(1)}" cy="${(ey+ed/2).toFixed(1)}" r="9" fill="#5A9E2F"/><text x="${(ex+ew/2).toFixed(1)}" y="${(ey+ed/2+3.5).toFixed(1)}" font-size="11" font-family="Arial" text-anchor="middle" fill="#fff">${n}</text>`;
+  e._tag=n;n++;}
+ s+=`<text x="${(x0+bw/2).toFixed(1)}" y="${(y0+bh+22).toFixed(1)}" font-size="12" text-anchor="middle" font-family="Arial" fill="#141414">${(W/1000).toFixed(2)} m</text>`;
+ s+=`<text x="${(x0-16).toFixed(1)}" y="${(y0+bh/2).toFixed(1)}" font-size="12" text-anchor="middle" font-family="Arial" fill="#141414" transform="rotate(-90 ${(x0-16).toFixed(1)} ${(y0+bh/2).toFixed(1)})">${(D/1000).toFixed(2)} m</text>`;
+ const sb=1000*sc;s+=`<rect x="${x0}" y="${(y0+bh+36).toFixed(1)}" width="${sb.toFixed(1)}" height="6" fill="#141414"/><rect x="${(x0+sb/2).toFixed(1)}" y="${(y0+bh+36).toFixed(1)}" width="${(sb/2).toFixed(1)}" height="6" fill="#fff" stroke="#141414"/><text x="${(x0+sb+8).toFixed(1)}" y="${(y0+bh+47).toFixed(1)}" font-size="11" font-family="Arial" fill="#141414">1 m</text>`;
+ s+=`<text x="${(x0+bw).toFixed(1)}" y="${(y0+bh+47).toFixed(1)}" font-size="10" text-anchor="end" font-family="Arial" fill="#888">▼ الواجهة / FRONT ▼</text>`;
+ return s+'</svg>';}
+function frontElevSpecSvg(spec){const W=spec.booth.W,H=spec.booth.H;const pad=70,vw=900,inW=vw-2*pad;const sc=inW/W;const bw=W*sc,bh=H*sc;const x0=pad,y0=pad,gy=y0+bh,vh=Math.round(bh)+2*pad+40;
+ let s=`<svg viewBox="0 0 ${vw} ${vh}" xmlns="http://www.w3.org/2000/svg"><rect width="${vw}" height="${vh}" fill="#fff"/>`;
+ s+=`<rect x="${x0}" y="${y0}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="#FAFCF7" stroke="#141414" stroke-width="2"/>`;
+ s+=`<line x1="${(x0-20).toFixed(1)}" y1="${gy.toFixed(1)}" x2="${(x0+bw+20).toFixed(1)}" y2="${gy.toFixed(1)}" stroke="#141414" stroke-width="2"/>`;
+ const band=Math.min(40,bh*0.16);s+=`<rect x="${x0}" y="${y0}" width="${bw.toFixed(1)}" height="${band.toFixed(1)}" fill="#5A9E2F"/>`;
+ const put=(ex,zTop,zBot,ew,fill,tag)=>{const rx=x0+ex*sc,ry=gy-zTop*sc,rh=(zTop-zBot)*sc,rw=ew*sc;s+=`<rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${rw.toFixed(1)}" height="${rh.toFixed(1)}" fill="${fill}" stroke="#141414" stroke-width="1.2"/>`;if(tag)s+=`<circle cx="${(rx+rw/2).toFixed(1)}" cy="${(ry+rh/2).toFixed(1)}" r="8" fill="#5A9E2F"/><text x="${(rx+rw/2).toFixed(1)}" y="${(ry+rh/2+3).toFixed(1)}" font-size="10" font-family="Arial" text-anchor="middle" fill="#fff">${tag}</text>`;};
+ for(const e of spec.elements){const tg=e._tag;
+  if(e.kind==='led'){put(e.x,(H-300),(H-300-e.h),e.w,'#1a1a1a',tg);}
+  else if(['counter','podium','shelfUnit','tower','room','stage','arch'].includes(e.kind)){put(e.x,e.h,0,e.w,'#EDF3E4',tg);}}
+ s+=`<text x="${(x0+bw/2).toFixed(1)}" y="${(gy+24).toFixed(1)}" font-size="12" text-anchor="middle" font-family="Arial" fill="#141414">${(W/1000).toFixed(2)} m</text>`;
+ s+=`<text x="${(x0+bw+24).toFixed(1)}" y="${(y0+bh/2).toFixed(1)}" font-size="12" text-anchor="middle" font-family="Arial" fill="#141414" transform="rotate(-90 ${(x0+bw+24).toFixed(1)} ${(y0+bh/2).toFixed(1)})">${(H/1000).toFixed(2)} m</text>`;
+ return s+'</svg>';}
+function nestSheetSvgF(sheet){const W=2440,H=1220;let s='<svg viewBox="-20 -20 '+(W+40)+' '+(H+40)+'" xmlns="http://www.w3.org/2000/svg">';
+ s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fff" stroke="#141414" stroke-width="5"/>';
+ for(const r of sheet.rects){s+='<rect x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" fill="#F2F7EC" stroke="#5A9E2F" stroke-width="3"/>';
+  if(r.grain){const cx=r.x+r.w/2,cy=r.y+r.h/2,Lg=Math.min(r.w,r.h)*0.3;s+='<line x1="'+(cx-Lg).toFixed(0)+'" y1="'+cy.toFixed(0)+'" x2="'+(cx+Lg).toFixed(0)+'" y2="'+cy.toFixed(0)+'" stroke="#C77F22" stroke-width="2" marker-end="url(#ar)"/>';}
+  const fs=Math.max(26,Math.min(60,Math.min(r.h,r.w)/4));s+='<text x="'+(r.x+r.w/2)+'" y="'+(r.y+r.h/2-fs*0.7)+'" font-size="'+fs+'" font-family="Arial" text-anchor="middle" fill="#141414">'+r.label+'</text>';}
+ return '<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#C77F22"/></marker></defs>'+s+'</svg>';}
+/* ---- design-linked spec derivation (Claude Vision) + shop-drawings pack + CNC DXF ---- */
+function sanitizeSpecEls(els,base){
+ if(!Array.isArray(els))return [];
+ const kinds=['wall','counter','led','tower','shelfUnit','podium','room','floor','stage','arch','generic'];
+ const W=base.booth.W,D=base.booth.D,H=base.booth.H;const num=(v,def)=>{v=Math.round(+v);return isFinite(v)&&v>0?v:def;};
+ let out=els.filter(e=>e&&kinds.includes(e.kind)).slice(0,40).map(e=>{
+  const o={kind:e.kind,ar:String(e.ar||'').slice(0,40),en:String(e.en||'').slice(0,40)};
+  o.x=Math.max(0,Math.min(num(e.x,0),W));o.y=Math.max(0,Math.min(num(e.y,0),D));
+  o.w=Math.min(num(e.w,600),W);o.d=Math.min(num(e.d,600),D);o.h=Math.min(num(e.h,1000),H+800);
+  if(e.len)o.len=Math.min(num(e.len,o.w),Math.max(W,D));
+  if(e.shelves)o.shelves=Math.max(1,Math.min(num(e.shelves,4),10));
+  if(e.door)o.door=true;if(e.raised)o.raised=true;if(e.mat)o.mat=(e.mat==='ply18'?'ply18':'mdf18');
+  return o;});
+ if(!out.some(e=>e.kind==='wall'))out=base.elements.filter(e=>e.kind==='wall').concat(out);
+ return out;
+}
+async function deriveSpec(p){
+ const inp=p.input;const base=specFromInputs(inp);
+ const c=p.concepts.find(x=>x.id===p.selectedConceptId)||p.concepts.find(x=>x.image);
+ if(p.spec&&p.specFor===((c&&c.id)||null))return p.spec;
+ let spec=base;
+ if(c&&c.image&&S.claudeKey.trim()){
+  try{
+   const sys='You are a senior exhibition-booth TECHNICAL designer. You SEE the approved booth design image. Output ONLY strict JSON (no prose). Schema: {"elements":[{"kind":"wall|counter|led|tower|shelfUnit|podium|room|floor|stage|arch|generic","ar":"اسم عربي","en":"name","x":int,"y":int,"w":int,"d":int,"h":int,"len":int,"shelves":int,"door":true,"raised":true}]} . Origin = back-left floor corner; x=width (0..'+base.booth.W+'), y=depth toward the aisle (0..'+base.booth.D+'); ALL millimetres; respect booth '+base.booth.W+'×'+base.booth.D+'×'+base.booth.H+' mm. Include the closed perimeter walls. Place each element where it appears in the image with realistic sizes. Output JSON only.';
+   const usr='Booth '+inp.width+'×'+inp.depth+'×'+inp.height+' m, type '+inp.type+'. Closed sides '+JSON.stringify(base.closed)+'. Read the attached approved design and return the build spec JSON.\n\n'+buildBrief(inp);
+   const j=parseLooseJSON(await callClaudeVision(sys,usr,c.image,1600));
+   const els=sanitizeSpecEls(j&&j.elements,base);
+   if(els.length)spec={booth:base.booth,closed:base.closed,structMat:base.structMat,elements:els,source:'claude'};
+  }catch(e){console.warn('spec derive failed',e);}
+ }
+ spec.source=spec.source||'auto';p.spec=spec;p.specFor=((c&&c.id)||null);persist();return spec;
+}
+function _matKey(m){return FMAT[m]?(S.lang==='ar'?FMAT[m].ar:FMAT[m].en):((typeof MATERIALS!=='undefined'&&MATERIALS[m])?t(MATERIALS[m].key):m);}
+function buildJoinery(spec,sheetParts,linParts,barn){
+ const dbl=(typeof S!=='undefined'&&S&&S.doubleSkin)?2:1;
+ let battMeters=0;for(const m in barn)battMeters+=barn[m].meters||0;
+ const grooved=sheetParts.filter(p=>p.groove);let jointM=0;for(const p of grooved)jointM+=((p.g+p.c)*2/1000)*p.qty;
+ const panels=sheetParts.reduce((a,p)=>a+p.qty,0);
+ const hw=[];const add=(ar,en,q)=>{q=Math.ceil(q);if(q>0)hw.push({ar,en,qty:q});};
+ add('غراء نجارة (أنبوب 300مل)','Wood glue (300ml tube)',jointM/8*dbl);
+ add('دبابيس تثبيت (علبة 5000)','Staples/pins (box of 5000)',jointM*14/5000);
+ add('براغي خشب 4×40مم','Wood screws 4×40mm',jointM*4+panels*2);
+ return {hw,jointM:Math.round(jointM*10)/10,battMeters:Math.round(battMeters*10)/10,dbl};
+}
+function setSheetSize(v){if(typeof _grabKeys==='function')_grabKeys();S.sheetSize=v;persist();render();}
+function setDoubleSkin(b){if(typeof _grabKeys==='function')_grabKeys();S.doubleSkin=!!b;persist();render();}
+function printShopPack(p){
+ const spec=p.spec||specFromInputs(p.input);const inp=p.input;
+ const {sheetParts,linParts,note}=partsFromSpec(spec);
+ const nest=nestSheets(sheetParts),barn=barNest(linParts),bom=bomFromNest(nest,barn);
+ const jn=buildJoinery(spec,sheetParts,linParts,barn);
+ const cost=costFromSpec(spec);
+ const planSvg=planSvgSpec(spec);const elevSvg=frontElevSpecSvg(spec);
+ const typeC=S.lang==='ar'?'النوع':'Type',grainC=S.lang==='ar'?'التعريق':'Grain';
+ const elRows=spec.elements.filter(e=>e._tag).map(e=>`<tr><td class="n">${e._tag}</td><td>${esc(S.lang==='ar'?(e.ar||e.kind):(e.en||e.kind))}</td><td>${esc(e.kind)}</td><td>${Math.round(e.w||e.len||0)}×${Math.round(e.d||0)}×${Math.round(e.h||0)}</td></tr>`).join('');
+ const panelRows=sheetParts.map(pp=>`<tr><td class="n">${pp.n}</td><td>${esc(S.lang==='ar'?pp.ar:pp.en)}</td><td>${_matKey(pp.mat)}</td><td>${pp.g} × ${pp.c}</td><td class="n">${pp.grain?'▲':'—'}</td><td class="n">${pp.qty}</td></tr>`).join('');
+ const linRows=linParts.map(pp=>`<tr><td class="n">${pp.n}</td><td>${esc(S.lang==='ar'?pp.ar:pp.en)}</td><td>${_matKey(pp.mat)}</td><td>L = ${pp.len}</td><td class="n">${pp.qty}</td></tr>`).join('');
+ const bomRows=bom.map(b=>`<tr><td>${_matKey(b.mat)}</td><td class="n">${b.sheet?b.qty:(b.meters+' م.ط')}</td><td>${b.sheet?t('sheetsOf'):('≈ '+b.qty+' '+(S.lang==='ar'?('عود '+((b.barLen||3000)/1000)+'م'):('pcs '+((b.barLen||3000)/1000)+'m')))}</td></tr>`).join('');
+ let cuts='';for(const m in nest){cuts+=`<h2>${t('secCuts')} — ${_matKey(m)} (${nest[m].sheets.length})</h2>`;nest[m].sheets.forEach(sh=>{cuts+=`<div class="sheet">${nestSheetSvgF(sh)}</div>`;});}
+ const notes=[t('grainNote')];if(note.includes('arch'))notes.push(t('archNote'));if(inp.type==='doubleDecker')notes.push(t('structNote'));notes.push(t('wasteNote'));
+ const srcTxt=spec.source==='claude'?(S.lang==='ar'?'Claude — من التصميم المختار':'Claude — from the selected design'):(S.lang==='ar'?'تلقائي من المدخلات':'auto from inputs');
+ document.getElementById('printArea').innerHTML=titleBlock(p)+`
+  <div class="note">${t('specSource')}: ${esc(srcTxt)}</div>
+  <h2>${t('topView')} — ${S.lang==='ar'?'مع مسطرة المقياس':'with scale bar'}</h2><div class="dw">${planSvg}</div>
+  <div class="pb"></div>
+  <h2>${t('frontView')}</h2><div class="dw">${elevSvg}</div>
+  <h2>${t('secElems')}</h2><table><thead><tr><th>#</th><th>${t('item')}</th><th>${typeC}</th><th>${t('dimsMm')}</th></tr></thead><tbody>${elRows||'<tr><td colspan="4">—</td></tr>'}</tbody></table>
+  <div class="pb"></div>
+  <h2>${t('secPanels')}</h2><table><thead><tr><th>#</th><th>${t('part')}</th><th>${t('material')}</th><th>${t('dimsMm')}</th><th>${grainC}</th><th>${t('qty')}</th></tr></thead><tbody>${panelRows||'<tr><td colspan="6">—</td></tr>'}</tbody></table>
+  <h2>${t('secLinear')}</h2><table><thead><tr><th>#</th><th>${t('part')}</th><th>${t('material')}</th><th>${t('dimsMm')}</th><th>${t('qty')}</th></tr></thead><tbody>${linRows||'<tr><td colspan="5">—</td></tr>'}</tbody></table>
+  <h2>${t('secBom')}</h2><table><thead><tr><th>${t('material')}</th><th>${t('qty')}</th><th></th></tr></thead><tbody>${bomRows}</tbody></table>
+  <div class="pb"></div>
+  ${cuts}
+  <h2>${t('secJoinery')}</h2>
+  <div class="note">${t('joineryNote')} — ${S.lang==='ar'?('أطوال الوصلات ≈ '+jn.jointM+' م · مرابيع ≈ '+jn.battMeters+' م.ط'):('joint length ≈ '+jn.jointM+' m · battens ≈ '+jn.battMeters+' lin.m')}</div>
+  <table><thead><tr><th>${t('spName')}</th><th>${t('qty')}</th></tr></thead><tbody>${jn.hw.map(h=>`<tr><td>${esc(S.lang==='ar'?h.ar:h.en)}</td><td class="n">${h.qty}</td></tr>`).join('')}</tbody></table>
+  <h2>${t('costTitle')}</h2><div class="note">${t('costNote')}</div>
+  <table><thead><tr><th>${t('costItem')}</th><th>${t('costQty')}</th><th>${t('costSub')} (${t('sar')})</th></tr></thead><tbody>${cost.rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${esc(r.qty)}</td><td class="n">${r.sub.toLocaleString()}</td></tr>`).join('')}<tr><td colspan="2"><b>${t('costTotal')}</b></td><td class="n"><b>${cost.total.toLocaleString()} ${t('sar')}</b></td></tr></tbody></table>
+  <div class="note">${notes.map(esc).join(' — ')}</div>
+  <div class="pfoot">BOOTH STUDIO — SHOP DRAWINGS — ${new Date().getFullYear()}</div>`;
+ window.print();
+}
+async function openShopDrawings(){
+ const p=proj();if(!p)return;
+ if(!p.concepts.some(c=>c.image)){alert(S.lang==='ar'?'ولّد التصاميم أولاً':'Generate designs first');return;}
+ const ov=document.createElement('div');ov.className='modal-ov';ov.innerHTML='<div class="modal-card" style="text-align:center"><div class="spinner" style="margin:0 auto"></div><div class="gen-status" style="margin-top:12px">'+t('derivingSpec')+'</div></div>';document.body.appendChild(ov);
+ try{await deriveSpec(p);}catch(e){console.warn(e);}finally{ov.remove();}
+ printShopPack(p);
+}
+function _dlDxf(p){const spec=p.spec||specFromInputs(p.input);const r=partsFromSpec(spec);const nest=nestSheets(r.sheetParts);
+ const blob=new Blob([dxfFromNest(nest)],{type:'application/dxf'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+ a.download='BOOTH-STUDIO-CNC-'+((p.input.companyName.trim()||p.id).replace(/[^\w؀-ۿ-]+/g,'_'))+'.dxf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
+async function downloadShopDxf(){const p=proj();if(!p)return;
+ if(!p.spec){const ov=document.createElement('div');ov.className='modal-ov';ov.innerHTML='<div class="modal-card" style="text-align:center"><div class="spinner" style="margin:0 auto"></div><div class="gen-status" style="margin-top:12px">'+t('derivingSpec')+'</div></div>';document.body.appendChild(ov);try{await deriveSpec(p);}catch(e){}ov.remove();}
+ _dlDxf(p);}
+Object.assign(window,{openShopDrawings,downloadShopDxf,deriveSpec,setSheetSize,setDoubleSkin});
+
+</script>
+</body>
+</html>
