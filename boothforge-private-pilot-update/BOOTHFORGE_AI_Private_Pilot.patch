@@ -1,0 +1,2845 @@
+diff --git a/.gitignore b/.gitignore
+index 2932c16..936a520 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -8,3 +8,9 @@ __pycache__/
+ *.pyc
+ .DS_Store
+ data/
++.venv/
++*.tsbuildinfo
++test-results/
++playwright-report/
++*.sqlite3*
++*.log
+diff --git a/OPEN_BOOTHFORGE.html b/OPEN_BOOTHFORGE.html
+new file mode 100644
+index 0000000..6138f98
+--- /dev/null
++++ b/OPEN_BOOTHFORGE.html
+@@ -0,0 +1,22 @@
++<!doctype html>
++<html lang="ar" dir="rtl">
++<head>
++<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
++<title>فتح BOOTHFORGE AI</title>
++<style>
++*{box-sizing:border-box}body{margin:0;background:#0c1018;color:#f3f5fa;font:18px/1.9 Arial,sans-serif}main{max-width:800px;margin:48px auto;padding:28px;background:#131b27;border-radius:20px}h1{font-size:32px;line-height:1.4}strong,a{color:#7df0c2}code{direction:ltr;unicode-bidi:isolate;display:inline-block;overflow-wrap:anywhere;color:#7df0c2}a{overflow-wrap:anywhere}.note{background:#202a39;padding:18px;border-radius:12px}li{margin-bottom:14px}@media(max-width:600px){main{margin:12px;padding:20px}h1{font-size:26px}}
++</style>
++</head>
++<body><main>
++<h1>BOOTHFORGE <strong>AI</strong></h1>
++<p>هذه صفحة توضيح التشغيل. التطبيق يحتاج تشغيل خادمي Next.js وFastAPI؛ فتح ملف <code>index.html</code> بالنقر المزدوج لا يشغّله.</p>
++<ol>
++<li>فك ضغط الحزمة كاملةً أولًا، ولا تشغّل الملفات من داخل ملف ZIP.</li>
++<li>في المجلد نفسه، انقر مرتين على <code>START_BOOTHFORGE_WINDOWS.cmd</code>.</li>
++<li>انتظر تجهيز المكتبات وظهور <code>BOOTHFORGE is ready</code>. ستُفتح صفحة التطبيق تلقائيًا في المتصفح.</li>
++<li>اترك نافذة التشغيل مفتوحة أثناء الاستخدام. لإيقاف الخادمين اضغط <code>Ctrl+C</code> في تلك النافذة.</li>
++</ol>
++<p class="note">التشغيل الأول يحتاج اتصال إنترنت و<strong>Python 3.11 أو أحدث</strong> و<strong>Node.js 22 أو أحدث</strong>. لا يحتاج رصيد API، وتوليد الصور غير مفعّل في هذه النسخة. التشغيل محلي على جهازك فقط.</p>
++<p>المصادر الرسمية: <a href="https://www.python.org/downloads/">تنزيل Python</a> · <a href="https://nodejs.org/en/download">تنزيل Node.js</a> · <a href="https://nextjs.org/docs/app/getting-started/installation">دليل تشغيل Next.js</a>.</p>
++<p>إذا بقيت الصفحة بيضاء بعد تشغيل المشغّل، انسخ عنوان الصفحة من شريط المتصفح مع رسالة الخطأ الظاهرة في نافذة التشغيل لتحديد العطل بدقة.</p>
++</main></body></html>
+diff --git a/START_BOOTHFORGE_WINDOWS.cmd b/START_BOOTHFORGE_WINDOWS.cmd
+new file mode 100644
+index 0000000..c18c6b3
+--- /dev/null
++++ b/START_BOOTHFORGE_WINDOWS.cmd
+@@ -0,0 +1,21 @@
++@echo off
++chcp 65001 >nul
++setlocal
++cd /d "%~dp0"
++echo BOOTHFORGE AI - Local startup
++echo Keep this window open while using the application.
++where py >nul 2>nul
++if not errorlevel 1 (
++    py -3 "%~dp0boothforge-ai\scripts\start_local.py"
++) else (
++    python "%~dp0boothforge-ai\scripts\start_local.py"
++)
++if errorlevel 1 (
++    echo.
++    echo Startup failed. Keep the error above for troubleshooting.
++    echo Requirements: Python 3.11+ and Node.js 22+.
++    echo Python: https://www.python.org/downloads/
++    echo Node.js: https://nodejs.org/en/download
++    pause
++)
++endlocal
+diff --git a/boothforge-ai/.dockerignore b/boothforge-ai/.dockerignore
+new file mode 100644
+index 0000000..7f56a31
+--- /dev/null
++++ b/boothforge-ai/.dockerignore
+@@ -0,0 +1,15 @@
++**/node_modules
++**/.next
++**/.venv
++**/__pycache__
++**/.pytest_cache
++**/.env
++**/.env.*
++**/data
++**/*.sqlite3*
++**/*.zip
++**/*.log
++**/test-results
++.git
++src
++index.html
+diff --git a/boothforge-ai/.env.example b/boothforge-ai/.env.example
+new file mode 100644
+index 0000000..ecaa488
+--- /dev/null
++++ b/boothforge-ai/.env.example
+@@ -0,0 +1,9 @@
++# Copy to apps/web/.env.local for local development only (gitignored).
++BOOTHFORGE_ENV=development
++API_INTERNAL_URL=http://127.0.0.1:8000
++APP_ORIGIN=http://localhost:3000
++# No provider credentials are needed; generation is disabled.
++# Preview deployment requires HTTPS APP_ORIGIN and these server-only secrets:
++PREVIEW_USERNAME=
++PREVIEW_PASSWORD=
++API_TOKEN=
+diff --git a/boothforge-ai/Dockerfile b/boothforge-ai/Dockerfile
+new file mode 100644
+index 0000000..ec21e04
+--- /dev/null
++++ b/boothforge-ai/Dockerfile
+@@ -0,0 +1,24 @@
++FROM node:22-bookworm-slim AS web-build
++WORKDIR /build/web
++ENV NEXT_TELEMETRY_DISABLED=1
++COPY apps/web/package.json apps/web/package-lock.json ./
++RUN npm ci
++COPY apps/web/ ./
++RUN npm run build && npm prune --omit=dev
++
++FROM node:22-bookworm-slim AS runtime
++RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
++    && rm -rf /var/lib/apt/lists/*
++WORKDIR /app
++COPY services/api/requirements.txt /tmp/requirements.txt
++RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
++COPY --from=web-build /build/web /app/apps/web
++COPY services/api/app /app/services/api/app
++COPY scripts/run_preview.py /app/scripts/run_preview.py
++RUN useradd --create-home --uid 10001 boothforge && mkdir -p /app/data \
++    && chown -R boothforge:boothforge /app
++USER boothforge
++ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 BOOTHFORGE_ENV=preview \
++    BIND_HOST=0.0.0.0 PORT=10000 API_INTERNAL_URL=http://127.0.0.1:8000 DATA_DIR=/app/data
++EXPOSE 10000
++CMD ["/opt/venv/bin/python", "scripts/run_preview.py"]
+diff --git a/boothforge-ai/README.md b/boothforge-ai/README.md
+index f76e3a5..bd20d7b 100644
+--- a/boothforge-ai/README.md
++++ b/boothforge-ai/README.md
+@@ -1,40 +1,115 @@
+-# BOOTHFORGE AI
++# BOOTHFORGE AI — private pilot
+ 
+-**Phase 1 development scaffold** — responsive Arabic project dashboard + FastAPI project API.
++The repaired pilot is in `apps/web` (Next.js) and `services/api` (FastAPI).
++The Vite prototype in `src`, its package files, the root prototype and the original ZIP are preserved.
++All repairs live on `boothforge-development`; do not merge into `main` until reviewed.
+ 
+-## Run locally
++## What works
+ 
+-Requires Python 3.11+ and Node.js 20+.
++- Arabic, RTL project dashboard with booth dimensions, validated area, reception counters, screens, meeting rooms, storage and notes.
++- Browser requests go to same-origin `/api`; the backend address and internal bearer token stay on the server.
++- Password-protected pilot: the custom Node server protects pages, static assets and APIs. The API route checks authentication independently, validates POST origins, limits request size and does not forward browser credentials upstream.
++- FastAPI separately verifies an internal bearer token. Its deployment listener is loopback only.
++- SQLite transactions preserve concurrent writes and survive process restarts when the data directory is retained.
++- Raster brand uploads accept real PNG/JPEG pixels, enforce 5 MB / 16 megapixel limits, strip metadata and appended content, and remain outside public web directories. SVG/PDF are intentionally blocked until a safe processing pipeline exists.
++- AI requests explicitly return 501. No generated images, CAD outputs or paid provider calls are simulated or enabled.
++
++This is a **single trusted team** pilot with a shared login, not a multi-customer platform. Use synthetic data only on the supplied free hosting configuration.
++
++## One-click Windows startup / blank-page troubleshooting
++
++Extract the entire delivery ZIP into a new folder. Double-click `START_BOOTHFORGE_WINDOWS.cmd` from the repository root. The launcher verifies Python 3.11+ and Node.js 22+, prepares the local Python environment and web dependencies, starts both loopback-only services and opens the correct dashboard URL automatically. Keep its console open; Ctrl+C stops the services.
++
++Do not open `index.html` as a standalone application. The preserved root prototype references `/src/main.tsx`, while the usable dashboard is a Next.js application in `boothforge-ai/apps/web`. Source TSX requires the framework development/build server. `OPEN_BOOTHFORGE.html` is an offline startup guide, not a static export of the app.
++
++The launcher changes no existing `.env` file and makes no AI requests. Initial setup needs internet access for Python/npm packages. It selects nearby free local ports if the defaults are occupied. It does not configure hosting or a public listener. The Python launcher startup was verified locally; the Windows `.cmd` wrapper still requires confirmation on the user's Windows device.
++
++To verify an existing installation without opening a browser, run `python scripts/start_local.py --skip-install --smoke` from this `boothforge-ai` directory. This uses disposable data and stops both servers after the check.
++
++## Local development
++
++Requires Node.js 22+ and Python 3.11+. Run commands from this `boothforge-ai` directory.
++
++Terminal 1, macOS/Linux:
+ 
+-### API
+ ```bash
+ cd services/api
+ python -m venv .venv
+-source .venv/bin/activate # Windows: .venv\\Scripts\\activate
+-pip install -r requirements.txt
+-uvicorn app.main:app --reload --port 8000
++.venv/bin/python -m pip install -r requirements-dev.txt
++BOOTHFORGE_ENV=development .venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+ ```
+ 
+-### Web (new terminal)
++PowerShell equivalent after creating the environment:
++
++```powershell
++cd services/api
++python -m venv .venv
++.\.venv\Scripts\python -m pip install -r requirements-dev.txt
++$env:BOOTHFORGE_ENV = 'development'
++.\.venv\Scripts\python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
++```
++
++Terminal 2:
++
+ ```bash
+ cd apps/web
+-npm install
+-npm run dev
++npm ci
++```
++
++Set `BOOTHFORGE_ENV=development` (`$env:BOOTHFORGE_ENV='development'` in PowerShell), then run `npm run dev`.
++Open **http://localhost:3000**. Both listeners default to loopback. This explicit local mode bypasses login; never expose it to the internet.
++Use the same hostname/port in `APP_ORIGIN` if changing the URL. `NEXT_PUBLIC_API_URL` is no longer used.
++API documentation and OpenAPI routes are disabled in this pilot.
++
++## Verification
++
++From `services/api`:
++
++```bash
++.venv/bin/python -m pytest -q
++```
++
++From `apps/web`:
++
++```bash
++npm ci
++npm run typecheck
++npm test
++npm run build
++npm audit --omit=dev --audit-level=high
++```
++
++After building, from `services/api` (ports 8000 and 3100 must be free):
++
++```bash
++.venv/bin/python ../../scripts/smoke_test.py
+ ```
+ 
+-Open http://localhost:3000 and API documentation at http://localhost:8000/docs.
++On Windows use `.\.venv\Scripts\python` instead of `.venv/bin/python`.
++The smoke test launches both production-mode services, uses disposable generated credentials and synthetic data, exercises authentication/CSRF/project persistence paths, verifies AI remains disabled and stops the services afterwards. It never prints credentials.
++
++## Desktop and mobile browser tests
++
++Install Chromium with `npx playwright install chromium` from `apps/web` (add `--with-deps` on a Linux runner when needed). Build the frontend first. The harness requires OpenSSL and free local ports 8000, 3100 and 3443.
++
++From `services/api`, run:
++
++```bash
++.venv/bin/python ../../scripts/browser_test.py
++```
++
++The harness generates disposable local TLS credentials, starts the real production-mode services, tests both viewport sizes and cleans up its synthetic data. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` optionally selects an already-installed Chromium binary; `PLAYWRIGHT_CHROMIUM_ARGS` optionally supplies a JSON array of runner-specific launch arguments. Do not pass real provider keys. Screenshots and test output stay in ignored `test-results/` and are not included in project deliverables.
++
++## Private online deployment preparation
++
++See [deploy/PRIVATE_PREVIEW.md](deploy/PRIVATE_PREVIEW.md). The prepared Docker-based Render configuration is **not deployed** and automatic deploys are disabled.
++Provider API keys are not required for this milestone. Do not put them in source, browser fields, `NEXT_PUBLIC_*`, images, ZIPs or chat messages. The launcher removes OpenAI/Google/Gemini provider variables from the pilot child processes while AI generation is disabled.
+ 
+-## Implemented
+-- Arabic responsive project creation UI and project list
+-- Validated booth dimensions and area calculation
+-- FastAPI project create/list/get endpoints
+-- Brand file upload endpoint (PNG/JPEG/SVG/PDF, max 5 MB)
+-- Persistent local JSON data (development only)
+-- Explicit 501 for unavailable AI generation, no simulated output
+-- Basic API test
++The original `projects.json` is never rewritten or silently imported. Before moving any legacy data, make a separate backup and design an explicit migration; the SQLite pilot starts with its own data store.
+ 
+-## Not implemented yet
+-Authentication, tenant isolation, PostgreSQL, secure object storage, brand analysis, image generation adapters, design gallery, revisions, PDF export, FreeCAD and AutoCAD integration. **Do not deploy publicly** before implementing authentication, secure upload processing, storage isolation, and production infrastructure.
++## References
+ 
+-## Architecture
+-`apps/web` Next.js frontend; `services/api` FastAPI service. Future geometry and CAD service should be independent and derive all outputs from validated parametric geometry.
++- [Next.js self-hosting](https://nextjs.org/docs/15/app/guides/self-hosting)
++- [FastAPI security](https://fastapi.tiangolo.com/tutorial/security/)
++- [Render Blueprint specification](https://render.com/docs/blueprint-spec)
++- [Render environment variables and secrets](https://render.com/docs/configure-environment-variables)
+diff --git a/boothforge-ai/apps/web/app/api/[...path]/route.ts b/boothforge-ai/apps/web/app/api/[...path]/route.ts
+new file mode 100644
+index 0000000..9d33b50
+--- /dev/null
++++ b/boothforge-ai/apps/web/app/api/[...path]/route.ts
+@@ -0,0 +1,55 @@
++import { NextRequest } from 'next/server';
++import { authorized, allowedOrigin, privateHeaders } from '../../../lib/access.mjs';
++
++export const runtime = 'nodejs';
++export const dynamic = 'force-dynamic';
++const LIMIT = 6 * 1024 * 1024;
++const json = (status: number, detail: string) => Response.json({ detail }, { status, headers: privateHeaders });
++
++async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
++  // Check again here, including when run through Next's own server by mistake.
++  if (!authorized(request.headers.get('authorization'))) return json(401, 'Authentication required');
++  if (request.method === 'POST' && !allowedOrigin(request.headers.get('origin'))) return json(403, 'Untrusted origin');
++  const { path } = await context.params;
++  const joined = path.join('/');
++  const valid = /^projects(?:\/[0-9a-f-]{36}(?:\/(?:brand|concepts))?)?$/.test(joined);
++  const methodOK = request.method === 'GET' ? !/\/(brand|concepts)$/.test(joined) : joined === 'projects' || /\/(brand|concepts)$/.test(joined);
++  if (!valid || !methodOK || request.nextUrl.search) return json(404, 'Not found');
++  const target = process.env.API_INTERNAL_URL || 'http://127.0.0.1:8000';
++  const token = process.env.API_TOKEN || '';
++  if (!token && process.env.BOOTHFORGE_ENV !== 'development') return json(503, 'API is not configured');
++  let body: Uint8Array | undefined;
++  if (request.method === 'POST') {
++    const reader = request.body?.getReader();
++    const chunks: Uint8Array[] = [];
++    let size = 0;
++    if (reader) {
++      for (;;) {
++        const { done, value } = await reader.read();
++        if (done) break;
++        size += value.byteLength;
++        if (size > LIMIT) { await reader.cancel(); return json(413, 'Maximum request size is 6 MB'); }
++        chunks.push(value);
++      }
++    }
++    body = new Uint8Array(size);
++    let offset = 0;
++    for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.byteLength; }
++  }
++  try {
++    const headers: Record<string, string> = {};
++    if (token) headers.Authorization = `Bearer ${token}`;
++    if (request.headers.get('content-type')) headers['Content-Type'] = request.headers.get('content-type')!;
++    const response = await fetch(`${target}/${joined}`, {
++      method: request.method, headers, body: body as BodyInit | undefined,
++      cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(20000),
++    });
++    // Do not forward upstream cookies, credentials or internal exception details.
++    if (response.status >= 500 && response.status !== 501) return json(502, 'تعذر الاتصال بخادم المشاريع. حاول مجددًا.');
++    return new Response(await response.arrayBuffer(), {
++      status: response.status, headers: { ...privateHeaders, 'Content-Type': 'application/json' },
++    });
++  } catch { return json(502, 'تعذر الاتصال بخادم المشاريع. حاول مجددًا.'); }
++}
++
++export { proxy as GET, proxy as POST };
+diff --git a/boothforge-ai/apps/web/app/dashboard.tsx b/boothforge-ai/apps/web/app/dashboard.tsx
+new file mode 100644
+index 0000000..f382697
+--- /dev/null
++++ b/boothforge-ai/apps/web/app/dashboard.tsx
+@@ -0,0 +1,132 @@
++'use client';
++
++import { useEffect, useState } from 'react';
++
++type Project = { id: string; name: string; client: string; area_m2: number; status: string };
++const API = '/api';
++const inputStyle = {
++  background: '#18202c', border: '1px solid #344153', borderRadius: 9,
++  color: 'white', padding: 12, width: '100%', boxSizing: 'border-box' as const,
++  fontSize: 16, minHeight: 44,
++};
++const panelStyle = { background: '#131b27', padding: 24, borderRadius: 18, minWidth: 0 };
++
++export default function Dashboard() {
++  const [projects, setProjects] = useState<Project[]>([]);
++  const [error, setError] = useState('');
++  const [loading, setLoading] = useState(false);
++  const [fetching, setFetching] = useState(true);
++  const [form, setForm] = useState({
++    name: '', client: '', industry: '', length_m: 6, width_m: 4, height_m: 4, open_sides: 2,
++    requirements: { reception: 1, screens: 1, meeting_rooms: 0, storage: false, notes: '' },
++  });
++
++  async function refresh() {
++    setFetching(true);
++    setError('');
++    try {
++      const response = await fetch(`${API}/projects`, { cache: 'no-store' });
++      if (!response.ok) throw new Error('Project request failed');
++      setProjects(await response.json());
++    } catch {
++      setError('تعذر تحميل المشاريع. تحقق من اتصالك وحاول مجددًا.');
++    } finally {
++      setFetching(false);
++    }
++  }
++
++  useEffect(() => { void refresh(); }, []);
++
++  async function submit(event: React.FormEvent) {
++    event.preventDefault();
++    setLoading(true);
++    setError('');
++    try {
++      const response = await fetch(`${API}/projects`, {
++        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
++      });
++      if (!response.ok) {
++        setError(response.status === 422 ? 'تحقق من الحقول والأبعاد المدخلة.' : 'تعذر حفظ المشروع. حاول مجددًا.');
++        return;
++      }
++      setForm({ ...form, name: '', client: '', industry: '' });
++      await refresh();
++    } catch {
++      setError('تعذر الاتصال بخادم المشاريع. حاول مجددًا.');
++    } finally {
++      setLoading(false);
++    }
++  }
++
++  return (
++    <main style={{ maxWidth: 1100, margin: 'auto', padding: 24 }}>
++      <header style={{ padding: '30px 0', borderBottom: '1px solid #30394a' }}>
++        <h1 style={{ fontSize: 38, margin: 0 }}>BOOTHFORGE <span style={{ color: '#7df0c2' }}>AI</span></h1>
++        <p style={{ color: '#a5b0c3' }}>From Concept to Construction — منصة تصميم أجنحة المعارض</p>
++      </header>
++      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))', gap: 24, marginTop: 30, alignItems: 'start' }}>
++        <form onSubmit={submit} aria-busy={loading} style={{ ...panelStyle, display: 'grid', gap: 14 }}>
++          <h2>مشروع جديد</h2>
++          {(['name', 'client', 'industry'] as const).map(key => (
++            <label key={key}>
++              {({ name: 'اسم المشروع', client: 'اسم العميل', industry: 'نشاط الشركة' })[key]}
++              <input required minLength={2} maxLength={120} disabled={loading} style={inputStyle}
++                value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} />
++            </label>
++          ))}
++          {(['length_m', 'width_m', 'height_m', 'open_sides'] as const).map(key => (
++            <label key={key}>
++              {({ length_m: 'الطول بالمتر', width_m: 'العرض بالمتر', height_m: 'الارتفاع بالمتر', open_sides: 'عدد الجهات المفتوحة' })[key]}
++              <input type="number" required disabled={loading} min={key === 'open_sides' ? 1 : 0.1}
++                max={key === 'open_sides' ? 4 : key === 'height_m' ? 20 : 100}
++                step={key === 'open_sides' ? 1 : 0.1} style={inputStyle} value={form[key]}
++                onChange={e => setForm({ ...form, [key]: Number(e.target.value) })} />
++            </label>
++          ))}
++          <fieldset disabled={loading} style={{ border: '1px solid #344153', borderRadius: 9, display: 'grid', gap: 10, minWidth: 0 }}>
++            <legend>متطلبات البوث</legend>
++            {(['reception', 'screens', 'meeting_rooms'] as const).map(key => (
++              <label key={key}>
++                {({ reception: 'كاونترات الاستقبال', screens: 'الشاشات', meeting_rooms: 'غرف الاجتماعات' })[key]}
++                <input type="number" min={0} max={key === 'screens' ? 50 : 20} required style={inputStyle}
++                  value={form.requirements[key]}
++                  onChange={e => setForm({ ...form, requirements: { ...form.requirements, [key]: Number(e.target.value) } })} />
++              </label>
++            ))}
++            <label style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 44, cursor: 'pointer' }}>
++              <input type="checkbox" style={{ width: 24, height: 24, flexShrink: 0, margin: 0 }} checked={form.requirements.storage}
++                onChange={e => setForm({ ...form, requirements: { ...form.requirements, storage: e.target.checked } })} />
++              مستودع
++            </label>
++            <label>
++              ملاحظات
++              <textarea maxLength={4000} rows={3} style={inputStyle} value={form.requirements.notes}
++                onChange={e => setForm({ ...form, requirements: { ...form.requirements, notes: e.target.value } })} />
++            </label>
++          </fieldset>
++          <p>المساحة: {(form.length_m * form.width_m).toFixed(2)} م²</p>
++          <button disabled={loading} style={{ padding: 15, background: '#7df0c2', border: 0, borderRadius: 10, fontWeight: 700, cursor: 'pointer', minHeight: 44 }}>
++            {loading ? 'جارٍ الحفظ...' : 'إنشاء المشروع'}
++          </button>
++          {error && <p role="alert" aria-label="رسالة خطأ" style={{ color: '#ff9b9b' }}>{error}</p>}
++        </form>
++        <div style={panelStyle} aria-busy={fetching}>
++          <h2>المشاريع المحفوظة</h2>
++          <button type="button" disabled={fetching} onClick={() => void refresh()} style={{ minHeight: 44, marginBottom: 16 }}>
++            تحديث المشاريع
++          </button>
++          {fetching ? <p role="status">جارٍ تحميل المشاريع...</p> : projects.length === 0 ? (
++            <p style={{ color: '#a5b0c3' }}>لا توجد مشاريع حتى الآن.</p>
++          ) : projects.map(project => (
++            <article key={project.id} style={{ padding: 16, background: '#202a39', borderRadius: 12, marginBottom: 12, overflowWrap: 'anywhere' }}>
++              <strong>{project.name}</strong>
++              <p>{project.client} • {project.area_m2} م²</p>
++              <small>{project.status === 'draft' ? 'مسودة' : project.status}</small>
++            </article>
++          ))}
++          <p style={{ color: '#a5b0c3', fontSize: 13 }}>نسخة خاصة لفريق واحد. استخدم بيانات اختبار فقط. توليد الصور وربط CAD قيد التطوير. لا يتم عرض نتائج وهمية.</p>
++        </div>
++      </section>
++    </main>
++  );
++}
+diff --git a/boothforge-ai/apps/web/app/page.tsx b/boothforge-ai/apps/web/app/page.tsx
+index 11893c1..df1ba0d 100644
+--- a/boothforge-ai/apps/web/app/page.tsx
++++ b/boothforge-ai/apps/web/app/page.tsx
+@@ -1,13 +1,10 @@
+-'use client';
+-import {useEffect,useState} from 'react';
+-type Project={id:string;name:string;client:string;area_m2:number;status:string};
+-const API=process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000';
+-export default function Home(){
+- const [projects,setProjects]=useState<Project[]>([]);const [error,setError]=useState('');const [loading,setLoading]=useState(false);
+- const [form,setForm]=useState({name:'',client:'',industry:'',length_m:6,width_m:4,height_m:4,open_sides:2});
+- async function refresh(){try{const r=await fetch(`${API}/projects`);if(!r.ok)throw Error('تعذر تحميل المشاريع');setProjects(await r.json())}catch(e){setError(String(e))}}
+- useEffect(()=>{void refresh()},[]);
+- async function submit(e:React.FormEvent){e.preventDefault();setLoading(true);setError('');try{const r=await fetch(`${API}/projects`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)});if(!r.ok)throw Error(await r.text());setForm({...form,name:'',client:'',industry:''});await refresh()}catch(e){setError(String(e))}finally{setLoading(false)}}
+- const inputStyle={background:'#18202c',border:'1px solid #344153',borderRadius:9,color:'white',padding:12,width:'100%',boxSizing:'border-box' as const};
+- return <main style={{maxWidth:1100,margin:'auto',padding:24}}><header style={{padding:'30px 0',borderBottom:'1px solid #30394a'}}><h1 style={{fontSize:38,margin:0}}>BOOTHFORGE <span style={{color:'#7df0c2'}}>AI</span></h1><p style={{color:'#a5b0c3'}}>From Concept to Construction — منصة تصميم أجنحة المعارض</p></header><section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(290px,1fr))',gap:24,marginTop:30}}><form onSubmit={submit} style={{background:'#131b27',padding:24,borderRadius:18,display:'grid',gap:14}}><h2>مشروع جديد</h2>{(['name','client','industry'] as const).map((k)=><label key={k}>{({name:'اسم المشروع',client:'اسم العميل',industry:'نشاط الشركة'})[k]}<input required minLength={2} style={inputStyle} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/></label>)}{(['length_m','width_m','height_m','open_sides'] as const).map(k=><label key={k}>{({length_m:'الطول بالمتر',width_m:'العرض بالمتر',height_m:'الارتفاع بالمتر',open_sides:'عدد الجهات المفتوحة'})[k]}<input type="number" required min={k==='open_sides'?1:0.1} max={k==='open_sides'?4:100} step={k==='open_sides'?1:0.1} style={inputStyle} value={form[k]} onChange={e=>setForm({...form,[k]:Number(e.target.value)})}/></label>)}<p>المساحة: {(form.length_m*form.width_m).toFixed(2)} م²</p><button disabled={loading} style={{padding:15,background:'#7df0c2',border:0,borderRadius:10,fontWeight:700,cursor:'pointer'}}>{loading?'جارٍ الحفظ...':'إنشاء المشروع'}</button>{error&&<p role="alert" style={{color:'#ff9b9b'}}>{error}</p>}</form><div style={{background:'#131b27',padding:24,borderRadius:18}}><h2>المشاريع المحفوظة</h2>{projects.length===0?<p style={{color:'#a5b0c3'}}>لا توجد مشاريع حتى الآن.</p>:projects.map(p=><article key={p.id} style={{padding:16,background:'#202a39',borderRadius:12,marginBottom:12}}><strong>{p.name}</strong><p>{p.client} • {p.area_m2} م²</p><small>{p.status}</small></article>)}<p style={{color:'#a5b0c3',fontSize:13}}>توليد الصور وربط CAD قيد التطوير. لا يتم عرض نتائج وهمية.</p></div></section></main>
++import { headers } from 'next/headers';
++import { authorized } from '../lib/access.mjs';
++import Dashboard from './dashboard';
++export const dynamic = 'force-dynamic';
++export default async function Home() {
++  if (!authorized((await headers()).get('authorization'))) {
++    return <main><h1>نسخة تجريبية خاصة</h1><p>يلزم تسجيل الدخول للوصول إلى المشاريع.</p></main>;
++  }
++  return <Dashboard />;
+ }
+diff --git a/boothforge-ai/apps/web/e2e/dashboard.spec.ts b/boothforge-ai/apps/web/e2e/dashboard.spec.ts
+new file mode 100644
+index 0000000..e9549a6
+--- /dev/null
++++ b/boothforge-ai/apps/web/e2e/dashboard.spec.ts
+@@ -0,0 +1,62 @@
++import { test, expect } from '@playwright/test';
++
++test('create a booth with its requirements on a responsive Arabic dashboard', async ({page,request}, info) => {
++  await page.goto('/');
++  await expect(page.getByRole('heading',{name:'BOOTHFORGE AI'})).toBeVisible();
++  await expect(page.locator('html')).toHaveAttribute('dir','rtl');
++  const name=`Browser ${info.project.name} ${Date.now()}`;
++  await page.getByLabel('اسم المشروع',{exact:true}).fill(name);
++  await page.getByLabel('اسم العميل',{exact:true}).fill('Synthetic client');
++  await page.getByLabel('نشاط الشركة',{exact:true}).fill('Events');
++  await page.getByLabel('الطول بالمتر',{exact:true}).fill('8');
++  await page.getByLabel('العرض بالمتر',{exact:true}).fill('6');
++  await page.getByLabel('الشاشات',{exact:true}).fill('3');
++  await page.getByLabel('مستودع',{exact:true}).check();
++  await page.getByLabel('ملاحظات',{exact:true}).fill('Synthetic requirements from browser test');
++  await expect(page.getByText('المساحة: 48.00 م²',{exact:true})).toBeVisible();
++  await page.getByRole('button',{name:'إنشاء المشروع',exact:true}).click();
++  await expect(page.getByText(name,{exact:true})).toBeVisible();
++  const projects=await (await request.get('/api/projects')).json();
++  const project=projects.find((p:{name:string})=>p.name===name);
++  expect(project.area_m2).toBe(48);
++  expect(project.requirements.screens).toBe(3);
++  expect(project.requirements.storage).toBe(true);
++  expect(project.requirements.notes).toBe('Synthetic requirements from browser test');
++  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
++  await page.screenshot({path:info.outputPath('dashboard.png'),fullPage:true});
++});
++
++test('invalid height never submits a project', async ({page}) => {
++  await page.goto('/');
++  await page.getByLabel('اسم المشروع',{exact:true}).fill('Invalid height');
++  await page.getByLabel('اسم العميل',{exact:true}).fill('Test client');
++  await page.getByLabel('نشاط الشركة',{exact:true}).fill('Events');
++  const input=page.getByLabel('الارتفاع بالمتر',{exact:true});
++  await input.fill('21');
++  let writes=0;
++  page.on('request',req=>{if(req.url().endsWith('/api/projects')&&req.method()==='POST')writes++;});
++  await page.getByRole('button',{name:'إنشاء المشروع',exact:true}).click();
++  expect(await input.evaluate((node:HTMLInputElement)=>node.validity.rangeOverflow)).toBe(true);
++  expect(writes).toBe(0);
++});
++
++test('client-entered markup is displayed as text', async ({page}) => {
++  await page.goto('/');
++  const name='<img src=x onerror="document.body.dataset.compromised=1">';
++  await page.getByLabel('اسم المشروع',{exact:true}).fill(name);
++  await page.getByLabel('اسم العميل',{exact:true}).fill('Synthetic client');
++  await page.getByLabel('نشاط الشركة',{exact:true}).fill('Events');
++  await page.getByRole('button',{name:'إنشاء المشروع',exact:true}).click();
++  await expect(page.locator('article').filter({hasText:name}).first()).toBeVisible();
++  expect(await page.locator('article img').count()).toBe(0);
++  expect(await page.locator('body').getAttribute('data-compromised')).toBeNull();
++});
++
++test('recover after an API connection failure', async ({page}) => {
++  await page.route('**/api/projects',route=>route.abort());
++  await page.goto('/');
++  await expect(page.getByRole('alert',{name:'رسالة خطأ',exact:true})).toBeVisible();
++  await page.unroute('**/api/projects');
++  await page.getByRole('button',{name:'تحديث المشاريع',exact:true}).click();
++  await expect(page.getByRole('alert',{name:'رسالة خطأ',exact:true})).toHaveCount(0);
++});
+diff --git a/boothforge-ai/apps/web/e2e/https-proxy.mjs b/boothforge-ai/apps/web/e2e/https-proxy.mjs
+new file mode 100644
+index 0000000..7714a89
+--- /dev/null
++++ b/boothforge-ai/apps/web/e2e/https-proxy.mjs
+@@ -0,0 +1,13 @@
++// Disposable localhost-only TLS termination for production-mode browser tests.
++import { createServer } from 'node:https';
++import { request } from 'node:http';
++import { readFileSync } from 'node:fs';
++const server = createServer({key:readFileSync(process.env.E2E_TLS_KEY),cert:readFileSync(process.env.E2E_TLS_CERT)}, (req,res) => {
++  const upstream=request({hostname:'127.0.0.1',port:3100,path:req.url,method:req.method,headers:req.headers}, response => {
++    res.writeHead(response.statusCode,response.headers); response.pipe(res);
++  });
++  upstream.on('error',()=>{res.writeHead(502);res.end('Test upstream unavailable');});
++  req.pipe(upstream);
++});
++server.listen(3443,'127.0.0.1');
++for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(()=>process.exit(0)));
+diff --git a/boothforge-ai/apps/web/lib/access.d.mts b/boothforge-ai/apps/web/lib/access.d.mts
+new file mode 100644
+index 0000000..25aa140
+--- /dev/null
++++ b/boothforge-ai/apps/web/lib/access.d.mts
+@@ -0,0 +1,4 @@
++export function previewConfig(env?: NodeJS.ProcessEnv): { development: boolean; username: string; password: string };
++export function authorized(header: string | null | undefined, env?: NodeJS.ProcessEnv): boolean;
++export function allowedOrigin(origin: string | null, env?: NodeJS.ProcessEnv): boolean;
++export const privateHeaders: Record<string, string>;
+diff --git a/boothforge-ai/apps/web/lib/access.mjs b/boothforge-ai/apps/web/lib/access.mjs
+new file mode 100644
+index 0000000..270c0cb
+--- /dev/null
++++ b/boothforge-ai/apps/web/lib/access.mjs
+@@ -0,0 +1,45 @@
++import { createHash, timingSafeEqual } from 'node:crypto';
++
++export function previewConfig(env = process.env) {
++  const mode = env.BOOTHFORGE_ENV || 'preview';
++  if (!['preview', 'development', 'test'].includes(mode)) throw new Error('Invalid BOOTHFORGE_ENV');
++  const development = mode === 'development';
++  if (!development && (!env.PREVIEW_USERNAME || (env.PREVIEW_PASSWORD || '').length < 24 || (env.API_TOKEN || '').length < 32)) {
++    throw new Error('Set PREVIEW_USERNAME, PREVIEW_PASSWORD (24+ characters) and API_TOKEN (32+ characters) securely');
++  }
++  if (!development && !/^https:\/\/[^/]+$/.test(env.APP_ORIGIN || '')) {
++    throw new Error('Set APP_ORIGIN to the exact HTTPS preview origin');
++  }
++  return { development, username: env.PREVIEW_USERNAME || '', password: env.PREVIEW_PASSWORD || '' };
++}
++
++function equal(a, b) {
++  return timingSafeEqual(createHash('sha256').update(a).digest(), createHash('sha256').update(b).digest());
++}
++
++export function authorized(header, env = process.env) {
++  let config;
++  try { config = previewConfig(env); } catch { return false; }
++  if (config.development && !config.username && !config.password) return true;
++  if (typeof header !== 'string' || header.length > 2048 || !header.startsWith('Basic ')) return false;
++  const value = Buffer.from(header.slice(6), 'base64').toString('utf8');
++  const separator = value.indexOf(':');
++  if (separator < 0) return false;
++  const userOK = equal(value.slice(0, separator), config.username);
++  const passOK = equal(value.slice(separator + 1), config.password);
++  return userOK && passOK;
++}
++
++export function allowedOrigin(origin, env = process.env) {
++  const expected = env.APP_ORIGIN || (env.BOOTHFORGE_ENV === 'development' ? 'http://localhost:3000' : '');
++  return Boolean(expected && origin === expected);
++}
++
++export const privateHeaders = {
++  'Cache-Control': 'no-store',
++  'X-Content-Type-Options': 'nosniff',
++  'X-Robots-Tag': 'noindex, nofollow, noarchive',
++  'Referrer-Policy': 'no-referrer',
++  'X-Frame-Options': 'DENY',
++  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
++};
+diff --git a/boothforge-ai/apps/web/next-env.d.ts b/boothforge-ai/apps/web/next-env.d.ts
+index 6080add..830fb59 100644
+--- a/boothforge-ai/apps/web/next-env.d.ts
++++ b/boothforge-ai/apps/web/next-env.d.ts
+@@ -1,2 +1,6 @@
+ /// <reference types="next" />
+ /// <reference types="next/image-types/global" />
++/// <reference path="./.next/types/routes.d.ts" />
++
++// NOTE: This file should not be edited
++// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+diff --git a/boothforge-ai/apps/web/next.config.mjs b/boothforge-ai/apps/web/next.config.mjs
+new file mode 100644
+index 0000000..767e6d4
+--- /dev/null
++++ b/boothforge-ai/apps/web/next.config.mjs
+@@ -0,0 +1,6 @@
++/** @type {import('next').NextConfig} */
++export default {
++  poweredByHeader: false,
++  // Keep builds within small preview runners; runtime remains a single instance.
++  experimental: { cpus: 2 },
++};
+diff --git a/boothforge-ai/apps/web/package-lock.json b/boothforge-ai/apps/web/package-lock.json
+new file mode 100644
+index 0000000..0b4f0bc
+--- /dev/null
++++ b/boothforge-ai/apps/web/package-lock.json
+@@ -0,0 +1,1055 @@
++{
++  "name": "boothforge-web",
++  "version": "0.1.0",
++  "lockfileVersion": 3,
++  "requires": true,
++  "packages": {
++    "": {
++      "name": "boothforge-web",
++      "version": "0.1.0",
++      "dependencies": {
++        "next": "15.5.28",
++        "react": "19.3.1",
++        "react-dom": "19.3.1"
++      },
++      "devDependencies": {
++        "@playwright/test": "^1.62.1",
++        "@types/node": "^22.0.0",
++        "@types/react": "^19.0.0",
++        "typescript": "^5.9.0"
++      }
++    },
++    "node_modules/@emnapi/runtime": {
++      "version": "1.11.3",
++      "resolved": "https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.11.3.tgz",
++      "integrity": "sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==",
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "tslib": "^2.4.0"
++      }
++    },
++    "node_modules/@img/colour": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/@img/colour/-/colour-1.1.0.tgz",
++      "integrity": "sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==",
++      "license": "MIT",
++      "optional": true,
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@img/sharp-darwin-arm64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.5.tgz",
++      "integrity": "sha512-QRUlFQ0WxvdWyqqG/WtI3iupfD5rBzmCHXSdPsY91sAtVtTo7Q4cb6zOccZ3gqEqkr0f1As1ehLqmEpDsRf+lg==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-darwin-arm64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-darwin-x64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.35.5.tgz",
++      "integrity": "sha512-+BR255RhDlpygUpOc/Jdt1nT6DQ3XG/ERo5wbcdOf5Q320dKtPCKPLR1LJs9VGXRaMa8l1uUa0tkCNOXiAxZUw==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-darwin-x64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-freebsd-wasm32": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-freebsd-wasm32/-/sharp-freebsd-wasm32-0.35.5.tgz",
++      "integrity": "sha512-Y/z91nEZ4uIBX5X3nfTovjU9lHNKFYbL2lpHCLVNmXQK03VIZvXBBt0KxbPGp2SdGSF+2mQU4e+hQaWOt86iAw==",
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "dependencies": {
++        "@img/sharp-wasm32": "0.35.5"
++      },
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-darwin-arm64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.4.tgz",
++      "integrity": "sha512-5R89nBYiRdUlSWJxPhO+GVtaXzXSxKnRu/xqMn3KTA3L9EB9Oy/P+Nn2f2vlhPuUdy/Zusb2DarbyTpGCfEDuw==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-darwin-x64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.3.4.tgz",
++      "integrity": "sha512-iR2OKH80yi0U+dUplyh3/xdpFvps6YkCwsXenIJxqxR1v9o+xtKTGbS9H7cps+2Vxjc8B1j96p75NmTGjIhtpQ==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-arm": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.3.4.tgz",
++      "integrity": "sha512-LmRtTsOHuvM2+wlO2Db37dx5MiZhB0FvSunciw48YjdOkZz9KAiRbm8ujeMOA1INqmei5NapFxYEK1D1ZSidmw==",
++      "cpu": [
++        "arm"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-arm64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.3.4.tgz",
++      "integrity": "sha512-Y3dgX/6lE2QhQb+Gxy0WZxfg9MEm/JBjamZpS2IklP7xIQoKN4hzAm7KcMVGtaVDt3neE9OKBC7vAfonA/Lr1A==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-ppc64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-ppc64/-/sharp-libvips-linux-ppc64-1.3.4.tgz",
++      "integrity": "sha512-Le6boB8Tai0Nis+gIxIpKx68UDVVIqdR8Tin5Yf1z2LJJQLDJvCDRqRu+jC2qCoD+eIomonmOwB4smBRxfVpYQ==",
++      "cpu": [
++        "ppc64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-riscv64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-riscv64/-/sharp-libvips-linux-riscv64-1.3.4.tgz",
++      "integrity": "sha512-aHkkIEHPRdQEegJN20MLmGtxYD9R2wQr3Cwpddnu5+YKMt6Uzax7S9h5gpZTo8wyrGuZSlfQ63OevL5mTyOC7Q==",
++      "cpu": [
++        "riscv64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-s390x": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.3.4.tgz",
++      "integrity": "sha512-ra/mB6MikESDUO7Yg+Mi95bFBb9GsObURuhnOv3OqknjGe9sZrG8tCe9q0xSIGrtLgvgw0gKnFWcK4blSgQOuQ==",
++      "cpu": [
++        "s390x"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-x64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.3.4.tgz",
++      "integrity": "sha512-GJ//SSXbnwSDes02umB3nDJLFcQzw8a18V8fyhqr6tV515tOEMdImjjxj1AoafMRz56F3PHgftnj1QEKSU1zkw==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linuxmusl-arm64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.3.4.tgz",
++      "integrity": "sha512-hvulFwtjUcagsis6BBxHwGFwWoNZjgYmULGVrZcyfNbjA8hKILbRxGg15/7w5HDyXHXUos/j6baAWqnCyQ2DWA==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linuxmusl-x64": {
++      "version": "1.3.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.3.4.tgz",
++      "integrity": "sha512-6zXKeE/p39I1AmA3cJG35eyBGNqNddLnUXjhwBnsGjFPWqf5VKkDBEqaEkPDoTEtkxwi2vv8Tcr2mDyP4So7Fg==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-linux-arm": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.35.5.tgz",
++      "integrity": "sha512-LEaXK2WdXVK5ykcw0buWyPMsmLLL2vpHLD6yrNSW+JGEL3BZPA4tpKN6iaMc4AxTTAoaX/sU1rOL51lcIz48ZQ==",
++      "cpu": [
++        "arm"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-arm": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-arm64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.35.5.tgz",
++      "integrity": "sha512-LYVx5JTsOM2CBzmxreh+nl64/3H6Xb09iSLknqH47z2T2DFFxDeFLP5y4dJwe6H7uGQlHPyEEtIqyo3DYsRwdQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-arm64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-ppc64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-ppc64/-/sharp-linux-ppc64-0.35.5.tgz",
++      "integrity": "sha512-QVxAAq8evVRI9ia2vqgwrmWucn5Dfv+JdWzj75pD8omHLPSP7f8p20O8jxzjCcuCEQEOtYOZUmX1hkiZ0kdevA==",
++      "cpu": [
++        "ppc64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-ppc64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-riscv64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-riscv64/-/sharp-linux-riscv64-0.35.5.tgz",
++      "integrity": "sha512-LtdreXguaavKODPIfzJ4kffx7UNt1omwtK0rch4EBbbSTXPnxWmYSayXdLJw0fJzQ97kHt1gL/yh4tvU+nCyRQ==",
++      "cpu": [
++        "riscv64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-riscv64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-s390x": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.35.5.tgz",
++      "integrity": "sha512-UZasTOFiYzotTsGOCu42BfUzP6Tu6Do/947iRm1RsLKvlllxwGcn4RN27LibGWceix4Y+Pmw3jsnTcCQIgWjqA==",
++      "cpu": [
++        "s390x"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-s390x": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-x64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.35.5.tgz",
++      "integrity": "sha512-SxFtLTeJInhAA9Q836kux2vZNeOBQEx658qvbboZScr0wIARym3IcGmW7KpVD5sbVg0Ojy+udFQdayYIZyoNog==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-x64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linuxmusl-arm64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.35.5.tgz",
++      "integrity": "sha512-9HbMclmI1zlNkFRs3z9/eBtDjfD0sGlrX1z6b1qwmiFY5ElDLh4BC0LPBdVp7z1DXFiKlIcznf+ZlsuZzLxQqg==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linuxmusl-arm64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-linuxmusl-x64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.35.5.tgz",
++      "integrity": "sha512-4KOphqB035HrVdqLZfCgMzzERrQkkzOwRhl4OAkRO1YCldbaFjySXMaK534Mo0V+LndnlJk+sbUyLeU0ULyD1A==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linuxmusl-x64": "1.3.4"
++      }
++    },
++    "node_modules/@img/sharp-wasm32": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-wasm32/-/sharp-wasm32-0.35.5.tgz",
++      "integrity": "sha512-Ptsga1su4tQx+LLF1ECS9U6nz5kmrXKo6XVbtR48Ke3ZRxxgaWBu7IDtEe1quo8hiupwm6WFqxVlXaSf7IINGQ==",
++      "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
++      "optional": true,
++      "dependencies": {
++        "@emnapi/runtime": "^1.11.3"
++      },
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-webcontainers-wasm32": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-webcontainers-wasm32/-/sharp-webcontainers-wasm32-0.35.5.tgz",
++      "integrity": "sha512-hfhF/FmoQyTUkA0bIKFOtw536BQSeBMe6BF6QyWlrPxT754+TFLaZ7sKKTfvvM0yJgKgaYTwnFCIZ/GuDw5SUA==",
++      "cpu": [
++        "wasm32"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "dependencies": {
++        "@img/sharp-wasm32": "0.35.5"
++      },
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-win32-arm64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-arm64/-/sharp-win32-arm64-0.35.5.tgz",
++      "integrity": "sha512-X4t7g+7ZA5DKblCBEXGjUqqemj4vczING/5viFwAL8h4N3qYeyjwdCvRLHi4EdOUI+2Z7UFlp1VM+p/AuEtm6Q==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-win32-ia32": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.35.5.tgz",
++      "integrity": "sha512-5Zm82LoBc43nhwNybZlG7Y1KO//Zhsn306fQl29ZOuStHLGTo3BWL83q3cznX0poxSAMuYL1On/BHBxkBeKr6A==",
++      "cpu": [
++        "ia32"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": "^20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-win32-x64": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.35.5.tgz",
++      "integrity": "sha512-x76eH0vEiHlcMQu8Y8IenntaACtddpT6W0wmXtWrnKcnKI7ME5DdgqhAD6SEWOEl1v2zDvkZDhFA9KnURwpfqg==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@next/env": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/env/-/env-15.5.28.tgz",
++      "integrity": "sha512-xxW5EBI8fMPuVTPBW7LL980IRbuDXlbkUAwp9DDhtb4Lnich3nJ13uYpvrX4VE74hWPf6AvHHAMmGCidcHjbfg==",
++      "license": "MIT"
++    },
++    "node_modules/@next/swc-darwin-arm64": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-15.5.28.tgz",
++      "integrity": "sha512-dPoQYXcfSIqx5o+TOXVXO7kONK5qbtNRDeiTfII0bT3puGIT6VF5e0QwmxNZfEZ5Zety5f3m9P/p4xqwfiLlPg==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-darwin-x64": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-15.5.28.tgz",
++      "integrity": "sha512-RgCJ7buBivTH+6sddqaVm+/v8kwMHlFkobvdt3DfETutws5HrxnToMIWSN9X3MZ3aAi7BbKrGZZWUDQLEycXqw==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-linux-arm64-gnu": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-15.5.28.tgz",
++      "integrity": "sha512-OHXQe13olE59aKe++zHavGcJPh5SLHXi6Anret3BBeq1+qhSuOJDNAli/EDDfxs6UTqA4Qddo4uyYry2slyjiQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-linux-arm64-musl": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-15.5.28.tgz",
++      "integrity": "sha512-nTB7bB6vfn4ezCJNYP43ukt2o8L3+WxKF/sTcTxepdXsJh3SM9RhlU7wrZYbH7L4HO5M87dqDTwm8587vAkCiw==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-linux-x64-gnu": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-15.5.28.tgz",
++      "integrity": "sha512-WXCfVI32rW3xCusoUX1RpZKtyChWU2Zwe27JUDmM3KrXwcDNc9vV4zEq0GKFAURnuQ/Ouo/XqPvB0yh445XZCg==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-linux-x64-musl": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-15.5.28.tgz",
++      "integrity": "sha512-Miq+NDb/HWsXuxseYxMM6fuEOQXgTziarkKIRpVKCn8W69cEfhQaQr+90pO+u4q2CbJR2wzXmUuCFyZaJs/Nng==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-win32-arm64-msvc": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-15.5.28.tgz",
++      "integrity": "sha512-5LR79lemgDlgxvG7MQJ+zHCkVcrUoQuO7CiIvq3I58vNW4goSOE2b+19Z6FujRWMouvni4gvudYFuFuNxolGWA==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-win32-x64-msvc": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-15.5.28.tgz",
++      "integrity": "sha512-GNipvXUYROSTf4PXEyH95FrWImIB5zdaK6uEOg0RP1/X2drnvoMwiBkJ0VWdzX7w3iiBm3y5g2TxkKDGVTOQcg==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@playwright/test": {
++      "version": "1.62.1",
++      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.62.1.tgz",
++      "integrity": "sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==",
++      "devOptional": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "playwright": "1.62.1"
++      },
++      "bin": {
++        "playwright": "cli.js"
++      },
++      "engines": {
++        "node": ">=20"
++      }
++    },
++    "node_modules/@swc/helpers": {
++      "version": "0.5.15",
++      "resolved": "https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.15.tgz",
++      "integrity": "sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==",
++      "license": "Apache-2.0",
++      "dependencies": {
++        "tslib": "^2.8.0"
++      }
++    },
++    "node_modules/@types/node": {
++      "version": "22.20.5",
++      "resolved": "https://registry.npmjs.org/@types/node/-/node-22.20.5.tgz",
++      "integrity": "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "undici-types": "~6.21.0"
++      }
++    },
++    "node_modules/@types/react": {
++      "version": "19.3.0",
++      "resolved": "https://registry.npmjs.org/@types/react/-/react-19.3.0.tgz",
++      "integrity": "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "csstype": "^3.2.2"
++      }
++    },
++    "node_modules/caniuse-lite": {
++      "version": "1.0.30001819",
++      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001819.tgz",
++      "integrity": "sha512-LFUqIIAwpzsIuevnKnsR9qnStBcgzPShTX61lBwN9uFkkf8o8zLiebEjbW8AYtZiF+1YKDWfdt/pWDtMuG8Xwg==",
++      "funding": [
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/browserslist"
++        },
++        {
++          "type": "tidelift",
++          "url": "https://tidelift.com/funding/github/npm/caniuse-lite"
++        },
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "CC-BY-4.0"
++    },
++    "node_modules/client-only": {
++      "version": "0.0.1",
++      "resolved": "https://registry.npmjs.org/client-only/-/client-only-0.0.1.tgz",
++      "integrity": "sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==",
++      "license": "MIT"
++    },
++    "node_modules/csstype": {
++      "version": "3.2.3",
++      "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
++      "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/detect-libc": {
++      "version": "2.1.2",
++      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz",
++      "integrity": "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==",
++      "license": "Apache-2.0",
++      "optional": true,
++      "engines": {
++        "node": ">=8"
++      }
++    },
++    "node_modules/fsevents": {
++      "version": "2.3.2",
++      "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
++      "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
++      "hasInstallScript": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
++      }
++    },
++    "node_modules/nanoid": {
++      "version": "3.3.20",
++      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.20.tgz",
++      "integrity": "sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "bin": {
++        "nanoid": "bin/nanoid.cjs"
++      },
++      "engines": {
++        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++      }
++    },
++    "node_modules/next": {
++      "version": "15.5.28",
++      "resolved": "https://registry.npmjs.org/next/-/next-15.5.28.tgz",
++      "integrity": "sha512-JjhLBBY1PNnuwPtcZ7t8yxVeJVYvD2Jyp633J+gRCNbzSt7N0E+xqCf6uQiff3+3qmUkwcF/ksfSsK1xsZ76Tw==",
++      "license": "MIT",
++      "dependencies": {
++        "@next/env": "15.5.28",
++        "@swc/helpers": "0.5.15",
++        "caniuse-lite": "^1.0.30001579",
++        "postcss": "8.4.31",
++        "styled-jsx": "5.1.6"
++      },
++      "bin": {
++        "next": "dist/bin/next"
++      },
++      "engines": {
++        "node": "^18.18.0 || ^19.8.0 || >= 20.0.0"
++      },
++      "optionalDependencies": {
++        "@next/swc-darwin-arm64": "15.5.28",
++        "@next/swc-darwin-x64": "15.5.28",
++        "@next/swc-linux-arm64-gnu": "15.5.28",
++        "@next/swc-linux-arm64-musl": "15.5.28",
++        "@next/swc-linux-x64-gnu": "15.5.28",
++        "@next/swc-linux-x64-musl": "15.5.28",
++        "@next/swc-win32-arm64-msvc": "15.5.28",
++        "@next/swc-win32-x64-msvc": "15.5.28",
++        "sharp": "^0.34.3 || ^0.35.5"
++      },
++      "peerDependencies": {
++        "@opentelemetry/api": "^1.1.0",
++        "@playwright/test": "^1.51.1",
++        "babel-plugin-react-compiler": "*",
++        "react": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0",
++        "react-dom": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0",
++        "sass": "^1.3.0"
++      },
++      "peerDependenciesMeta": {
++        "@opentelemetry/api": {
++          "optional": true
++        },
++        "@playwright/test": {
++          "optional": true
++        },
++        "babel-plugin-react-compiler": {
++          "optional": true
++        },
++        "sass": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/picocolors": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
++      "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==",
++      "license": "ISC"
++    },
++    "node_modules/playwright": {
++      "version": "1.62.1",
++      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.62.1.tgz",
++      "integrity": "sha512-0M+L3LAD8/nm554LOla9Ayx0j0tmFZ0FBcoQ7F1VuVHpM/XpiC8RcDzBQB8W5+hA8L22THxELzeF+2WcUzvcLg==",
++      "devOptional": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "playwright-core": "1.62.1"
++      },
++      "bin": {
++        "playwright": "cli.js"
++      },
++      "engines": {
++        "node": ">=20"
++      },
++      "optionalDependencies": {
++        "fsevents": "2.3.2"
++      }
++    },
++    "node_modules/playwright-core": {
++      "version": "1.62.1",
++      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.62.1.tgz",
++      "integrity": "sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==",
++      "devOptional": true,
++      "license": "Apache-2.0",
++      "bin": {
++        "playwright-core": "cli.js"
++      },
++      "engines": {
++        "node": ">=20"
++      }
++    },
++    "node_modules/postcss": {
++      "version": "8.5.32",
++      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.32.tgz",
++      "integrity": "sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==",
++      "funding": [
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/postcss/"
++        },
++        {
++          "type": "tidelift",
++          "url": "https://tidelift.com/funding/github/npm/postcss"
++        },
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "nanoid": "^3.3.20",
++        "picocolors": "^1.1.1",
++        "source-map-js": "^1.2.2"
++      },
++      "engines": {
++        "node": "^10 || ^12 || >=14"
++      }
++    },
++    "node_modules/react": {
++      "version": "19.3.1",
++      "resolved": "https://registry.npmjs.org/react/-/react-19.3.1.tgz",
++      "integrity": "sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
++    "node_modules/react-dom": {
++      "version": "19.3.1",
++      "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-19.3.1.tgz",
++      "integrity": "sha512-Y0bARz53lhEC1NMCASs0/j+faB/zqt3R8hpvg1e8+61ZVJ4UL0UdC4cBbXfZMcIuhrfgeILTLe+ZeBCavQPtKQ==",
++      "license": "MIT",
++      "dependencies": {
++        "scheduler": "^0.28.0"
++      },
++      "peerDependencies": {
++        "react": "^19.3.1"
++      }
++    },
++    "node_modules/scheduler": {
++      "version": "0.28.0",
++      "resolved": "https://registry.npmjs.org/scheduler/-/scheduler-0.28.0.tgz",
++      "integrity": "sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw==",
++      "license": "MIT"
++    },
++    "node_modules/semver": {
++      "version": "7.8.5",
++      "resolved": "https://registry.npmjs.org/semver/-/semver-7.8.5.tgz",
++      "integrity": "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==",
++      "license": "ISC",
++      "optional": true,
++      "bin": {
++        "semver": "bin/semver.js"
++      },
++      "engines": {
++        "node": ">=10"
++      }
++    },
++    "node_modules/sharp": {
++      "version": "0.35.5",
++      "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.35.5.tgz",
++      "integrity": "sha512-Ywn4OnzGukp7CDMrp08RQ50YKmuwG47brZgIVPTvBaaAfQlRlygrRqSrxdCiL9M+LlzLBiJ68IR1QqvzHyjC7g==",
++      "license": "Apache-2.0",
++      "optional": true,
++      "dependencies": {
++        "@img/colour": "^1.1.0",
++        "detect-libc": "^2.1.2",
++        "semver": "^7.8.5"
++      },
++      "engines": {
++        "node": ">=20.9.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-darwin-arm64": "0.35.5",
++        "@img/sharp-darwin-x64": "0.35.5",
++        "@img/sharp-freebsd-wasm32": "0.35.5",
++        "@img/sharp-libvips-darwin-arm64": "1.3.4",
++        "@img/sharp-libvips-darwin-x64": "1.3.4",
++        "@img/sharp-libvips-linux-arm": "1.3.4",
++        "@img/sharp-libvips-linux-arm64": "1.3.4",
++        "@img/sharp-libvips-linux-ppc64": "1.3.4",
++        "@img/sharp-libvips-linux-riscv64": "1.3.4",
++        "@img/sharp-libvips-linux-s390x": "1.3.4",
++        "@img/sharp-libvips-linux-x64": "1.3.4",
++        "@img/sharp-libvips-linuxmusl-arm64": "1.3.4",
++        "@img/sharp-libvips-linuxmusl-x64": "1.3.4",
++        "@img/sharp-linux-arm": "0.35.5",
++        "@img/sharp-linux-arm64": "0.35.5",
++        "@img/sharp-linux-ppc64": "0.35.5",
++        "@img/sharp-linux-riscv64": "0.35.5",
++        "@img/sharp-linux-s390x": "0.35.5",
++        "@img/sharp-linux-x64": "0.35.5",
++        "@img/sharp-linuxmusl-arm64": "0.35.5",
++        "@img/sharp-linuxmusl-x64": "0.35.5",
++        "@img/sharp-webcontainers-wasm32": "0.35.5",
++        "@img/sharp-win32-arm64": "0.35.5",
++        "@img/sharp-win32-ia32": "0.35.5",
++        "@img/sharp-win32-x64": "0.35.5"
++      },
++      "peerDependenciesMeta": {
++        "@types/node": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/source-map-js": {
++      "version": "1.2.2",
++      "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz",
++      "integrity": "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==",
++      "license": "BSD-3-Clause",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
++    "node_modules/styled-jsx": {
++      "version": "5.1.6",
++      "resolved": "https://registry.npmjs.org/styled-jsx/-/styled-jsx-5.1.6.tgz",
++      "integrity": "sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==",
++      "license": "MIT",
++      "dependencies": {
++        "client-only": "0.0.1"
++      },
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "peerDependencies": {
++        "react": ">= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0"
++      },
++      "peerDependenciesMeta": {
++        "@babel/core": {
++          "optional": true
++        },
++        "babel-plugin-macros": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/tslib": {
++      "version": "2.8.1",
++      "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
++      "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
++      "license": "0BSD"
++    },
++    "node_modules/typescript": {
++      "version": "5.9.3",
++      "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
++      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "bin": {
++        "tsc": "bin/tsc",
++        "tsserver": "bin/tsserver"
++      },
++      "engines": {
++        "node": ">=14.17"
++      }
++    },
++    "node_modules/undici-types": {
++      "version": "6.21.0",
++      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-6.21.0.tgz",
++      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==",
++      "dev": true,
++      "license": "MIT"
++    }
++  }
++}
+diff --git a/boothforge-ai/apps/web/package.json b/boothforge-ai/apps/web/package.json
+index 73df64f..eb95fd1 100644
+--- a/boothforge-ai/apps/web/package.json
++++ b/boothforge-ai/apps/web/package.json
+@@ -1 +1,27 @@
+-{"name":"boothforge-web","version":"0.1.0","private":true,"scripts":{"dev":"next dev -H 0.0.0.0","build":"next build","start":"next start -H 0.0.0.0"},"dependencies":{"next":"^15.5.0","react":"^19.1.0","react-dom":"^19.1.0"},"devDependencies":{"typescript":"^5.9.0","@types/node":"^22.0.0","@types/react":"^19.0.0"}}
++{
++  "name": "boothforge-web",
++  "version": "0.1.0",
++  "private": true,
++  "scripts": {
++    "dev": "node server.mjs --dev",
++    "build": "next build",
++    "start": "node server.mjs",
++    "typecheck": "tsc --noEmit",
++    "test": "node --test tests/*.test.mjs",
++    "test:browser": "playwright test"
++  },
++  "dependencies": {
++    "next": "15.5.28",
++    "react": "19.3.1",
++    "react-dom": "19.3.1"
++  },
++  "devDependencies": {
++    "@playwright/test": "^1.62.1",
++    "@types/node": "^22.0.0",
++    "@types/react": "^19.0.0",
++    "typescript": "^5.9.0"
++  },
++  "overrides": {
++    "postcss": "8.5.32"
++  }
++}
+diff --git a/boothforge-ai/apps/web/playwright.config.ts b/boothforge-ai/apps/web/playwright.config.ts
+new file mode 100644
+index 0000000..6895d5e
+--- /dev/null
++++ b/boothforge-ai/apps/web/playwright.config.ts
+@@ -0,0 +1,24 @@
++import { defineConfig } from '@playwright/test';
++export default defineConfig({
++  testDir: './e2e',
++  testMatch: '*.spec.ts',
++  timeout: 30000,
++  workers: 1,
++  reporter: 'list',
++  use: {
++    baseURL: 'https://localhost:3443',
++    ignoreHTTPSErrors: true, // The test harness generates a disposable local TLS certificate.
++    httpCredentials: {
++      username: process.env.BOOTHFORGE_E2E_USERNAME || 'pilot',
++      password: process.env.BOOTHFORGE_E2E_PASSWORD || '',
++    },
++    launchOptions: {
++      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
++      args: JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS || '[]'),
++    },
++  },
++  projects: [
++    { name: 'desktop', use: { viewport: { width: 1440, height: 1000 } } },
++    { name: 'mobile', use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
++  ],
++});
+diff --git a/boothforge-ai/apps/web/server.mjs b/boothforge-ai/apps/web/server.mjs
+new file mode 100644
+index 0000000..574ee5e
+--- /dev/null
++++ b/boothforge-ai/apps/web/server.mjs
+@@ -0,0 +1,52 @@
++import { createServer } from 'node:http';
++import next from 'next';
++import nextEnv from '@next/env';
++import { authorized, previewConfig, privateHeaders } from './lib/access.mjs';
++
++const dev = process.argv.includes('--dev');
++nextEnv.loadEnvConfig(process.cwd(), dev);
++previewConfig(); // Refuse to start a preview without credentials and an HTTPS origin.
++const port = Number(process.env.PORT || 3000);
++const hostname = process.env.BIND_HOST || '127.0.0.1';
++const app = next({ dev, hostname, port });
++await app.prepare();
++const handle = app.getRequestHandler();
++const failures = new Map();
++const server = createServer(async (req, res) => {
++  for (const [key, value] of Object.entries(privateHeaders)) res.setHeader(key, value);
++  if (!dev) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
++  // Only liveness is anonymous; no client data or provider details are returned.
++  if (req.url === '/health' && ['GET', 'HEAD'].includes(req.method)) {
++    res.setHeader('Content-Type', 'application/json');
++    res.end(req.method === 'HEAD' ? undefined : '{"status":"ok"}');
++    return;
++  }
++  const ip = req.socket.remoteAddress || 'unknown'; // Never trust client-supplied X-Forwarded-For.
++  const now = Date.now();
++  for (const [key, attempt] of failures) if (attempt.until < now) failures.delete(key);
++  const attempt = failures.get(ip);
++  if (attempt?.count >= 20) {
++    res.writeHead(429, { 'Retry-After': String(Math.ceil((attempt.until - now) / 1000)) });
++    res.end('Too many authentication attempts');
++    return;
++  }
++  if (!authorized(req.headers.authorization)) {
++    if (failures.size >= 10000 && !attempt) { res.writeHead(429); res.end(); return; }
++    failures.set(ip, { count: (attempt?.count || 0) + 1, until: attempt?.until || now + 60000 });
++    res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="BOOTHFORGE Private", charset="UTF-8"' });
++    res.end('Private preview: authentication required');
++    return;
++  }
++  if (Number(req.headers['content-length'] || 0) > 6 * 1024 * 1024) {
++    res.writeHead(413); res.end('Maximum request size is 6 MB'); return;
++  }
++  try { await handle(req, res); }
++  catch { if (!res.headersSent) res.writeHead(500); res.end('Request failed'); }
++});
++server.requestTimeout = 30000;
++server.headersTimeout = 15000;
++server.listen(port, hostname, () => console.log(`BOOTHFORGE web ready on ${hostname}:${port}`));
++for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => {
++  server.close(async () => { await app.close(); process.exit(0); });
++  setTimeout(() => process.exit(1), 10000).unref();
++});
+diff --git a/boothforge-ai/apps/web/tests/access.test.mjs b/boothforge-ai/apps/web/tests/access.test.mjs
+new file mode 100644
+index 0000000..7dd1663
+--- /dev/null
++++ b/boothforge-ai/apps/web/tests/access.test.mjs
+@@ -0,0 +1,29 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { authorized, previewConfig, allowedOrigin } from '../lib/access.mjs';
++const env = { BOOTHFORGE_ENV: 'preview', PREVIEW_USERNAME: 'pilot', PREVIEW_PASSWORD: 'a-test-only-password-long-enough', API_TOKEN: 'test-token-long-enough-for-32-characters', APP_ORIGIN: 'https://pilot.example.test' };
++const basic = (value) => `Basic ${Buffer.from(value).toString('base64')}`;
++
++test('preview fails closed with missing or short secrets and an insecure origin', () => {
++  for (const key of ['PREVIEW_USERNAME', 'PREVIEW_PASSWORD', 'API_TOKEN', 'APP_ORIGIN']) {
++    const missing = { ...env, [key]: '' };
++    assert.throws(() => previewConfig(missing));
++    assert.equal(authorized(basic(`${env.PREVIEW_USERNAME}:${env.PREVIEW_PASSWORD}`), missing), false);
++  }
++  assert.throws(() => previewConfig({ ...env, APP_ORIGIN: 'http://example.test' }));
++  assert.throws(() => previewConfig({ ...env, BOOTHFORGE_ENV: 'typo' }));
++});
++test('only exact credentials work, including passwords containing colons and Unicode', () => {
++  assert.equal(authorized(basic(`pilot:${env.PREVIEW_PASSWORD}`), env), true);
++  for (const header of [undefined, '', 'Bearer anything', 'Basic !!!', basic('missing-colon'), basic('pilot:wrong'), basic(`wrong:${env.PREVIEW_PASSWORD}`), 'x'.repeat(3000)]) assert.equal(authorized(header, env), false);
++  const other = { ...env, PREVIEW_PASSWORD: 'a-long-password:with:colon-العربية' };
++  assert.equal(authorized(basic(`pilot:${other.PREVIEW_PASSWORD}`), other), true);
++});
++test('CSRF origin is explicit and exact', () => {
++  assert.equal(allowedOrigin(env.APP_ORIGIN, env), true);
++  for (const origin of [null, '', 'null', 'https://evil.example', 'https://pilot.example.test.evil.test']) assert.equal(allowedOrigin(origin, env), false);
++});
++test('anonymous local mode requires explicit development setting', () => {
++  assert.equal(authorized(undefined, {}), false);
++  assert.equal(authorized(undefined, { BOOTHFORGE_ENV: 'development' }), true);
++});
+diff --git a/boothforge-ai/deploy/PRIVATE_PREVIEW.md b/boothforge-ai/deploy/PRIVATE_PREVIEW.md
+new file mode 100644
+index 0000000..a09e26e
+--- /dev/null
++++ b/boothforge-ai/deploy/PRIVATE_PREVIEW.md
+@@ -0,0 +1,48 @@
++# Private preview deployment — prepared, not applied
++
++## Proposed workload
++
++One Docker web service runs Next.js and FastAPI under a supervisor. Only the Next.js listener is exposed; FastAPI binds `127.0.0.1:8000`. The supervisor stops both services if either exits. Render must terminate TLS in front of the Node listener.
++
++`render.preview.yaml` targets branch `boothforge-development`, uses `plan: free`, disables automatic deploys and exposes only a minimal anonymous `/health` probe. All other URLs, including static assets, require HTTP Basic login.
++
++This creates an internet-reachable address with authenticated access. It is an application-private pilot, not a private-network service. The sample has **no persistent disk**: data can disappear on restart/redeploy/idle suspension. Use fabricated client names and disposable brand images only.
++
++No service, deployment, subscription, domain or paid API request has been created by this change.
++
++## Activation checklist for the operator
++
++1. Keep the repaired branch separate; do not merge or overwrite the legacy project. Read the test report first.
++2. Build the Docker image in a Docker-capable runner before activation. The development environment used for these repairs did not include Docker.
++3. In Render, select the repaired branch and Blueprint path `boothforge-ai/deploy/render.preview.yaml` explicitly. The original default-branch project has no deployment file; do not use an unqualified one-click link.
++4. Review the current account plan, free-service limits and any build/bandwidth charges. Obtain user approval before any paid resource or public unauthenticated release. The supplied file explicitly selects the free compute plan; it must not be silently upgraded.
++5. Fill secrets in Render's secure Environment settings, never GitHub or chat:
++
++| Variable | Required value |
++| --- | --- |
++| `PREVIEW_USERNAME` | A dedicated pilot username |
++| `PREVIEW_PASSWORD` | A unique random password, at least 24 characters |
++| `API_TOKEN` | Generated by Render (`generateValue: true`), at least 32 characters |
++| `APP_ORIGIN` | Exact final HTTPS origin, e.g. `https://your-pilot.onrender.com`, without trailing slash |
++| `BOOTHFORGE_ENV` | `preview` |
++
++6. Do not set `BOOTHFORGE_ENV=development` on hosting. Do not run `next start` or `next dev` directly as the public entry point: use the Docker CMD / `scripts/run_preview.py` / `npm start` custom server.
++7. Activate only the protected test-data pilot. Before sharing the URL, verify: anonymous root/API/static requests return 401, a wrong password fails, authorized creation works, a foreign/missing POST Origin returns 403, AI returns 501 and no credentials appear in page HTML/network responses.
++8. Share pilot access only with the owner/approved team. HTTP Basic has no per-user roles, audit trail or reliable logout; close the browser session or rotate the credentials when ending access.
++9. Remove disposable data by replacing the test container/data directory; keep provider adapters disabled until cost approval and server-only credential configuration are complete.
++
++## Before real customer data
++
++This pilot deliberately does not claim production readiness. Add individual accounts and tenant isolation, an approved hosting region, encryption/retention/deletion policy, persistent storage and tested backups, audit logs, edge rate limits, malware processing where required, and a reviewed data migration. Obtain approval for the associated hosting/storage/API costs first.
++
++The local login rate limiter uses the connection IP and does not trust spoofable forwarding headers. Behind a shared reverse proxy, its 20 failed attempts/minute can throttle the whole pilot. A proper edge identity/rate-limit service is required before broader use.
++
++## Validation boundaries
++
++- The Blueprint was validated against the current public Render JSON schema.
++- Render CLI/account-aware validation and an actual Docker image build were not run in this environment; the CLI and Docker daemon were absent.
++- Desktop/mobile browser tests ran over disposable localhost HTTPS with a headless Chromium binary; screenshots contain synthetic data only and are excluded from deliverables.
++- Applying a Blueprint is a deployment action; schema validation alone does not create anything.
++- A persistent disk is intentionally omitted. No real customer-data durability or multi-tenant security claim is made.
++
++Official references: [Blueprints](https://render.com/docs/blueprint-spec), [secrets](https://render.com/docs/configure-environment-variables), [free services](https://render.com/docs/free), [Next.js self-hosting](https://nextjs.org/docs/15/app/guides/self-hosting).
+diff --git a/boothforge-ai/deploy/TEST_REPORT.md b/boothforge-ai/deploy/TEST_REPORT.md
+new file mode 100644
+index 0000000..add7a6f
+--- /dev/null
++++ b/boothforge-ai/deploy/TEST_REPORT.md
+@@ -0,0 +1,28 @@
++# Verification report
++
++Baseline: `ccb58e810c09ba2cddc4ad771b3e96417a860a3f` on `main`.
++Repairs: isolated **local** branch `boothforge-development`. GitHub rejected remote branch creation with HTTP 403 (`Resource not accessible by integration`), so no remote branch or pull request was created.
++
++| Check | Result |
++| --- | --- |
++| FastAPI regression/security tests | 17 passed |
++| Node authentication/origin tests | 4 passed |
++| Chromium browser tests over local HTTPS | 8 passed across desktop and mobile viewports: project creation/requirements, dimension limits, escaped markup, connection-error recovery |
++| Visual inspection of desktop/mobile renders | Passed; fixed small-screen touch controls and reviewed responsive layout |
++| One-click local startup launcher | Passed on the local Linux runtime: started Next.js and FastAPI, rendered the dashboard and verified the API proxy with disposable data. Windows CMD wrapper not executed on Windows. |
++| TypeScript type check | Passed |
++| Next.js production build | Passed, Next.js 15.5.28 / React 19.3.1 |
++| Real Next.js + FastAPI HTTP smoke test | 38 checks passed, including unauthorized access, same-origin creation, CSRF rejection, disabled generation, internal bearer auth and failed-login throttling |
++| npm production dependency audit | 0 known vulnerabilities after overriding PostCSS to 8.5.32 |
++| Python production dependency audit (`pip-audit -r requirements.txt`) | No known vulnerabilities found |
++| Render Blueprint current JSON-schema validation | Passed |
++| Original ZIP hash comparison | Identical SHA-256: `c8305532817ba7ef8d22dd160340108881f15f86ef5c925f91bbf851c0896cb8` |
++| Original root/Vite sources | Unchanged |
++| Live provider/API spending | None; provider adapters remain disabled |
++| Internet deployment | Not applied |
++
++Limitations: the API test suite emits a Starlette deprecation warning for its httpx-based test client. The initial Chromium CDN download failed; browser testing was subsequently completed with a local Chromium 153 test binary. Docker image build and Render account-aware/CLI validation could not run because those tools were absent. HTTP smoke tests exercised the actual production processes locally; they are not a substitute for these remaining deployment checks.
++
++All test projects/images were fabricated. No real customer data or provider key was used. Main is not merged or modified.
++
++Windows startup follow-up: the owner confirmed successful startup after replacing `uvicorn[standard]` with minimal `uvicorn`. Optional Uvicorn extras pulled in a PyYAML source build under Python 3.15, requesting Visual C++ unnecessarily for this app. The runtime requirements now contain this same fix.
+diff --git a/boothforge-ai/deploy/render.preview.yaml b/boothforge-ai/deploy/render.preview.yaml
+new file mode 100644
+index 0000000..b4438a1
+--- /dev/null
++++ b/boothforge-ai/deploy/render.preview.yaml
+@@ -0,0 +1,27 @@
++# Prepared only. Applying this file creates a password-protected internet endpoint.
++# Free, ephemeral test-data pilot. Never store real client data on this plan.
++services:
++  - type: web
++    name: boothforge-private-pilot-jemee43
++    runtime: docker
++    repo: https://github.com/jemee43-spec/Booth-design-
++    branch: boothforge-development
++    plan: free
++    numInstances: 1
++    dockerfilePath: ./boothforge-ai/Dockerfile
++    dockerContext: ./boothforge-ai
++    autoDeployTrigger: 'off'
++    healthCheckPath: /health
++    envVars:
++      - key: BOOTHFORGE_ENV
++        value: preview
++      - key: PREVIEW_USERNAME
++        sync: false
++      - key: PREVIEW_PASSWORD
++        sync: false
++      - key: APP_ORIGIN
++        sync: false
++      - key: API_TOKEN
++        generateValue: true
++      - key: NEXT_TELEMETRY_DISABLED
++        value: '1'
+diff --git a/boothforge-ai/scripts/browser_test.py b/boothforge-ai/scripts/browser_test.py
+new file mode 100644
+index 0000000..5a07862
+--- /dev/null
++++ b/boothforge-ai/scripts/browser_test.py
+@@ -0,0 +1,64 @@
++"""Run production-mode browser tests with synthetic data and disposable localhost TLS."""
++import os
++from pathlib import Path
++import secrets
++import ssl
++import subprocess
++import sys
++import tempfile
++import time
++from urllib.request import urlopen
++
++ROOT=Path(__file__).resolve().parents[1]
++
++
++def main():
++    children=[]
++    with tempfile.TemporaryDirectory(prefix='boothforge-browser-test-') as directory:
++        folder=Path(directory)
++        env={**os.environ,'BOOTHFORGE_ENV':'preview','API_TOKEN':secrets.token_urlsafe(32),
++             'PREVIEW_USERNAME':'pilot','PREVIEW_PASSWORD':secrets.token_urlsafe(24),
++             'APP_ORIGIN':'https://localhost:3443','DATA_DIR':str(folder/'data'),'PORT':'3100',
++             'BIND_HOST':'127.0.0.1','NEXT_TELEMETRY_DISABLED':'1',
++             'E2E_TLS_KEY':str(folder/'localhost.key'),'E2E_TLS_CERT':str(folder/'localhost.crt')}
++        env['BOOTHFORGE_E2E_USERNAME']=env['PREVIEW_USERNAME']
++        env['BOOTHFORGE_E2E_PASSWORD']=env['PREVIEW_PASSWORD']
++        subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1',
++                        '-keyout',env['E2E_TLS_KEY'],'-out',env['E2E_TLS_CERT'],
++                        '-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost'],
++                       check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
++        with (folder/'runtime.log').open('w') as log:
++            try:
++                server=subprocess.Popen([sys.executable,str(ROOT/'scripts/run_preview.py')],env=env,stdout=log,stderr=log)
++                children.append(server)
++                for _ in range(200):
++                    if server.poll() is not None:
++                        raise RuntimeError('The test server failed to start')
++                    try:
++                        with urlopen('http://127.0.0.1:3100/health',timeout=1) as response:
++                            if response.status==200:break
++                    except OSError:time.sleep(0.1)
++                else:raise RuntimeError('Readiness timed out')
++                proxy=subprocess.Popen(['node','e2e/https-proxy.mjs'],cwd=ROOT/'apps/web',env=env,stdout=log,stderr=log)
++                children.append(proxy)
++                tls_context=ssl.create_default_context(cafile=env['E2E_TLS_CERT'])
++                for _ in range(100):
++                    if proxy.poll() is not None:
++                        raise RuntimeError('Local TLS proxy failed to start')
++                    try:
++                        with urlopen('https://localhost:3443/health',context=tls_context,timeout=1) as response:
++                            if response.status==200:break
++                    except OSError:time.sleep(0.1)
++                else:raise RuntimeError('Local TLS readiness timed out')
++                subprocess.run(['node','node_modules/@playwright/test/cli.js','test'],
++                               cwd=ROOT/'apps/web',env=env,check=True)
++            finally:
++                for child in reversed(children):
++                    if child.poll() is None:child.terminate()
++                for child in reversed(children):
++                    try:child.wait(timeout=20)
++                    except subprocess.TimeoutExpired:
++                        child.kill();child.wait()
++
++
++if __name__=='__main__':main()
+diff --git a/boothforge-ai/scripts/run_preview.py b/boothforge-ai/scripts/run_preview.py
+new file mode 100755
+index 0000000..65961bc
+--- /dev/null
++++ b/boothforge-ai/scripts/run_preview.py
+@@ -0,0 +1,71 @@
++"""Supervise both services; expose only the authenticated Next.js entry point."""
++import os
++import signal
++import subprocess
++import sys
++import time
++from pathlib import Path
++from urllib.request import urlopen
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def main():
++    os.umask(0o077)
++    env = dict(os.environ)
++    if env.get('BOOTHFORGE_ENV', 'preview') != 'preview':
++        raise SystemExit('The deployment launcher requires BOOTHFORGE_ENV=preview')
++    env['BOOTHFORGE_ENV'] = 'preview'
++    env.setdefault('API_INTERNAL_URL', 'http://127.0.0.1:8000')
++    # Provider credentials are deliberately not passed to either pilot process.
++    for key in list(env):
++        if key.startswith(('OPENAI_', 'GOOGLE_', 'GEMINI_')):
++            del env[key]
++    children = []
++
++    def stop(*_):
++        for child in children:
++            if child.poll() is None:
++                child.terminate()
++        deadline = time.monotonic() + 12
++        for child in children:
++            try:
++                child.wait(timeout=max(0.1, deadline - time.monotonic()))
++            except subprocess.TimeoutExpired:
++                child.kill()
++                child.wait()
++
++    def on_signal(*_):
++        stop()
++        raise SystemExit(0)
++
++    signal.signal(signal.SIGTERM, on_signal)
++    signal.signal(signal.SIGINT, on_signal)
++    try:
++        api_env = {k: v for k, v in env.items() if not k.startswith('PREVIEW_')}
++        api = subprocess.Popen([sys.executable, '-m', 'uvicorn', 'app.main:app',
++                                '--host', '127.0.0.1', '--port', '8000', '--no-access-log'],
++                               cwd=ROOT / 'services/api', env=api_env)
++        children.append(api)
++        for _ in range(100):
++            if api.poll() is not None:
++                raise RuntimeError('API failed to start')
++            try:
++                with urlopen('http://127.0.0.1:8000/health', timeout=1) as response:
++                    if response.status == 200:
++                        break
++            except OSError:
++                time.sleep(0.1)
++        else:
++            raise RuntimeError('API readiness timed out')
++        web = subprocess.Popen(['node', 'server.mjs'], cwd=ROOT / 'apps/web', env=env)
++        children.append(web)
++        while all(child.poll() is None for child in children):
++            time.sleep(0.25)
++        raise RuntimeError('A service exited; stopping the other service')
++    finally:
++        stop()
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/boothforge-ai/scripts/smoke_test.py b/boothforge-ai/scripts/smoke_test.py
+new file mode 100644
+index 0000000..cf44a70
+--- /dev/null
++++ b/boothforge-ai/scripts/smoke_test.py
+@@ -0,0 +1,98 @@
++"""Real production-mode HTTP tests. Uses disposable synthetic data, no AI calls."""
++import base64
++import json
++import os
++import secrets
++import subprocess
++import sys
++import tempfile
++import time
++from pathlib import Path
++from urllib.error import HTTPError
++from urllib.request import Request, urlopen
++
++ROOT = Path(__file__).resolve().parents[1]
++ORIGIN = 'https://pilot.example.test'
++
++
++def main():
++    token, password = secrets.token_urlsafe(32), secrets.token_urlsafe(24)
++    basic = 'Basic ' + base64.b64encode(f'pilot:{password}'.encode()).decode()
++    checks = 0
++    with tempfile.TemporaryDirectory(prefix='boothforge-smoke-') as directory:
++        env = {**os.environ, 'BOOTHFORGE_ENV': 'preview', 'API_TOKEN': token,
++               'PREVIEW_USERNAME': 'pilot', 'PREVIEW_PASSWORD': password,
++               'APP_ORIGIN': ORIGIN, 'DATA_DIR': directory, 'PORT': '3100',
++               'BIND_HOST': '127.0.0.1', 'NEXT_TELEMETRY_DISABLED': '1'}
++        with open(Path(directory) / 'runtime.log', 'w+') as log:
++            process = subprocess.Popen([sys.executable, str(ROOT / 'scripts/run_preview.py')], env=env, stdout=log, stderr=log)
++            try:
++                def request(path, method='GET', data=None, auth=basic, origin=None, port=3100, headers=None):
++                    nonlocal checks
++                    h = dict(headers or {})
++                    if auth:
++                        h['Authorization'] = auth
++                    if origin:
++                        h['Origin'] = origin
++                    if data is not None:
++                        h['Content-Type'] = 'application/json'
++                        data = json.dumps(data).encode()
++                    try:
++                        response = urlopen(Request(f'http://127.0.0.1:{port}{path}', data=data, method=method, headers=h), timeout=15)
++                    except HTTPError as exc:
++                        response = exc
++                    checks += 1
++                    return response.status, response.read(), response.headers
++
++                for _ in range(200):
++                    if process.poll() is not None:
++                        raise AssertionError('Preview process failed to start')
++                    try:
++                        if request('/health', auth=None)[0] == 200:
++                            break
++                    except OSError:
++                        time.sleep(0.1)
++                else:
++                    raise AssertionError('Web readiness timed out')
++
++                assert request('/', auth=None)[0] == 401
++                assert request('/api/projects', auth=None, headers={'x-middleware-subrequest': 'middleware:middleware:middleware:middleware:middleware'})[0] == 401
++                assert request('/_next/static/test.js', auth=None)[0] == 401
++                status, body, headers = request('/')
++                assert status == 200 and b'BOOTHFORGE' in body
++                assert headers['Cache-Control'] == 'no-store'
++                for secret in (token, password):
++                    assert secret.encode() not in body
++                assert request('/api/projects')[0] == 200
++                payload = {'name': 'Synthetic booth', 'client': 'Synthetic client', 'industry': 'Events',
++                           'length_m': 6, 'width_m': 4, 'height_m': 4, 'open_sides': 2,
++                           'requirements': {'screens': 2, 'storage': True}}
++                assert request('/api/projects', 'POST', payload)[0] == 403
++                assert request('/api/projects', 'POST', payload, origin='https://evil.test')[0] == 403
++                status, body, _ = request('/api/projects', 'POST', payload, origin=ORIGIN)
++                assert status == 201
++                project = json.loads(body)
++                assert project['area_m2'] == 24 and project['requirements']['screens'] == 2
++                assert request('/api/projects/' + project['id'])[0] == 200
++                assert request('/api/projects/' + project['id'] + '/concepts', 'POST', {'count': 3}, origin=ORIGIN)[0] == 501
++                assert request('/api/projects', 'POST', {**payload, 'height_m': 21}, origin=ORIGIN)[0] == 422
++                assert request('/api/health')[0] == 404
++                assert request('/api/projects?anything=1')[0] == 404
++                assert request('/projects', port=8000, auth=None)[0] == 401
++                assert request('/projects', port=8000, auth='Bearer ' + token)[0] == 200
++                assert request('/projects', port=8000, auth=basic)[0] == 401
++                # Authentication failures are bounded even on a reverse-proxied endpoint.
++                statuses = [request('/', auth=None)[0] for _ in range(21)]
++                assert 429 in statuses
++                print(f'PASS: {checks} HTTP checks against real Next.js and FastAPI; no provider calls')
++            finally:
++                process.terminate()
++                try:
++                    process.wait(timeout=20)
++                except subprocess.TimeoutExpired:
++                    process.kill()
++                    process.wait()
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/boothforge-ai/scripts/start_local.py b/boothforge-ai/scripts/start_local.py
+new file mode 100644
+index 0000000..d996579
+--- /dev/null
++++ b/boothforge-ai/scripts/start_local.py
+@@ -0,0 +1,146 @@
++"""One-click local startup. Never calls AI providers or modifies an existing env file."""
++import argparse
++import json
++import os
++from pathlib import Path
++import shutil
++import socket
++import subprocess
++import sys
++import tempfile
++import time
++from urllib.request import urlopen
++import venv
++import webbrowser
++
++ROOT = Path(__file__).resolve().parents[1]
++API = ROOT / 'services' / 'api'
++WEB = ROOT / 'apps' / 'web'
++
++
++def free_port(start):
++    for port in range(start, start + 30):
++        with socket.socket() as listener:
++            try:
++                listener.bind(('127.0.0.1', port))
++                return port
++            except OSError:
++                continue
++    raise RuntimeError(f'No free local port near {start}. Close older application windows.')
++
++
++def run(command, cwd):
++    subprocess.run([str(item) for item in command], cwd=cwd, check=True)
++
++
++def wait_ready(process, url):
++    deadline = time.monotonic() + 90
++    while time.monotonic() < deadline:
++        if process.poll() is not None:
++            raise RuntimeError('A server stopped before it was ready. See the error above.')
++        try:
++            with urlopen(url, timeout=2) as response:
++                if response.status == 200:
++                    return
++        except OSError:
++            time.sleep(0.2)
++    raise RuntimeError('Startup timed out. See the server messages above.')
++
++
++def npm_cli(node):
++    npm = shutil.which('npm') or shutil.which('npm.cmd')
++    if not npm:
++        raise RuntimeError('npm is missing. Install Node.js from https://nodejs.org/en/download')
++    path = Path(npm)
++    candidates = [path.resolve(), path.parent / 'node_modules/npm/bin/npm-cli.js',
++                  Path(node).parent / 'node_modules/npm/bin/npm-cli.js',
++                  path.parent.parent / 'lib/node_modules/npm/bin/npm-cli.js']
++    for candidate in candidates:
++        if candidate.is_file() and candidate.name == 'npm-cli.js':
++            return [node, str(candidate)]
++    raise RuntimeError('Cannot find npm-cli.js. Reinstall the standard Node.js distribution.')
++
++
++def main():
++    parser = argparse.ArgumentParser(description='Start BOOTHFORGE locally and open its dashboard.')
++    parser.add_argument('--skip-install', action='store_true', help='Use already-installed dependencies')
++    parser.add_argument('--no-browser', action='store_true')
++    parser.add_argument('--smoke', action='store_true', help='Check startup with temporary data, then stop')
++    args = parser.parse_args()
++    if sys.version_info < (3, 11):
++        raise RuntimeError('Python 3.11+ is required: https://www.python.org/downloads/')
++    node = shutil.which('node')
++    if not node:
++        raise RuntimeError('Node.js 22+ is required: https://nodejs.org/en/download')
++    version = subprocess.check_output([node, '--version'], text=True).strip()
++    if int(version.lstrip('v').split('.')[0]) < 22:
++        raise RuntimeError('Please install Node.js 22 or newer: https://nodejs.org/en/download')
++    python = API / '.venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
++    if not python.exists():
++        if args.skip_install:
++            raise RuntimeError('Python dependencies are missing. Run without --skip-install first.')
++        print('Preparing the local Python environment...', flush=True)
++        venv.create(API / '.venv', with_pip=True)
++    if not args.skip_install:
++        print('Installing/verifying API dependencies...', flush=True)
++        run([python, '-m', 'pip', 'install', '-r', 'requirements.txt'], API)
++        print('Installing the web dependencies...', flush=True)
++        run([*npm_cli(node), 'ci'], WEB)
++    if not (WEB / 'node_modules' / 'next').is_dir():
++        raise RuntimeError('Web dependencies are missing. Run without --skip-install first.')
++    api_port, web_port = free_port(8000), free_port(3000)
++    url = f'http://localhost:{web_port}'
++    env = dict(os.environ)
++    # Explicit loopback-only development. No public preview setting is changed.
++    for key in list(env):
++        if key.startswith(('OPENAI_', 'GOOGLE_', 'GEMINI_')):
++            del env[key]
++    env.update(BOOTHFORGE_ENV='development', BIND_HOST='127.0.0.1', PORT=str(web_port),
++               API_INTERNAL_URL=f'http://127.0.0.1:{api_port}', APP_ORIGIN=url,
++               API_TOKEN='', PREVIEW_USERNAME='', PREVIEW_PASSWORD='', NEXT_TELEMETRY_DISABLED='1')
++    children = []
++    temporary = tempfile.TemporaryDirectory(prefix='boothforge-launcher-') if args.smoke else None
++    env['DATA_DIR'] = temporary.name if temporary else str(API / 'data')
++    try:
++        api = subprocess.Popen([str(python), '-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1',
++                                '--port', str(api_port), '--no-access-log'], cwd=API, env=env)
++        children.append(api)
++        wait_ready(api, f'http://127.0.0.1:{api_port}/health')
++        web = subprocess.Popen([node, 'server.mjs', '--dev'], cwd=WEB, env=env)
++        children.append(web)
++        wait_ready(web, f'http://127.0.0.1:{web_port}/health')
++        print(f'\nBOOTHFORGE is ready: {url}\nKeep this window open. Press Ctrl+C to stop.\n', flush=True)
++        if args.smoke:
++            with urlopen(url, timeout=60) as response:
++                assert response.status == 200 and b'BOOTHFORGE' in response.read(), 'Dashboard did not render'
++            with urlopen(url + '/api/projects', timeout=15) as response:
++                assert response.status == 200 and json.load(response) == [], 'The API proxy did not respond'
++            print('PASS: one-click launcher rendered Next.js and connected to FastAPI; no AI calls.', flush=True)
++            return
++        if not args.no_browser:
++            webbrowser.open(url)
++        while all(child.poll() is None for child in children):
++            time.sleep(0.5)
++        raise RuntimeError('A server stopped. See the error above, then restart this launcher.')
++    finally:
++        for child in reversed(children):
++            if child.poll() is None:
++                child.terminate()
++        for child in reversed(children):
++            try:
++                child.wait(timeout=15)
++            except subprocess.TimeoutExpired:
++                child.kill()
++                child.wait()
++        if temporary:
++            temporary.cleanup()
++
++
++if __name__ == '__main__':
++    try:
++        main()
++    except KeyboardInterrupt:
++        print('\nBOOTHFORGE stopped.')
++    except (RuntimeError, OSError, subprocess.SubprocessError, AssertionError) as exc:
++        print(f'\nStartup failed: {exc}\n', file=sys.stderr)
++        sys.exit(1)
+diff --git a/boothforge-ai/services/api/app/main.py b/boothforge-ai/services/api/app/main.py
+index a691f66..00e3f8c 100644
+--- a/boothforge-ai/services/api/app/main.py
++++ b/boothforge-ai/services/api/app/main.py
+@@ -1,69 +1,204 @@
+-import os, uuid, json
++"""Private, single-workspace pilot API. AI providers remain disabled."""
++import hmac
++import io
++import json
++import os
++import sqlite3
++import uuid
++import warnings
++from contextlib import asynccontextmanager, contextmanager
+ from datetime import datetime, timezone
+ from pathlib import Path
+-from fastapi import FastAPI, HTTPException, UploadFile, File
+-from fastapi.middleware.cors import CORSMiddleware
+-from pydantic import BaseModel, Field
+ from typing import Literal
+ 
+-app = FastAPI(title='BOOTHFORGE AI API', version='0.1.0')
+-app.add_middleware(CORSMiddleware, allow_origins=os.getenv('CORS_ORIGINS','http://localhost:3000').split(','), allow_methods=['*'], allow_headers=['*'])
+-DATA = Path(os.getenv('DATA_DIR','/tmp/boothforge'))
+-DATA.mkdir(parents=True, exist_ok=True)
+-PROJECTS = DATA/'projects.json'
++from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
++from fastapi.exceptions import RequestValidationError
++from fastapi.responses import JSONResponse
++from PIL import Image, UnidentifiedImageError
++from pydantic import BaseModel, ConfigDict, Field
++
++MAX_UPLOAD = 5 * 1024 * 1024
++Image.MAX_IMAGE_PIXELS = 16_000_000
+ 
+-def load():
+-    return json.loads(PROJECTS.read_text()) if PROJECTS.exists() else {}
+-def save(data):
+-    temp=PROJECTS.with_suffix('.tmp'); temp.write_text(json.dumps(data,ensure_ascii=False,indent=2)); temp.replace(PROJECTS)
+ 
+ class Requirements(BaseModel):
+-    reception: int = Field(default=1,ge=0,le=20)
+-    screens: int = Field(default=1,ge=0,le=50)
+-    meeting_rooms: int = Field(default=0,ge=0,le=20)
++    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
++    reception: int = Field(default=1, ge=0, le=20)
++    screens: int = Field(default=1, ge=0, le=50)
++    meeting_rooms: int = Field(default=0, ge=0, le=20)
+     storage: bool = False
+-    notes: str = Field(default='',max_length=4000)
++    notes: str = Field(default='', max_length=4000)
++
++
+ class ProjectIn(BaseModel):
+-    name: str = Field(min_length=2,max_length=120)
+-    client: str = Field(min_length=2,max_length=120)
+-    industry: str = Field(min_length=2,max_length=120)
+-    length_m: float = Field(gt=0,le=100)
+-    width_m: float = Field(gt=0,le=100)
+-    height_m: float = Field(gt=0,le=20)
+-    open_sides: int = Field(ge=1,le=4)
++    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True, allow_inf_nan=False)
++    name: str = Field(min_length=2, max_length=120)
++    client: str = Field(min_length=2, max_length=120)
++    industry: str = Field(min_length=2, max_length=120)
++    length_m: float = Field(gt=0, le=100)
++    width_m: float = Field(gt=0, le=100)
++    height_m: float = Field(gt=0, le=20)
++    open_sides: int = Field(ge=1, le=4)
+     requirements: Requirements = Field(default_factory=Requirements)
++
++
+ class GenerateRequest(BaseModel):
+-    count: Literal[3,6]
+-    provider: Literal['openai','google','mixed']='mixed'
+-
+-@app.get('/health')
+-def health(): return {'status':'ok','version':'0.1.0'}
+-@app.get('/projects')
+-def list_projects(): return list(load().values())
+-@app.post('/projects',status_code=201)
+-def create_project(payload:ProjectIn):
+-    db=load(); project={'id':str(uuid.uuid4()),**payload.model_dump(),'area_m2':round(payload.length_m*payload.width_m,2),'status':'draft','concepts':[],'brand':None,'created_at':datetime.now(timezone.utc).isoformat()}; db[project['id']]=project;save(db);return project
+-@app.get('/projects/{project_id}')
+-def get_project(project_id:str):
+-    project=load().get(project_id)
+-    if not project: raise HTTPException(404,'Project not found')
+-    return project
+-@app.post('/projects/{project_id}/brand')
+-async def upload_brand(project_id:str,file:UploadFile=File(...)):
+-    db=load()
+-    if project_id not in db: raise HTTPException(404,'Project not found')
+-    allowed={'image/png','image/jpeg','image/svg+xml','application/pdf'}
+-    if file.content_type not in allowed: raise HTTPException(415,'Unsupported brand file')
+-    content=await file.read(5*1024*1024+1)
+-    if len(content)>5*1024*1024: raise HTTPException(413,'Maximum 5 MB')
+-    folder=DATA/'uploads'/project_id;folder.mkdir(parents=True,exist_ok=True)
+-    suffix={'image/png':'.png','image/jpeg':'.jpg','image/svg+xml':'.svg','application/pdf':'.pdf'}[file.content_type]
+-    path=folder/f'{uuid.uuid4()}{suffix}';path.write_bytes(content)
+-    db[project_id]['brand']={'filename':file.filename,'stored_as':path.name,'mime':file.content_type,'analysis_status':'pending'};save(db)
+-    return db[project_id]['brand']
+-@app.post('/projects/{project_id}/concepts')
+-def generate(project_id:str, request:GenerateRequest):
+-    db=load()
+-    if project_id not in db: raise HTTPException(404,'Project not found')
+-    # No fake images: providers are deliberately disabled until authenticated adapters are configured.
+-    raise HTTPException(501,detail={'code':'AI_PROVIDER_NOT_CONFIGURED','message':'Image generation requires a verified provider adapter and API credentials. No concepts were generated.','requested':request.model_dump()})
++    model_config = ConfigDict(extra='forbid')
++    count: Literal[3, 6]
++    provider: Literal['openai', 'google', 'mixed'] = 'mixed'
++
++
++def create_app(data_dir: Path | None = None, api_token: str | None = None,
++               environment: str | None = None) -> FastAPI:
++    environment = environment or os.getenv('BOOTHFORGE_ENV', 'preview')
++    token = api_token if api_token is not None else os.getenv('API_TOKEN', '')
++    data = Path(data_dir or os.getenv('DATA_DIR', './data')).resolve()
++    database = data / 'projects.sqlite3'
++
++    @contextmanager
++    def connect():
++        db = sqlite3.connect(database, timeout=15)
++        try:
++            with db:
++                yield db
++        finally:
++            db.close()
++
++    @asynccontextmanager
++    async def lifespan(_: FastAPI):
++        if environment not in {'development', 'test', 'preview'}:
++            raise RuntimeError('Invalid BOOTHFORGE_ENV')
++        if environment != 'development' and len(token) < 32:
++            raise RuntimeError('API_TOKEN must contain at least 32 characters')
++        data.mkdir(parents=True, exist_ok=True, mode=0o700)
++        data.chmod(0o700)
++        with connect() as db:
++            db.execute('PRAGMA journal_mode=WAL')
++            db.execute('CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, payload TEXT NOT NULL)')
++        database.chmod(0o600)
++        yield
++
++    def authorize(request: Request):
++        if environment == 'development' and not token:
++            return
++        value = request.headers.get('authorization', '')
++        if not token or not hmac.compare_digest(value.encode(), f'Bearer {token}'.encode()):
++            raise HTTPException(401, 'Authentication required', headers={'WWW-Authenticate': 'Bearer'})
++
++    app = FastAPI(title='BOOTHFORGE AI API', version='0.2.0',
++                  docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
++
++    @app.middleware('http')
++    async def security_headers(request: Request, call_next):
++        if request.url.path != '/health':
++            try:
++                authorize(request)
++            except HTTPException as exc:
++                return JSONResponse(status_code=exc.status_code, content={'detail': exc.detail},
++                                    headers={**(exc.headers or {}), 'Cache-Control': 'no-store'})
++        if int(request.headers.get('content-length', '0')) > 6 * 1024 * 1024:
++            return JSONResponse(status_code=413, content={'detail': 'Maximum request size is 6 MB'})
++        response = await call_next(request)
++        response.headers['Cache-Control'] = 'no-store'
++        response.headers['X-Content-Type-Options'] = 'nosniff'
++        response.headers['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
++        return response
++
++    @app.exception_handler(sqlite3.Error)
++    async def storage_error(request: Request, exc: sqlite3.Error):
++        return JSONResponse(status_code=503, content={'detail': 'Storage unavailable'})
++
++    @app.exception_handler(RequestValidationError)
++    async def validation_error(request, exc):
++        # Never echo client names, notes or malicious file contents in errors.
++        return JSONResponse(status_code=422, content={'detail': [
++            {'loc': list(e['loc']), 'msg': e['msg'], 'type': e['type']} for e in exc.errors()
++        ]})
++
++    def read_project(db, project_id: uuid.UUID):
++        row = db.execute('SELECT payload FROM projects WHERE id = ?', (str(project_id),)).fetchone()
++        if row is None:
++            raise HTTPException(404, 'Project not found')
++        return json.loads(row[0])
++
++    protected = [Depends(authorize)]
++
++    @app.get('/health')
++    def health():
++        return {'status': 'ok', 'version': '0.2.0'}
++
++    @app.get('/projects', dependencies=protected)
++    def list_projects():
++        with connect() as db:
++            return [json.loads(row[0]) for row in db.execute('SELECT payload FROM projects ORDER BY rowid DESC')]
++
++    @app.post('/projects', status_code=201, dependencies=protected)
++    def create_project(payload: ProjectIn):
++        project = {'id': str(uuid.uuid4()), **payload.model_dump(),
++                   'area_m2': round(payload.length_m * payload.width_m, 2), 'status': 'draft',
++                   'concepts': [], 'brand': None, 'created_at': datetime.now(timezone.utc).isoformat()}
++        with connect() as db:
++            db.execute('INSERT INTO projects VALUES (?, ?)', (project['id'], json.dumps(project, ensure_ascii=False)))
++        return project
++
++    @app.get('/projects/{project_id}', dependencies=protected)
++    def get_project(project_id: uuid.UUID):
++        with connect() as db:
++            return read_project(db, project_id)
++
++    @app.post('/projects/{project_id}/brand', dependencies=protected)
++    def upload_brand(project_id: uuid.UUID, file: UploadFile = File(...)):
++        with connect() as db:
++            read_project(db, project_id)
++        try:
++            if file.content_type not in {'image/png', 'image/jpeg'}:
++                raise HTTPException(415, 'Only PNG and JPEG are supported in the private pilot')
++            content = file.file.read(MAX_UPLOAD + 1)
++            if len(content) > MAX_UPLOAD:
++                raise HTTPException(413, 'Maximum 5 MB')
++            try:
++                with warnings.catch_warnings():
++                    warnings.simplefilter('error', Image.DecompressionBombWarning)
++                    with Image.open(io.BytesIO(content)) as image:
++                        if image.format not in {'PNG', 'JPEG'} or image.width * image.height > Image.MAX_IMAGE_PIXELS:
++                            raise ValueError('Unsupported image')
++                        image.load()
++                        # Re-encode pixels only, discarding metadata and appended payloads.
++                        clean = io.BytesIO()
++                        image.convert('RGBA' if image.mode == 'RGBA' else 'RGB').save(clean, format='PNG')
++            except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError, Image.DecompressionBombWarning):
++                raise HTTPException(422, 'Invalid or oversized image') from None
++            folder = data / 'uploads' / str(project_id)
++            folder.mkdir(parents=True, exist_ok=True, mode=0o700)
++            path = folder / f'{uuid.uuid4()}.png'
++            with path.open('xb') as dest:
++                path.chmod(0o600)
++                dest.write(clean.getvalue())
++            try:
++                with connect() as db:
++                    db.execute('BEGIN IMMEDIATE')
++                    project = read_project(db, project_id)
++                    previous = project.get('brand')
++                    project['brand'] = {'stored_as': path.name, 'mime': 'image/png', 'analysis_status': 'pending'}
++                    db.execute('UPDATE projects SET payload = ? WHERE id = ?',
++                               (json.dumps(project, ensure_ascii=False), str(project_id)))
++            except Exception:
++                path.unlink(missing_ok=True)
++                raise
++            if previous:
++                (folder / Path(previous['stored_as']).name).unlink(missing_ok=True)
++            return project['brand']
++        finally:
++            file.file.close()
++
++    @app.post('/projects/{project_id}/concepts', dependencies=protected)
++    def generate(project_id: uuid.UUID, request: GenerateRequest):
++        with connect() as db:
++            read_project(db, project_id)
++        raise HTTPException(501, detail={'code': 'AI_PROVIDER_NOT_CONFIGURED',
++                            'message': 'AI generation is disabled. No provider requests or charges were made.'})
++
++    return app
++
++
++app = create_app()
+diff --git a/boothforge-ai/services/api/pytest.ini b/boothforge-ai/services/api/pytest.ini
+new file mode 100644
+index 0000000..4584de7
+--- /dev/null
++++ b/boothforge-ai/services/api/pytest.ini
+@@ -0,0 +1,3 @@
++[pytest]
++testpaths = tests
++pythonpath = .
+diff --git a/boothforge-ai/services/api/requirements-dev.txt b/boothforge-ai/services/api/requirements-dev.txt
+new file mode 100644
+index 0000000..9b5d281
+--- /dev/null
++++ b/boothforge-ai/services/api/requirements-dev.txt
+@@ -0,0 +1,3 @@
++-r requirements.txt
++pytest==9.1.1
++httpx==0.28.1
+diff --git a/boothforge-ai/services/api/requirements.txt b/boothforge-ai/services/api/requirements.txt
+index 4725fa2..7f40fb0 100644
+--- a/boothforge-ai/services/api/requirements.txt
++++ b/boothforge-ai/services/api/requirements.txt
+@@ -1,6 +1,5 @@
+-fastapi>=0.115,<1
+-uvicorn[standard]>=0.30,<1
+-pydantic>=2,<3
+-python-multipart>=0.0.9
+-pytest>=8,<10
+-httpx>=0.27,<1
++fastapi==0.162.0
++uvicorn==0.54.0
++pydantic==2.14.1
++python-multipart==0.0.32
++pillow==13.0.0
+diff --git a/boothforge-ai/services/api/tests/test_api.py b/boothforge-ai/services/api/tests/test_api.py
+index b8e56c8..fc1087e 100644
+--- a/boothforge-ai/services/api/tests/test_api.py
++++ b/boothforge-ai/services/api/tests/test_api.py
+@@ -1,13 +1,110 @@
+-import os, tempfile
+-os.environ['DATA_DIR']=tempfile.mkdtemp()
++import io
++from concurrent.futures import ThreadPoolExecutor
++from pathlib import Path
++
++import pytest
+ from fastapi.testclient import TestClient
+-from app.main import app
+-client=TestClient(app)
+-def test_project_lifecycle():
+-    payload={'name':'Mahaseel Expo','client':'Mahaseel','industry':'Agriculture','length_m':8,'width_m':6,'height_m':4,'open_sides':2}
+-    r=client.post('/projects',json=payload)
+-    assert r.status_code==201
+-    assert r.json()['area_m2']==48
+-    pid=r.json()['id']
+-    assert client.get(f'/projects/{pid}').status_code==200
+-    assert client.post(f'/projects/{pid}/concepts',json={'count':3}).status_code==501
++from PIL import Image, PngImagePlugin
++
++from app.main import MAX_UPLOAD, create_app
++
++TOKEN = 'test-only-api-token-with-32-characters'
++PAYLOAD = {'name': 'Pilot booth', 'client': 'Test client', 'industry': 'Events',
++           'length_m': 8, 'width_m': 6, 'height_m': 4, 'open_sides': 2}
++
++
++@pytest.fixture
++
++def client(tmp_path):
++    with TestClient(create_app(tmp_path, TOKEN, 'test'), headers={'Authorization': f'Bearer {TOKEN}'}) as c:
++        yield c
++
++
++def test_project_lifecycle(client):
++    response = client.post('/projects', json=PAYLOAD)
++    assert response.status_code == 201
++    project = response.json()
++    assert project['area_m2'] == 48
++    assert project['requirements']['reception'] == 1
++    assert client.get(f"/projects/{project['id']}").json() == project
++    assert project in client.get('/projects').json()
++    generation = client.post(f"/projects/{project['id']}/concepts", json={'count': 3})
++    assert generation.status_code == 501
++    assert generation.json()['detail']['code'] == 'AI_PROVIDER_NOT_CONFIGURED'
++    assert client.get(f"/projects/{project['id']}").json()['concepts'] == []
++
++
++@pytest.mark.parametrize('method,path', [('GET', '/projects'), ('POST', '/projects'),
++    ('GET', '/projects/00000000-0000-0000-0000-000000000000'),
++    ('POST', '/projects/00000000-0000-0000-0000-000000000000/brand'),
++    ('POST', '/projects/00000000-0000-0000-0000-000000000000/concepts')])
++
++def test_auth_required(client, method, path):
++    assert client.request(method, path, headers={'Authorization': 'Bearer wrong'}, json=PAYLOAD).status_code == 401
++
++
++def test_fail_closed(tmp_path):
++    with pytest.raises(RuntimeError, match='API_TOKEN'):
++        with TestClient(create_app(tmp_path, '', 'preview')):
++            pass
++
++
++@pytest.mark.parametrize('field,value', [('length_m', 0), ('width_m', -1), ('height_m', 21),
++                                        ('open_sides', 5), ('name', '  '), ('name', 'x' * 121)])
++
++def test_invalid_inputs(client, field, value):
++    payload = {**PAYLOAD, field: value}
++    response = client.post('/projects', json=payload)
++    assert response.status_code == 422
++    assert 'input' not in response.text
++    assert client.get('/projects').json() == []
++
++
++def test_nonfinite_and_extra_fields(client):
++    assert client.post('/projects', json={**PAYLOAD, 'length_m': 'NaN'}).status_code == 422
++    assert client.post('/projects', json={**PAYLOAD, 'api_key': 'do-not-echo-client-secret'}).status_code == 422
++    assert 'do-not-echo' not in client.post('/projects', json={**PAYLOAD, 'unknown': 'do-not-echo'}).text
++
++
++def test_concurrent_and_persistent(tmp_path):
++    app = create_app(tmp_path, TOKEN, 'test')
++    with TestClient(app, headers={'Authorization': f'Bearer {TOKEN}'}) as c:
++        with ThreadPoolExecutor(max_workers=8) as workers:
++            statuses = list(workers.map(lambda i: c.post('/projects', json={**PAYLOAD, 'name': f'Project {i}'}).status_code, range(24)))
++        assert statuses == [201] * 24
++        assert len(c.get('/projects').json()) == 24
++    with TestClient(create_app(tmp_path, TOKEN, 'test'), headers={'Authorization': f'Bearer {TOKEN}'}) as c:
++        assert len(c.get('/projects').json()) == 24
++
++
++def test_upload_validation_and_metadata(client, tmp_path):
++    pid = client.post('/projects', json=PAYLOAD).json()['id']
++    url = f'/projects/{pid}/brand'
++    for mime, body in [('image/svg+xml', b'<svg/>'), ('application/pdf', b'%PDF-1.7'), ('image/png', b'not an image')]:
++        assert client.post(url, files={'file': ('brand', body, mime)}).status_code in {415, 422}
++    assert client.post(url, files={'file': ('huge.png', b'x' * (MAX_UPLOAD + 1), 'image/png')}).status_code == 413
++    image = io.BytesIO()
++    metadata = PngImagePlugin.PngInfo()
++    metadata.add_text('private', 'remove this metadata')
++    Image.new('RGB', (16, 16), 'blue').save(image, format='PNG', pnginfo=metadata)
++    first = client.post(url, files={'file': ('../../unsafe.png', image.getvalue() + b'<script>bad</script>', 'image/png')})
++    assert first.status_code == 200
++    stored = tmp_path / 'uploads' / pid / first.json()['stored_as']
++    assert stored.exists()
++    assert b'<script>' not in stored.read_bytes()
++    with Image.open(stored) as clean:
++        assert 'private' not in clean.info
++    assert client.post(url, files={'file': ('second.png', image.getvalue(), 'image/png')}).status_code == 200
++    assert not stored.exists()
++    assert len(list((tmp_path / 'uploads' / pid).iterdir())) == 1
++    assert client.get('/uploads/' + pid + '/' + first.json()['stored_as']).status_code == 404
++
++
++def test_health_docs_and_no_cache(client):
++    health = client.get('/health', headers={'Authorization': ''})
++    assert health.status_code == 200
++    assert health.headers['cache-control'] == 'no-store'
++    assert client.get('/docs').status_code == 404
++    assert client.get('/openapi.json').status_code == 404
++    assert client.get('/projects/not-a-uuid').status_code == 422
++    assert client.get('/projects/00000000-0000-0000-0000-000000000000').status_code == 404
